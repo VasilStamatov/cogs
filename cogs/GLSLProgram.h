@@ -8,7 +8,7 @@
 
 namespace cogs
 {
-		namespace core
+		namespace graphics
 		{
 				using AttribLocation = GLuint;
 				using UniformLocation = GLuint;
@@ -69,7 +69,7 @@ namespace cogs
 								*/
 						void bindBufferRange(GLenum _target, GLuint _index, GLuint _buffer, GLintptr _offset, GLsizeiptr _size);
 
-						/*
+						/**
 								* \brief Explicitly assigns uniformBlockIndex to uniformBlockBinding for the current shader program program.
 								* Use when a specific uniform block is used in many shader programs, so that it avoids having the block be assigned a different index for each program
 								* Must be called before calling LinkShaders
@@ -78,7 +78,7 @@ namespace cogs
 								*/
 						void blockUniformBinding(GLuint _uniformBlockIndex, GLuint _uniformBlockBinding);
 
-						/*
+						/**
 								* \brief This function is used to get the offset, size and type of for an index of an Uniform block.
 								* \param[in] _numUniforms The number of uniform variables in an Uniform block
 								* \param[in] _uniformIndices The indices of the associated uniform variables
@@ -87,7 +87,7 @@ namespace cogs
 								*/
 						void getActiveUniformsIndexValues(GLsizei _numUniforms, GLuint * _uniformIndices, GLenum _pname, GLint * _attribute);
 
-						/*
+						/**
 								* \brief Returns the location of the subroutine uniform named _name in the current shader program object for the shading stage specified by _shaderType.
 								* \param[in] _shaderType Must be one of: GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, or GL_GEOMETRY_SHADER.
 								* \param[in] _name The name of the uniform variable (null-terminated cstring
@@ -95,7 +95,7 @@ namespace cogs
 								*/
 						GLint getSubroutineUniformLocation(GLenum _shaderType, const std::string& _name);
 
-						/*
+						/**
 								* \brief Determine the indices of the subroutines inside the shader
 								* \param[in] _shaderType Must be one of: GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, or GL_GEOMETRY_SHADER.
 								* \param[in] _name The name of the uniform variable (null-terminated cstring
@@ -103,7 +103,7 @@ namespace cogs
 								*/
 						GLuint getSubroutineIndex(GLenum _shaderType, const std::string& _name);
 
-						/*
+						/**
 								* \brief Specify which subroutine should be executed in the shader. All active subroutine uniforms for a shader stage must be initialized.
 								* \param[in] _shaderType Must be one of: GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, or GL_GEOMETRY_SHADER.
 								* \param[in] _numSubrUniforms The number of subroutine uniforms

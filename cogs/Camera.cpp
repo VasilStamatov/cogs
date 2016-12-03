@@ -6,42 +6,43 @@ namespace cogs
 {
 		namespace ecs
 		{
-				CameraComponent::CameraComponent(const ProjectionType& _projType /* = ORTHO */,
+				Camera::Camera(const ProjectionType& _projType /* = ORTHO */,
 						int _screenWidth /* = 1024 */, int _screenHeight /* = 576 */)
 				{
 						m_projType = _projType;
 						m_screenWidth = _screenWidth;
 						m_screenHeight = _screenHeight;
 						//projection matrix
-						m_perspMatrix = glm::perspective(glm::radians((float)m_fov), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, (float)m_screenWidth, 0.0f, (float)m_screenHeight, m_nearPlane, m_farPlane);
+						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
-				CameraComponent::~CameraComponent()
+				Camera::~Camera()
 				{
 						m_transform = nullptr;
 				}
 
-				void CameraComponent::init()
+				void Camera::init()
 				{
-						m_transform = this->m_entity->getComponent<Transform>();
+						m_transform = m_entity->getComponent<Transform>();
+						m_oldTransform = *m_transform;
 				}
 
-				void CameraComponent::update(float _deltaTime)
+				void Camera::update(float _deltaTime)
 				{
-						if (m_needsMatrixUpdate)
+						if (!(*m_transform == m_oldTransform))
 						{
-								m_viewMatrix = glm::lookAt(m_transform->getTransformedPos(),
-										m_transform->getTransformedPos() + m_transform->getForward(), m_transform->getUp());
-								m_needsMatrixUpdate = false;
+								m_viewMatrix = glm::lookAt(m_transform->worldPosition(),
+										m_transform->worldPosition() + m_transform->forwardAxis(),
+										m_transform->upAxis());
+
+								m_oldTransform = *m_transform;
 						}
 				}
 
-				void CameraComponent::render()
-				{
-				}
+				void Camera::render() { }
 
-				void CameraComponent::setFoV(int _value)
+				void Camera::setFoV(int _value)
 				{
 						m_fov = _value;
 						if (m_fov < 1)
@@ -52,39 +53,67 @@ namespace cogs
 						{
 								m_fov = 179;
 						}
-						m_perspMatrix = glm::perspective(glm::radians((float)m_fov), getAspectRatio(), m_nearPlane, m_farPlane);
+						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
 				}
 
-				void CameraComponent::setSize(float _value)
+				void Camera::offsetFoV(int _value)
+				{
+						m_fov += _value;
+						if (m_fov < 1)
+						{
+								m_fov = 1;
+						}
+						else if (m_fov > 179)
+						{
+								m_fov = 179;
+						}
+						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
+				}
+
+				void Camera::setSize(float _value)
 				{
 						m_size = _value;
-						m_orthoMatrix = glm::ortho(0.0f, (float)m_screenWidth, 0.0f, (float)m_screenHeight, m_nearPlane, m_farPlane);
+						if (m_size < 1.0f)
+						{
+								m_size = 1.0f;
+						}
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
-				void CameraComponent::setNearPlane(float _value)
+				void Camera::offsetSize(float _value)
+				{
+						m_size += _value;
+						if (m_size < 1.0f)
+						{
+								m_size = 1.0f;
+						}
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
+				}
+
+				void Camera::setNearPlane(float _value)
 				{
 						m_nearPlane = _value;
-						m_perspMatrix = glm::perspective(glm::radians((float)m_fov), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, (float)m_screenWidth, 0.0f, (float)m_screenHeight, m_nearPlane, m_farPlane);
+						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
-				void CameraComponent::setFarPlane(float _value)
+				void Camera::setFarPlane(float _value)
 				{
 						m_farPlane = _value;
-						m_perspMatrix = glm::perspective(glm::radians((float)m_fov), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, (float)m_screenWidth, 0.0f, (float)m_screenHeight, m_nearPlane, m_farPlane);
+						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
-				void CameraComponent::resize(int _screenWidth, int _screenHeight)
+				void Camera::resize(int _screenWidth, int _screenHeight)
 				{
 						m_screenWidth = _screenWidth;
 						m_screenHeight = _screenHeight;
 						//projection matrix
-						m_perspMatrix = glm::perspective(glm::radians((float)m_fov), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, (float)m_screenWidth, 0.0f, (float)m_screenHeight, m_nearPlane, m_farPlane);
+						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
-				const glm::mat4 & CameraComponent::getProjectionMatrix() const noexcept
+				const glm::mat4 & Camera::getProjectionMatrix() const noexcept
 				{
 						if (m_projType == ProjectionType::ORTHOGRAPHIC) return m_orthoMatrix;
 						else 

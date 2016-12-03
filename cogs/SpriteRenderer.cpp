@@ -18,15 +18,20 @@ namespace cogs
 
 				void SpriteRenderer::init()
 				{
-						// Set up buffers
+						// Generate the buffers
 						glGenVertexArrays(1, &m_vao);
 						glGenBuffers(1, &m_vbo);
 						glGenBuffers(1, &m_ibo);
+
 						//bind the vertex array object
 						glBindVertexArray(m_vao);
+
 						//bind the vertex buffer object
 						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+
+						//Allocate the memory space needed for the buffer
 						glBufferData(GL_ARRAY_BUFFER, BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
+
 						//enable the position attribute in the shader (index 0)
 						glEnableVertexAttribArray(POSITION_ATTRIBUTE_INDEX);
 						glVertexAttribPointer(POSITION_ATTRIBUTE_INDEX, // the index of the attribute in the shader
@@ -48,8 +53,10 @@ namespace cogs
 						//bind the index buffer object
 						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
 
+						//Array to store all the indices' values
 						GLushort indices[INDICES_SIZE];
 
+						//Add all the indices' values
 						int offset = 0;
 						for (size_t i = 0; i < INDICES_SIZE; i += 6)
 						{
@@ -63,61 +70,88 @@ namespace cogs
 
 								offset += 4;
 						}
+
+						//Allocate and fill the index buffer with the created indices
 						glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES_SIZE * sizeof(GLushort), indices, GL_STATIC_DRAW);
+
 						//unbind the vao
 						glBindVertexArray(0);
 				}
 
 				void SpriteRenderer::submit(ecs::Entity* _entity)
 				{
-						//The sprite to submit from the component
+						//The sprite to submit from the component (only has color for now)
 						ecs::Sprite*				sprite				= _entity->getComponent<ecs::Sprite>();
+
+						//The transform values of the sprite
 						ecs::Transform* transform = _entity->getComponent<ecs::Transform>();
 
 						//the components needed for the 4 vertices
-					 const glm::vec3& position = transform->localPosition();
-						const glm::vec2& scale		  = transform->localScale();
+					 const glm::vec3& position = transform->worldPosition();
+						const glm::quat& rotation = transform->worldOrientation();
+						const glm::vec2& scale		  = transform->worldScale();
 						const glm::vec4& color				= sprite->getColor();
+
+						glm::vec3 halfDims = glm::vec3(scale.x / 2.0f, scale.y / 2.0f, 0.0f);
+						// Get points centered at origin
+						glm::vec3 tL(-halfDims.x, halfDims.y, 0.0f);
+						glm::vec3 bL(-halfDims.x, -halfDims.y, 0.0f);
+						glm::vec3 bR(halfDims.x, -halfDims.y, 0.0f);
+						glm::vec3 tR(halfDims.x, halfDims.y, 0.0f);
+
+						// Rotate the points
+						tL = (rotation * tL) + halfDims;
+						bL = (rotation * bL) + halfDims;
+						bR = (rotation * bR) + halfDims;
+						tR = (rotation * tR) + halfDims;
 
 						/* submit the sprite by passing the 4 new vertices to the mapped buffer
 						the vec3 position of the sprite is its bottom left, so the other 3 must be calculated */
 
 						//bottom left
-						m_buffer->position = position;
+						m_buffer->position = glm::vec3(position.x + bL.x, position.y + bL.y, position.z);
 						m_buffer->color = color;
 						m_buffer++;
 
 						//top left
-						m_buffer->position = glm::vec3(position.x, position.y + scale.y, position.z);
+						m_buffer->position = glm::vec3(position.x + tL.x, position.y + tL.y, position.z);
 						m_buffer->color = color;
 						m_buffer++;
 
 						//top right
-						m_buffer->position = glm::vec3(position.x + scale.x, position.y + scale.y, position.z);
+						m_buffer->position = glm::vec3(position.x + tR.x, position.y + tR.y, position.z);
 						m_buffer->color = color;
 						m_buffer++;
 
 						//bottom right
-						m_buffer->position = glm::vec3(position.x + scale.x, position.y, position.z);
+						m_buffer->position = glm::vec3(position.x + bR.x, position.y + bR.y, position.z);
 						m_buffer->color = color;
 						m_buffer++;
 
+						//increment the indices count by 6 (3 per triangle)
 						m_indicesCount += 6;
 				}
 
 				void SpriteRenderer::flush()
 				{
+						// Render all the submitted data
+
+						// Bind the vao to set up opengl in the state it's needed
 						glBindVertexArray(m_vao);
 
+						// Draw all the triangles with the indices data
 						glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_SHORT, nullptr);
 
+						// Unbind the vao
 						glBindVertexArray(0);
 				}
 
 				void SpriteRenderer::begin()
 				{
+						// bind the vbo (which will contain all the vertex data)
 						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-						//map the sprite verted data from the opengl buffer
+
+						//map the sprite vertex data from the opengl buffer
 						m_buffer = (SpriteVertex*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 				}
 
@@ -125,12 +159,15 @@ namespace cogs
 				{
 						//unmap the buffer
 						glUnmapBuffer(GL_ARRAY_BUFFER);
-						//and the vbo that's been written to
+
+						//and unbind the vbo that's been written to
 						glBindBuffer(GL_ARRAY_BUFFER, 0);
 				}
 
 				void SpriteRenderer::dispose()
 				{
+						//Dispose of all the buffest if they have't been disposed already
+
 						if (m_vao != 0)
 						{
 								glDeleteVertexArrays(1, &m_vao);

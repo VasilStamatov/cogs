@@ -13,47 +13,109 @@ namespace cogs
 				{
 				public:
 						Transform(const glm::vec3& _pos = glm::vec3(0.0f),
-								const glm::quat& _rot = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f)),
-								const glm::vec3 _scale = glm::vec3(1.0f),
+								const glm::vec3& _eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f),
+								const glm::vec3& _scale = glm::vec3(1.0f),
 								Transform* _parent = nullptr);
 						~Transform();
 
-						//Let the component have an init function so it can be used as a constructor
-						virtual void init() override;
-						//Usually game components will have an Update and Draw function
-						virtual void update(float _deltaTime) override;
-						virtual void render() override;
+						void init() override;
+						void update(float _deltaTime) override;
+						void render() override;
 
+						/**
+						 	*	\brief rotates the transform of the entity by euler angles in degrees
+						 	* \param _eulerAngles - vec3 euler angles in degrees to be added
+						 	*/
 						void rotate(const glm::vec3& _eulerAngles);
-						void lookAt(const glm::vec3& _target, const glm::vec3& _up);
+
+						/**
+						  *	\brief sets the orientation of the transform to be looking at the set target
+						  * \param _target - the vec3 target the orientation should be looking at
+						  */
+						void lookAt(const glm::vec3& _target);
+
+						/**
+						  *	\brief translates the position of the transform by _offset
+						  * \param _offset - the vec3 offset to add
+						  */
 						void translate(const glm::vec3& _offset);
 
-						//getters
-						inline glm::vec3* getPosition() { return &m_position; }
-						inline glm::quat* getRotation() { return &m_rotation; }
-						inline glm::vec3* getScale()			 { return &m_scale; }
+						/**
+						  *	\brief scales the local scale of the transform by _offset
+						  * \param _offset - the vec3 offset to add
+						  */
+						void scale(const glm::vec3& _offset);
 
-						inline const glm::vec3& getPosition() const noexcept { return m_position; }
-						inline const glm::quat& getRotation() const noexcept { return m_rotation; }
-						inline const glm::vec3& getScale()				const noexcept { return m_scale; }
+						/**
+								*	\brief local space getters
+								*/
+						inline const glm::vec3& localPosition()			 const noexcept { return m_localPosition; }
+						inline const glm::vec3& localOrientation() const noexcept { return m_localOrientation; }
+						inline const glm::vec3& localScale()						 const noexcept { return m_localScale; }
 
-					 glm::vec3 getTransformedPos() const;
-						glm::quat getTransformedRot() const;
-						glm::mat4 getTransformation() const;
+						glm::mat4 localTransform()		 const;
+
+						/**
+								*	\brief world space getters
+								*/
+						inline const glm::vec3& worldPosition()			 const noexcept { return m_worldPosition; }
+						inline const glm::vec3& worldOrientation() const noexcept { return m_worldOrientation; }
+						inline const glm::vec3& worldScale()							const noexcept { return m_worldScale; }
+
+						glm::mat4 worldTransform()		 const;
+						
+						/**
+								*	\brief Getters for the axis of the transform
+								* \return the direction vec3
+								*/
+						glm::vec3 rightAxis()		 const noexcept { return m_localOrientationRaw * glm::vec3(1.0f, 0.0f, 0.0f); }
+						glm::vec3 upAxis()					 const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 1.0f, 0.0f); }
+						glm::vec3 forwardAxis() const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 0.0f, 1.0f); }
 
 						//setters
-						inline void setPosition(const glm::vec3& _position) { m_position = _position; }
-						inline void setRotation(const glm::quat& _rotation) { m_rotation = _rotation; }
-						inline void setScale			(const glm::vec3& _scale)			 { m_scale = _scale; }
-						inline void setParent		(Transform* _parent)								 { m_parent = _parent; }
+						inline void setLocalOrientation(const glm::quat& _value) { internal_setLocalOrientation(_value); }
+						inline void setLocalOrientation(const glm::vec3& _value) { internal_setLocalOrientation(_value); }
+						inline void setLocalPosition		 (const glm::vec3& _value)	{ internal_setLocalPosition		 (_value); }
+						inline void setLocalScale					 (const glm::vec3& _value)	{ internal_setLocalScale					 (_value); }
+
+						inline void setWorldOrientation(const glm::quat& _value) { internal_setWorldOrientation(_value); }
+						inline void setWorldOrientation(const glm::vec3& _value) { internal_setWorldOrientation(_value); }
+						inline void setWorldPosition		 (const glm::vec3& _value)	{ internal_setWorldPosition		 (_value); }
+						inline void setWorldScale					 (const glm::vec3& _value)	{ internal_setWorldScale					 (_value); }
+
+						inline void setParent									 (Transform* _parent)						{ m_parent = _parent; }
+
+						bool operator== (const Transform& _rhs) const;
+
+				private:
+						/**
+								* Internal functions for setting the transform attributes
+								*/
+						void internal_setLocalOrientation(const glm::quat& _value);
+						void internal_setLocalOrientation(const glm::vec3& _value);
+						void internal_setLocalPosition		 (const glm::vec3& _value);
+						void internal_setLocalScale					 (const glm::vec3& _value);
+																																																																				
+						void internal_setWorldOrientation(const glm::quat& _value);
+						void internal_setWorldOrientation(const glm::vec3& _value);
+						void internal_setWorldPosition		 (const glm::vec3& _value);
+						void internal_setWorldScale					 (const glm::vec3& _value);
+
+						void internal_updateTransform();
 
 				private:
 						Transform* m_parent;
 
 						//The transform is the result of scaling->rotating->translating
-						glm::vec3 m_position;
-						glm::quat m_rotation;
-						glm::vec3 m_scale;
+						glm::vec3 m_worldPosition;
+						glm::vec3 m_worldScale;
+						glm::vec3 m_worldOrientation;
+						glm::quat m_worldOrientationRaw;
+
+						glm::vec3 m_localPosition;
+						glm::vec3 m_localScale;
+						glm::vec3 m_localOrientation;
+						glm::quat m_localOrientationRaw;
 				};
 		}
 }
