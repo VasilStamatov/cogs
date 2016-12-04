@@ -19,9 +19,6 @@
     <Filter Include="Core">
       <UniqueIdentifier>{550f8ea3-acf9-4461-93fc-ac2979187f55}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Messaging">
-      <UniqueIdentifier>{ef2c69da-e705-450e-bf4a-958c4b610135}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Graphics">
       <UniqueIdentifier>{40f93197-a4fb-407d-9968-b188a24aa1cc}</UniqueIdentifier>
     </Filter>
@@ -38,15 +35,6 @@
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="System.h">
-      <Filter>Messaging</Filter>
-    </ClInclude>
-    <ClInclude Include="Message.h">
-      <Filter>Messaging</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageBus.h">
-      <Filter>Messaging</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>ECS</Filter>
@@ -72,22 +60,10 @@
     <ClInclude Include="Sprite.h">
       <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="ColorRGBA8.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
       <Filter>ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="System.cpp">
-      <Filter>Messaging</Filter>
-    </ClCompile>
-    <ClCompile Include="Message.cpp">
-      <Filter>Messaging</Filter>
-    </ClCompile>
-    <ClCompile Include="MessageBus.cpp">
-      <Filter>Messaging</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>ECS</Filter>
@@ -106,9 +82,6 @@
     </ClCompile>
     <ClCompile Include="Sprite.cpp">
       <Filter>ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="ColorRGBA8.cpp">
-      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

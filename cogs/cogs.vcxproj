@@ -156,31 +156,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="ColorRGBA8.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="GLSLProgram.h" />
     <ClInclude Include="IOManager.h" />
-    <ClInclude Include="Message.h" />
-    <ClInclude Include="MessageBus.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteRenderer.h" />
-    <ClInclude Include="System.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="ColorRGBA8.cpp" />
     <ClCompile Include="GLSLProgram.cpp" />
     <ClCompile Include="IOManager.cpp" />
-    <ClCompile Include="Message.cpp" />
-    <ClCompile Include="MessageBus.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
-    <ClCompile Include="System.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>

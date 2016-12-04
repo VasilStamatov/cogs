@@ -4,7 +4,7 @@ out vec4 color;
 
 in VS_OUT
 {
-	vec2 position;
+	vec3 position;
 	vec4 color;
 } fs_in;
 
