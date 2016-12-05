@@ -4,7 +4,7 @@
 #include <vector>
 namespace cogs
 {
-		namespace core
+		namespace utils
 		{
 				struct DirEntry
 				{

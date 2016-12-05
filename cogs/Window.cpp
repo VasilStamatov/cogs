@@ -206,6 +206,24 @@ namespace cogs
 						SDL_GL_SwapWindow(m_sdlWindow);
 				}
 
+				void Window::clear(bool _color, bool _depth, bool _stencil /* = false */)
+				{
+						GLbitfield mask;
+						if (_color)
+						{
+								mask = GL_COLOR_BUFFER_BIT;
+						}
+						if (_depth)
+						{
+								mask |= GL_DEPTH_BUFFER_BIT;
+						}
+						if (_stencil)
+						{
+								mask |= GL_STENCIL_BUFFER_BIT;
+						}
+						glClear(mask);
+				}
+
 				void Window::setFullscreen(bool _isFullscreen)
 				{
 						if (_isFullscreen)
@@ -214,6 +232,28 @@ namespace cogs
 						}
 						SDL_GetWindowSize(m_sdlWindow, &m_width, &m_height);
 						glViewport(0, 0, m_width, m_height);
+				}
+
+				void Window::setBorder(bool _hasBorders)
+				{
+						if (_hasBorders)
+						{
+								SDL_SetWindowBordered(m_sdlWindow, SDL_TRUE);
+						}
+						else
+						{
+								SDL_SetWindowBordered(m_sdlWindow, SDL_FALSE);
+						}
+				}
+
+				void Window::setWindowTitle(const std::string & _title)
+				{
+						SDL_SetWindowTitle(m_sdlWindow, _title.c_str());
+				}
+
+				void Window::setClearColor(float _r, float _g, float _b, float _a)
+				{
+						glClearColor(_r, _g, _b, _a);
 				}
 
 				void Window::initSDL()

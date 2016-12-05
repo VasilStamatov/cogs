@@ -29,11 +29,11 @@ namespace cogs
 						std::string fsSource;
 						std::string gsSource;
 
-						core::IOManager::readFileToBuffer(_vsFilePath, vsSource);
-						core::IOManager::readFileToBuffer(_fsFilePath, fsSource);
+						utils::IOManager::readFileToBuffer(_vsFilePath, vsSource);
+						utils::IOManager::readFileToBuffer(_fsFilePath, fsSource);
 						if (_gsFilePath != "")
 						{
-								core::IOManager::readFileToBuffer(_gsFilePath, gsSource);
+								utils::IOManager::readFileToBuffer(_gsFilePath, gsSource);
 								compileShadersFromSource(vsSource.c_str(), fsSource.c_str(), gsSource.c_str());
 						}
 						else

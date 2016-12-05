@@ -8,7 +8,7 @@ namespace fs = std::tr2::sys;
 
 namespace cogs
 {
-		namespace core
+		namespace utils
 		{
 				bool IOManager::readFileToBuffer(const std::string & _filePath, std::vector<unsigned char>& _buffer)
 				{

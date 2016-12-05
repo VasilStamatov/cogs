@@ -116,7 +116,7 @@ namespace cogs
 				const glm::mat4 & Camera::getProjectionMatrix() const noexcept
 				{
 						if (m_projType == ProjectionType::ORTHOGRAPHIC) return m_orthoMatrix;
-						else 
+						else
 								return m_perspMatrix;
 				}
 		}

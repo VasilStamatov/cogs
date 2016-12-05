@@ -16,11 +16,11 @@
     <Filter Include="ECS">
       <UniqueIdentifier>{0c9a144c-7aeb-4f31-a97b-13911be3ed8b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core">
-      <UniqueIdentifier>{550f8ea3-acf9-4461-93fc-ac2979187f55}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Graphics">
       <UniqueIdentifier>{40f93197-a4fb-407d-9968-b188a24aa1cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{a30101a3-f3b8-4c92-8771-f86e3eda9fa5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -42,9 +42,6 @@
     <ClInclude Include="Object.h">
       <Filter>ECS</Filter>
     </ClInclude>
-    <ClInclude Include="IOManager.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="GLSLProgram.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -60,6 +57,15 @@
     <ClInclude Include="Sprite.h">
       <Filter>ECS</Filter>
     </ClInclude>
+    <ClInclude Include="IOManager.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Timing.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -67,9 +73,6 @@
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="IOManager.cpp">
-      <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="GLSLProgram.cpp">
       <Filter>Graphics</Filter>
@@ -82,6 +85,15 @@
     </ClCompile>
     <ClCompile Include="Sprite.cpp">
       <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="IOManager.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Timing.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

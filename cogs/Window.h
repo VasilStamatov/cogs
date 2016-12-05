@@ -39,8 +39,13 @@ namespace cogs
 						//swap the buffer
 						void swapBuffer();
 
+						void clear(bool _color, bool _depth, bool _stencil = false);
+
 						//Setters
-						void setFullscreen(bool _isFullscreen);
+						void setFullscreen (bool _isFullscreen);
+						void setBorder				 (bool _hasBorders);
+						void setWindowTitle(const std::string& _title);
+						void setClearColor (float _r, float _g, float _b, float _a);
 						inline void resizeHandled()		noexcept { m_wasResized = false; }
 
 						//Getters

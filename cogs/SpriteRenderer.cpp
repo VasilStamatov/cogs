@@ -41,7 +41,7 @@ namespace cogs
 								sizeof(SpriteVertex), // the stride/size of the vertex, which lets opengl know the "position" in the buffer of the next vertex
 								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::position)); // the offset of bytes in the current vertex to get the desired value
 
-						//enable the color attribute in the shader (index 1)
+																																																																								//enable the color attribute in the shader (index 1)
 						glEnableVertexAttribArray(COLOR_ATTRIBUTE_INDEX);
 						glVertexAttribPointer(COLOR_ATTRIBUTE_INDEX,
 								4,
@@ -87,7 +87,7 @@ namespace cogs
 						ecs::Transform* transform = _entity->getComponent<ecs::Transform>();
 
 						//the components needed for the 4 vertices
-					 const glm::vec3& position = transform->worldPosition();
+						const glm::vec3& position = transform->worldPosition();
 						const glm::quat& rotation = transform->worldOrientation();
 						const glm::vec2& scale		  = transform->worldScale();
 						const glm::vec4& color				= sprite->getColor();
