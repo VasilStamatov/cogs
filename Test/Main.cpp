@@ -61,45 +61,22 @@ int main(int argc, char** argv)
 						}
 						case SDL_KEYDOWN:
 						{
-								if (evnt.key.keysym.sym == SDLK_SPACE)
-								{
-										std::cout << "Setting sprite world pos to -500, 500" << std::endl;
-										sprite2.lock()->getComponent<ce::Transform>()->setWorldPosition(glm::vec3(-500.0f, 500.0f, 0.0f));
-										std::cout << "Sprite transform x: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
-								}
+							
 								if (evnt.key.keysym.sym == SDLK_w)
 								{
-										std::cout << "Translating the child sprite by 50.1f to the y" << std::endl;
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.f * fpsLimiter.deltaTime(), 0.0f));
-										std::cout << "Sprite transform x: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f * fpsLimiter.deltaTime(), 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_s)
 								{
-										std::cout << "Translating the child sprite by -50.1f to the y" << std::endl;
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -50.f * fpsLimiter.deltaTime(), 0.0f));
-										std::cout << "Sprite transform x: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -50.0f * fpsLimiter.deltaTime(), 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_a)
 								{
-										std::cout << "Translating the child sprite by 50.1f to the x" << std::endl;
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(50.f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
-										std::cout << "Sprite transform x: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(50.0f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_d)
 								{
-										std::cout << "Translating the child sprite by -50.1f to the x" << std::endl;
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-50.f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
-										std::cout << "Sprite transform x: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite2.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-50.0f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_1)
 								{
@@ -113,67 +90,35 @@ int main(int argc, char** argv)
 								}
 								if (evnt.key.keysym.sym == SDLK_q)
 								{
-										std::cout << "Rotating the sprite by 1 degree on the z axis" << std::endl;
 										sprite.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, 1.0f * fpsLimiter.deltaTime()));
-										std::cout << "sprite orientation x: " << sprite.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
-										std::cout << "sprite orientation y: " << sprite.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
-										std::cout << "sprite orientation z: " << sprite.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
 								}
 								if (evnt.key.keysym.sym == SDLK_e)
 								{
-										std::cout << "Rotating the camera by -1 degree on the z axis" << std::endl;
-										sprite.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, -1.f * fpsLimiter.deltaTime()));
-										std::cout << "sprite orientation x: " << sprite.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
-										std::cout << "sprite orientation y: " << sprite.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
-										std::cout << "sprite orientation z: " << sprite.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
+										sprite.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, -1.0f * fpsLimiter.deltaTime()));
 								}
 								if (evnt.key.keysym.sym == SDLK_r)
 								{
-										std::cout << "Scaling the sprite by 10 degree on the x axis" << std::endl;
-										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(10.f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
-										std::cout << "sprite orientation x: " << sprite.lock()->getComponent<ce::Transform>()->localScale().x << std::endl;
-										std::cout << "sprite orientation y: " << sprite.lock()->getComponent<ce::Transform>()->localScale().y << std::endl;
-										std::cout << "sprite orientation z: " << sprite.lock()->getComponent<ce::Transform>()->localScale().z << std::endl;
+										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(10.0f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_f)
 								{
-										std::cout << "Scaling the sprite by -10 degree on the x axis" << std::endl;
 										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(-10.0f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
-										std::cout << "sprite orientation x: " << sprite.lock()->getComponent<ce::Transform>()->localScale().x << std::endl;
-										std::cout << "sprite orientation y: " << sprite.lock()->getComponent<ce::Transform>()->localScale().y << std::endl;
-										std::cout << "sprite orientation z: " << sprite.lock()->getComponent<ce::Transform>()->localScale().z << std::endl;
 								}
 								if (evnt.key.keysym.sym == SDLK_LEFT)
 								{
-										std::cout << "Translating the sprite by 50.1f to the x" << std::endl;
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(50.f  * fpsLimiter.deltaTime(), 0.0f, 0.0f));
-										std::cout << "Sprite transform x: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(50.0f  * fpsLimiter.deltaTime(), 0.0f, 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_RIGHT)
 								{
-										std::cout << "Translating the sprite by -50.1f to the x" << std::endl;
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-50.f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
-										std::cout << "Sprite transform x: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-50.0f * fpsLimiter.deltaTime(), 0.0f, 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_UP)
 								{
-										std::cout << "Translating the sprite by 50.1f to the y" << std::endl;
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.f * fpsLimiter.deltaTime(), 0.0f));
-										std::cout << "Sprite transform x: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f * fpsLimiter.deltaTime(), 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_DOWN)
 								{
-										std::cout << "Translating the sprite by -50.1f to the y" << std::endl;
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -50.f * fpsLimiter.deltaTime(), 0.0f));
-										std::cout << "Sprite transform x: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().x << std::endl;
-										std::cout << "Sprite transform y: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().y << std::endl;
-										std::cout << "Sprite transform z: " << sprite.lock()->getComponent<ce::Transform>()->worldPosition().z << std::endl;
+										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -50.0f * fpsLimiter.deltaTime(), 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_z)
 								{
