@@ -33,8 +33,8 @@ namespace cogs
 						if (!(*m_transform == m_oldTransform))
 						{
 								m_viewMatrix = glm::lookAt(m_transform->worldPosition(),
-										m_transform->worldPosition() + m_transform->forwardAxis(),
-										m_transform->upAxis());
+										m_transform->worldPosition() + m_transform->worldForwardAxis(),
+										m_transform->worldUpAxis());
 
 								m_oldTransform = *m_transform;
 						}

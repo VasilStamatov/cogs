@@ -68,15 +68,10 @@ namespace cogs
 						float deltaTime() const noexcept { return m_deltaTime; }
 
 				private:
-						// Calculates the current FPS
-						void calculateFPS();
-
-						float m_maxFPS						 { 0.0f };	///< the max fos the app is allowed to run at
 						float m_fps									 { 0.0f }; ///< the current fps the app is running at
 						float m_deltaTime				{ 0.0f }; ///< the current deltaTime the app is running at
 						float m_desiredMillis{ 0.0f }; ///< the desired milliseconds
-						float m_startTicks		 { 0.0f };
-						//HRTimer m_timer; ///< the timer 
+						HRTimer m_timer; ///< the timer 
 				};
 		}
 }

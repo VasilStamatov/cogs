@@ -61,16 +61,21 @@ namespace cogs
 						inline const glm::vec3& worldPosition()			 const noexcept { return m_worldPosition; }
 						inline const glm::vec3& worldOrientation() const noexcept { return m_worldOrientation; }
 						inline const glm::vec3& worldScale()							const noexcept { return m_worldScale; }
+						inline						 glm::vec3 origin()											 const noexcept { return m_worldPosition + (m_worldScale * 0.5f); }
 
 						glm::mat4 worldTransform()		 const;
-						
+
 						/**
 								*	\brief Getters for the axis of the transform
 								* \return the direction vec3
 								*/
-						glm::vec3 rightAxis()		 const noexcept { return m_localOrientationRaw * glm::vec3(1.0f, 0.0f, 0.0f); }
-						glm::vec3 upAxis()					 const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 1.0f, 0.0f); }
-						glm::vec3 forwardAxis() const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 0.0f, 1.0f); }
+						glm::vec3 localRightAxis()		 const noexcept { return m_localOrientationRaw * glm::vec3(1.0f, 0.0f, 0.0f); }
+						glm::vec3 localUpAxis()					 const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 1.0f, 0.0f); }
+						glm::vec3 localForwardAxis() const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 0.0f, 1.0f); }
+
+						glm::vec3 worldRightAxis()		 const noexcept { return m_worldOrientationRaw * glm::vec3(1.0f, 0.0f, 0.0f); }
+						glm::vec3 worldUpAxis()					 const noexcept { return m_worldOrientationRaw * glm::vec3(0.0f, 1.0f, 0.0f); }
+						glm::vec3 worldForwardAxis() const noexcept { return m_worldOrientationRaw * glm::vec3(0.0f, 0.0f, -1.0f); }
 
 						//setters
 						inline void setLocalOrientation(const glm::quat& _value) { internal_setLocalOrientation(_value); }
@@ -84,6 +89,7 @@ namespace cogs
 						inline void setWorldScale					 (const glm::vec3& _value)	{ internal_setWorldScale					 (_value); }
 
 						inline void setParent									 (Transform* _parent)						{ m_parent = _parent; }
+						inline Transform* getParent()		const noexcept											 { if (m_parent) return m_parent; else return nullptr; }
 
 						bool operator== (const Transform& _rhs) const;
 

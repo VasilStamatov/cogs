@@ -318,7 +318,7 @@ namespace cogs
 
 						//Enable face culling
 						glEnable(GL_CULL_FACE);
-						glFrontFace(GL_CCW);
+						glFrontFace(GL_CW);
 						glCullFace(GL_BACK);
 
 						//Enable depth testing

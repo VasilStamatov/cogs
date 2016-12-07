@@ -85,6 +85,7 @@ namespace cogs
 
 						//The transform values of the sprite
 						ecs::Transform* transform = _entity->getComponent<ecs::Transform>();
+						ecs::Transform* parent				= transform->getParent();
 
 						//the components needed for the 4 vertices
 						const glm::vec3& position = transform->worldPosition();
@@ -92,41 +93,48 @@ namespace cogs
 						const glm::vec2& scale		  = transform->worldScale();
 						const glm::vec4& color				= sprite->getColor();
 
-						glm::vec3 halfDims = glm::vec3(scale.x / 2.0f, scale.y / 2.0f, 0.0f);
-						// Get points centered at origin
-						glm::vec3 tL(-halfDims.x, halfDims.y, 0.0f);
-						glm::vec3 bL(-halfDims.x, -halfDims.y, 0.0f);
-						glm::vec3 bR(halfDims.x, -halfDims.y, 0.0f);
-						glm::vec3 tR(halfDims.x, halfDims.y, 0.0f);
+						glm::vec3 bottomLeft		= position;
+						glm::vec3 topLeft			  = glm::vec3(bottomLeft.x, bottomLeft.y + scale.y, bottomLeft.z);
+						glm::vec3 topRight				= glm::vec3(bottomLeft.x + scale.x, bottomLeft.y + scale.y, bottomLeft.z);
+						glm::vec3 bottomRight = glm::vec3(bottomLeft.x + scale.x, bottomLeft.y, bottomLeft.z);
 
-						// Rotate the points
-						tL = (rotation * tL) + halfDims;
-						bL = (rotation * bL) + halfDims;
-						bR = (rotation * bR) + halfDims;
-						tR = (rotation * tR) + halfDims;
+						if (parent != nullptr)
+						{
+								bottomLeft  = parent->origin() + (rotation * (bottomLeft  - parent->origin()));
+								topLeft			  = parent->origin() + (rotation * (topLeft					- parent->origin()));
+								topRight				= parent->origin() + (rotation * (topRight		  - parent->origin()));
+								bottomRight = parent->origin() + (rotation * (bottomRight - parent->origin()));
+						}
+						else
+						{
+								bottomLeft	 = transform->origin() + (rotation * (bottomLeft  - transform->origin()));
+								topLeft					= transform->origin() + (rotation * (topLeft			 	- transform->origin()));
+								topRight				= transform->origin() + (rotation * (topRight	   - transform->origin()));
+								bottomRight = transform->origin() + (rotation * (bottomRight - transform->origin()));
+						}
 
 						/* submit the sprite by passing the 4 new vertices to the mapped buffer
 						the vec3 position of the sprite is its bottom left, so the other 3 must be calculated */
 
 						//bottom left
-						m_buffer->position = glm::vec3(position.x + bL.x, position.y + bL.y, position.z);
-						m_buffer->color = color;
-						m_buffer++;
-
-						//top left
-						m_buffer->position = glm::vec3(position.x + tL.x, position.y + tL.y, position.z);
-						m_buffer->color = color;
-						m_buffer++;
-
-						//top right
-						m_buffer->position = glm::vec3(position.x + tR.x, position.y + tR.y, position.z);
-						m_buffer->color = color;
-						m_buffer++;
-
-						//bottom right
-						m_buffer->position = glm::vec3(position.x + bR.x, position.y + bR.y, position.z);
-						m_buffer->color = color;
-						m_buffer++;
+ 					m_buffer->position = bottomLeft;
+ 					m_buffer->color = color;
+ 					m_buffer++;
+ 
+ 					//top left
+ 					m_buffer->position = topLeft;
+ 					m_buffer->color = color;
+ 					m_buffer++;
+ 
+ 					//top right
+ 					m_buffer->position = topRight;
+ 					m_buffer->color = color;
+ 					m_buffer++;
+ 
+ 					//bottom right
+ 					m_buffer->position = bottomRight;
+ 					m_buffer->color = color;
+ 					m_buffer++;
 
 						//increment the indices count by 6 (3 per triangle)
 						m_indicesCount += 6;

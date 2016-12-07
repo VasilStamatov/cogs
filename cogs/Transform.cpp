@@ -13,9 +13,9 @@ namespace cogs
 						Transform * _parent																					 	/* = nullptr										*/)
 				{
 						m_parent = _parent;
-						internal_setLocalPosition(_pos);
-						internal_setLocalOrientation(_eulerAngles);
-						internal_setLocalScale(_scale);
+						internal_setWorldPosition(_pos);
+						internal_setWorldOrientation(_eulerAngles);
+						internal_setWorldScale(_scale);
 				}
 
 				Transform::~Transform()
@@ -39,24 +39,24 @@ namespace cogs
 								glm::radians(_eulerAngles.y),
 								glm::radians(_eulerAngles.z)));
 
-						internal_setLocalOrientation(toRotate * m_localOrientationRaw);
+						internal_setWorldOrientation(toRotate * m_worldOrientationRaw);
 				}
 
 				void Transform::lookAt(const glm::vec3 & _target)
 				{
-						glm::vec3 direction = glm::normalize(m_localPosition - _target);
-						glm::mat4 lookAtMat = glm::lookAt(m_localPosition, m_localPosition + direction, upAxis());
-						internal_setLocalOrientation(glm::quat_cast(lookAtMat));
+						glm::vec3 direction = glm::normalize(m_worldPosition - _target);
+						glm::mat4 lookAtMat = glm::lookAt(m_worldPosition, m_worldPosition + direction, worldUpAxis());
+						internal_setWorldOrientation(glm::quat_cast(lookAtMat));
 				}
 
 				void Transform::translate(const glm::vec3 & _offset)
 				{
-						internal_setLocalPosition(m_localPosition + _offset);
+						internal_setWorldPosition(m_worldPosition + _offset);
 				}
 
 				void Transform::scale(const glm::vec3 & _offset)
 				{
-						internal_setLocalScale(m_localScale + _offset);
+						internal_setWorldScale(m_worldScale + _offset);
 				}
 
 				glm::mat4 Transform::localTransform() const
@@ -180,7 +180,7 @@ namespace cogs
 						if (m_parent != nullptr)
 						{
 								//to get the correct local orientation, multiply the child's world rotation by the parent's conjugate
-								m_localOrientationRaw = m_worldOrientationRaw * glm::normalize(glm::conjugate(m_parent->m_worldOrientationRaw) );
+								m_localOrientationRaw = m_worldOrientationRaw * glm::normalize(glm::conjugate(m_parent->m_worldOrientationRaw));
 						}
 						else
 						{
@@ -224,7 +224,7 @@ namespace cogs
 						if (m_parent != nullptr)
 						{
 								//to get the correct local scale, multiply the child's world scale with the reciprocal of the parent's world scale
-								m_localScale = m_worldScale * ( 1.0f / m_parent->m_worldScale);
+								m_localScale = m_worldScale * (1.0f / m_parent->m_worldScale);
 						}
 						else
 						{
@@ -235,9 +235,9 @@ namespace cogs
 
 				void Transform::internal_updateTransform()
 				{
-						internal_setLocalPosition			(m_localPosition);
+						internal_setLocalPosition(m_localPosition);
 						internal_setLocalOrientation(m_localOrientationRaw);
-						internal_setLocalScale						(m_localScale);
+						internal_setLocalScale(m_localScale);
 				}
 		}
 }
