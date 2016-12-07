@@ -85,7 +85,6 @@ namespace cogs
 
 						//The transform values of the sprite
 						ecs::Transform* transform = _entity->getComponent<ecs::Transform>();
-						ecs::Transform* parent				= transform->getParent();
 
 						//the components needed for the 4 vertices
 						const glm::vec3& position = transform->worldPosition();
@@ -98,20 +97,11 @@ namespace cogs
 						glm::vec3 topRight				= glm::vec3(bottomLeft.x + scale.x, bottomLeft.y + scale.y, bottomLeft.z);
 						glm::vec3 bottomRight = glm::vec3(bottomLeft.x + scale.x, bottomLeft.y, bottomLeft.z);
 
-						if (parent != nullptr)
-						{
-								bottomLeft  = parent->origin() + (rotation * (bottomLeft  - parent->origin()));
-								topLeft			  = parent->origin() + (rotation * (topLeft					- parent->origin()));
-								topRight				= parent->origin() + (rotation * (topRight		  - parent->origin()));
-								bottomRight = parent->origin() + (rotation * (bottomRight - parent->origin()));
-						}
-						else
-						{
-								bottomLeft	 = transform->origin() + (rotation * (bottomLeft  - transform->origin()));
-								topLeft					= transform->origin() + (rotation * (topLeft			 	- transform->origin()));
-								topRight				= transform->origin() + (rotation * (topRight	   - transform->origin()));
-								bottomRight = transform->origin() + (rotation * (bottomRight - transform->origin()));
-						}
+						
+						bottomLeft	 = transform->origin() + (rotation * (bottomLeft  - transform->origin()));
+						topLeft					= transform->origin() + (rotation * (topLeft			 	- transform->origin()));
+						topRight				= transform->origin() + (rotation * (topRight	   - transform->origin()));
+						bottomRight = transform->origin() + (rotation * (bottomRight - transform->origin()));
 
 						/* submit the sprite by passing the 4 new vertices to the mapped buffer
 						the vec3 position of the sprite is its bottom left, so the other 3 must be calculated */

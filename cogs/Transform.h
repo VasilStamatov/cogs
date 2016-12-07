@@ -12,6 +12,13 @@ namespace cogs
 				class Transform : public Component
 				{
 				public:
+						/**
+								*	\brief default contructor to contain the transform of an entity in the world
+								* \param _pos - the world vec3 coordinates (set to origin (0,0,0) by default
+								* \param _eulerAngles - the orientation on each axis in degrees (set to 0 on each axis by default)
+								* \param _scale - the scale on each axis (set to 1 by default)
+								* \param _parent - a pointer to the parent transform for parent-child relationships (set to nullptr by default)
+								*/
 						Transform(const glm::vec3& _pos = glm::vec3(0.0f),
 								const glm::vec3& _eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f),
 								const glm::vec3& _scale = glm::vec3(1.0f),
@@ -47,6 +54,12 @@ namespace cogs
 						void scale(const glm::vec3& _offset);
 
 						/**
+								*	\brief the origin of the transform which it should rotate by (the main parent)
+								* \return glm::vec3 origin coordinates (the base parent's)
+								*/
+						glm::vec3 origin() const;
+
+						/**
 								*	\brief local space getters
 								*/
 						inline const glm::vec3& localPosition()			 const noexcept { return m_localPosition; }
@@ -61,33 +74,44 @@ namespace cogs
 						inline const glm::vec3& worldPosition()			 const noexcept { return m_worldPosition; }
 						inline const glm::vec3& worldOrientation() const noexcept { return m_worldOrientation; }
 						inline const glm::vec3& worldScale()							const noexcept { return m_worldScale; }
-						inline						 glm::vec3 origin()											 const noexcept { return m_worldPosition + (m_worldScale * 0.5f); }
 
 						glm::mat4 worldTransform()		 const;
 
 						/**
-								*	\brief Getters for the axis of the transform
+								*	\brief Getters for the local axis of the transform
 								* \return the direction vec3
 								*/
 						glm::vec3 localRightAxis()		 const noexcept { return m_localOrientationRaw * glm::vec3(1.0f, 0.0f, 0.0f); }
 						glm::vec3 localUpAxis()					 const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 1.0f, 0.0f); }
-						glm::vec3 localForwardAxis() const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 0.0f, 1.0f); }
+						glm::vec3 localForwardAxis() const noexcept { return m_localOrientationRaw * glm::vec3(0.0f, 0.0f, -1.0f); }
 
+						/**
+								*	\brief Getters for the world axis of the transform
+								* \return the direction vec3
+								*/
 						glm::vec3 worldRightAxis()		 const noexcept { return m_worldOrientationRaw * glm::vec3(1.0f, 0.0f, 0.0f); }
 						glm::vec3 worldUpAxis()					 const noexcept { return m_worldOrientationRaw * glm::vec3(0.0f, 1.0f, 0.0f); }
 						glm::vec3 worldForwardAxis() const noexcept { return m_worldOrientationRaw * glm::vec3(0.0f, 0.0f, -1.0f); }
 
-						//setters
+						/**
+								*	\brief setters for local transform
+								*/
 						inline void setLocalOrientation(const glm::quat& _value) { internal_setLocalOrientation(_value); }
 						inline void setLocalOrientation(const glm::vec3& _value) { internal_setLocalOrientation(_value); }
 						inline void setLocalPosition		 (const glm::vec3& _value)	{ internal_setLocalPosition		 (_value); }
 						inline void setLocalScale					 (const glm::vec3& _value)	{ internal_setLocalScale					 (_value); }
 
+						/**
+								*	\brief setters for world transform
+								*/
 						inline void setWorldOrientation(const glm::quat& _value) { internal_setWorldOrientation(_value); }
 						inline void setWorldOrientation(const glm::vec3& _value) { internal_setWorldOrientation(_value); }
 						inline void setWorldPosition		 (const glm::vec3& _value)	{ internal_setWorldPosition		 (_value); }
 						inline void setWorldScale					 (const glm::vec3& _value)	{ internal_setWorldScale					 (_value); }
 
+						/**
+						 	*	\brief Getter and setter for the parent
+						 	*/
 						inline void setParent									 (Transform* _parent)						{ m_parent = _parent; }
 						inline Transform* getParent()		const noexcept											 { if (m_parent) return m_parent; else return nullptr; }
 
@@ -108,7 +132,6 @@ namespace cogs
 						void internal_setWorldScale					 (const glm::vec3& _value);
 
 						void internal_updateTransform();
-
 				private:
 						Transform* m_parent;
 

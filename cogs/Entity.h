@@ -130,6 +130,20 @@ namespace cogs
 								return reinterpret_cast<T*>(component.lock().get());
 						}
 
+						template<typename T>
+						inline std::vector<T*> getComponentsInChildren() const
+						{
+								std::vector<T*> components;
+								for (auto& child : m_children)
+								{
+										if (child->hasComponent<T>())
+										{
+												components.push_back(child->getComponent<T>());
+										}
+								}
+								return components;
+						}
+
 						inline unsigned int numChildren() const noexcept { return m_children.size(); }
 
 						inline std::weak_ptr<Entity> getChildAt(unsigned int _index) const { return m_children.at(_index); }

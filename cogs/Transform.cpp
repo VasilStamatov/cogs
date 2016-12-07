@@ -59,6 +59,16 @@ namespace cogs
 						internal_setWorldScale(m_worldScale + _offset);
 				}
 
+				glm::vec3 Transform::origin() const 
+				{
+						//{ return m_worldPosition + (m_worldScale * 0.5f); }s
+						if (m_parent == nullptr)
+						{
+								return m_worldPosition + (m_worldScale * 0.5f);
+						}
+						return m_parent->origin();
+				}
+
 				glm::mat4 Transform::localTransform() const
 				{
 						glm::mat4 translation = glm::translate(glm::mat4(1.0f), m_localPosition);
