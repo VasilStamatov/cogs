@@ -54,12 +54,6 @@ namespace cogs
 						void scale(const glm::vec3& _offset);
 
 						/**
-								*	\brief the origin of the transform which it should rotate by (the main parent)
-								* \return glm::vec3 origin coordinates (the base parent's)
-								*/
-						glm::vec3 origin() const;
-
-						/**
 								*	\brief local space getters
 								*/
 						inline const glm::vec3& localPosition()			 const noexcept { return m_localPosition; }
@@ -131,7 +125,6 @@ namespace cogs
 						void internal_setWorldPosition		 (const glm::vec3& _value);
 						void internal_setWorldScale					 (const glm::vec3& _value);
 
-						void internal_updateTransform();
 				private:
 						Transform* m_parent;
 

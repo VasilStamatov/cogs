@@ -5,8 +5,8 @@ namespace cogs
 		namespace ecs
 		{
 				Sprite::Sprite() { }
-				Sprite::Sprite(const glm::vec4& _color, graphics::SpriteRenderer* _renderer)
-						: m_color(_color), m_renderer(_renderer) { }
+				Sprite::Sprite(const glm::vec2& _size, const glm::vec4& _color, graphics::SpriteRenderer* _renderer)
+						: m_color(_color), m_renderer(_renderer), m_size(_size) { }
 				
 				Sprite::~Sprite()
 				{

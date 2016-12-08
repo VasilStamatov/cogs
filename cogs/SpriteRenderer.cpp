@@ -87,24 +87,23 @@ namespace cogs
 						ecs::Transform* transform = _entity->getComponent<ecs::Transform>();
 
 						//the components needed for the 4 vertices
-						const glm::vec3& position = transform->worldPosition();
-						const glm::quat& rotation = transform->worldOrientation();
-						const glm::vec2& scale		  = transform->worldScale();
 						const glm::vec4& color				= sprite->getColor();
-
-						glm::vec3 bottomLeft		= position;
-						glm::vec3 topLeft			  = glm::vec3(bottomLeft.x, bottomLeft.y + scale.y, bottomLeft.z);
-						glm::vec3 topRight				= glm::vec3(bottomLeft.x + scale.x, bottomLeft.y + scale.y, bottomLeft.z);
-						glm::vec3 bottomRight = glm::vec3(bottomLeft.x + scale.x, bottomLeft.y, bottomLeft.z);
-
+						const glm::vec2& size					= sprite->getSize();
+					 glm::mat4 worldTrans						= transform->worldTransform();
 						
-						bottomLeft	 = transform->origin() + (rotation * (bottomLeft  - transform->origin()));
-						topLeft					= transform->origin() + (rotation * (topLeft			 	- transform->origin()));
-						topRight				= transform->origin() + (rotation * (topRight	   - transform->origin()));
-						bottomRight = transform->origin() + (rotation * (bottomRight - transform->origin()));
+						//get the 4 vertices around the center 
+						glm::vec3 bottomLeft		= glm::vec3(-size.x * 0.5f, -size.y * 0.5f, 0.0f);
+						glm::vec3 topLeft				 = glm::vec3(-size.x * 0.5f,  size.y * 0.5f, 0.0f);
+						glm::vec3 topRight		  = glm::vec3( size.x * 0.5f,	 size.y * 0.5f, 0.0f);
+						glm::vec3 bottomRight = glm::vec3( size.x * 0.5f, -size.y * 0.5f, 0.0f);
 
-						/* submit the sprite by passing the 4 new vertices to the mapped buffer
-						the vec3 position of the sprite is its bottom left, so the other 3 must be calculated */
+						//transform the 4 vertices by the world matrix
+						bottomLeft		= worldTrans * glm::vec4(bottomLeft, 1.0f);
+						topLeft					= worldTrans * glm::vec4(topLeft, 1.0f);
+						topRight				= worldTrans * glm::vec4(topRight, 1.0f);
+						bottomRight = worldTrans * glm::vec4(bottomRight, 1.0f);
+
+						/* submit the sprite by passing the 4 new vertices to the mapped buffer */
 
 						//bottom left
  					m_buffer->position = bottomLeft;
@@ -122,7 +121,7 @@ namespace cogs
  					m_buffer++;
  
  					//bottom right
- 					m_buffer->position = bottomRight;
+						m_buffer->position = bottomRight;
  					m_buffer->color = color;
  					m_buffer++;
 

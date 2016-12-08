@@ -28,15 +28,14 @@ int main(int argc, char** argv)
 		cg::SpriteRenderer spriteRenderer;
 
 		std::weak_ptr<ce::Entity> sprite = root->addChild("testSprite");
-		sprite.lock()->addComponent<ce::Sprite>(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), &spriteRenderer);
-		sprite.lock()->getComponent<ce::Transform>()->setLocalScale(glm::vec3(200.0f, 200.0f, 1.0f));
+		sprite.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), &spriteRenderer);
 
 		std::weak_ptr<ce::Entity> sprite2 = sprite.lock()->addChild("testSpriteChild");
-		sprite2.lock()->addComponent<ce::Sprite>(glm::vec4(0.5f, 1.0f, 0.5f, 1.0f), &spriteRenderer);
+		sprite2.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f), glm::vec4(0.5f, 1.0f, 0.5f, 1.0f), &spriteRenderer);
 		sprite2.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
 
 		std::weak_ptr<ce::Entity> sprite3 = sprite2.lock()->addChild("testSpriteChild2");
-		sprite3.lock()->addComponent<ce::Sprite>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), &spriteRenderer);
+		sprite3.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), &spriteRenderer);
 		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
 
 		cg::GLSLProgram basicShader;
@@ -66,7 +65,20 @@ int main(int argc, char** argv)
 						}
 						case SDL_KEYDOWN:
 						{
-							
+								if (evnt.key.keysym.sym == SDLK_SPACE)
+								{
+										std::cout << "Pos x: " << sprite2.lock()->getComponent<ce::Transform>()->localPosition().x << std::endl;
+										std::cout << "Pos y: " << sprite2.lock()->getComponent<ce::Transform>()->localPosition().y << std::endl;
+										std::cout << "Pos z: " << sprite2.lock()->getComponent<ce::Transform>()->localPosition().z << std::endl;
+
+										std::cout << "Scale x: " << sprite2.lock()->getComponent<ce::Transform>()->localScale().x << std::endl;
+										std::cout << "Scale y: " << sprite2.lock()->getComponent<ce::Transform>()->localScale().z << std::endl;
+										std::cout << "Scale z: " << sprite2.lock()->getComponent<ce::Transform>()->localScale().y << std::endl;
+
+										std::cout << "Rotation x: " << sprite2.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
+										std::cout << "Rotation y: " << sprite2.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
+										std::cout << "Rotation z: " << sprite2.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
+								}
 								if (evnt.key.keysym.sym == SDLK_w)
 								{
 										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f /* * fpsLimiter.deltaTIme() */, 0.0f));
@@ -99,15 +111,15 @@ int main(int argc, char** argv)
 								}
 								if (evnt.key.keysym.sym == SDLK_e)
 								{
-										sprite.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, -10.0f /* * fpsLimiter.deltaTIme() */));
+										sprite2.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, -10.0f /* * fpsLimiter.deltaTIme() */));
 								}
 								if (evnt.key.keysym.sym == SDLK_r)
 								{
-										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(10.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_f)
 								{
-										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(-10.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(-1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
 								}
 								if (evnt.key.keysym.sym == SDLK_LEFT)
 								{

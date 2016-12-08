@@ -24,7 +24,7 @@ namespace cogs
 								* \param _color - the color of the sprite
 								* \param _renderer - the renderer this sprite will submit itself to
 								*/
-						Sprite(const glm::vec4& _color, graphics::SpriteRenderer* _renderer);
+						Sprite(const glm::vec2& _size, const glm::vec4& _color, graphics::SpriteRenderer* _renderer);
 
 						/**
 								* Sprite destructor
@@ -50,10 +50,12 @@ namespace cogs
 								* Getters
 								*/
 						const glm::vec4& getColor()			 const noexcept { return m_color; }
+						const glm::vec2& getSize()			 const noexcept		{ return m_size; }
 
 				private:
 						Transform* m_transform{ nullptr };
 						glm::vec4 m_color{ 0.0f };
+						glm::vec2 m_size{ 0.0f };
 
 						graphics::SpriteRenderer* m_renderer;
 				};

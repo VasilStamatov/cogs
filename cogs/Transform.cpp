@@ -26,7 +26,7 @@ namespace cogs
 				}
 				void Transform::update(float _deltaTime)
 				{
-						internal_updateTransform();
+						//internal_updateTransform();
 				}
 				void Transform::render()
 				{
@@ -39,41 +39,31 @@ namespace cogs
 								glm::radians(_eulerAngles.y),
 								glm::radians(_eulerAngles.z)));
 
-						internal_setWorldOrientation(toRotate * m_worldOrientationRaw);
+						internal_setLocalOrientation(toRotate * m_localOrientationRaw);
 				}
 
 				void Transform::lookAt(const glm::vec3 & _target)
 				{
 						glm::vec3 direction = glm::normalize(m_worldPosition - _target);
 						glm::mat4 lookAtMat = glm::lookAt(m_worldPosition, m_worldPosition + direction, worldUpAxis());
-						internal_setWorldOrientation(glm::quat_cast(lookAtMat));
+						internal_setLocalOrientation(glm::quat_cast(lookAtMat));
 				}
 
 				void Transform::translate(const glm::vec3 & _offset)
 				{
-						internal_setWorldPosition(m_worldPosition + _offset);
+						internal_setLocalPosition(m_localPosition + _offset);
 				}
 
 				void Transform::scale(const glm::vec3 & _offset)
 				{
-						internal_setWorldScale(m_worldScale + _offset);
-				}
-
-				glm::vec3 Transform::origin() const 
-				{
-						//{ return m_worldPosition + (m_worldScale * 0.5f); }s
-						if (m_parent == nullptr)
-						{
-								return m_worldPosition + (m_worldScale * 0.5f);
-						}
-						return m_parent->origin();
+						internal_setLocalScale(m_localScale + _offset);
 				}
 
 				glm::mat4 Transform::localTransform() const
 				{
 						glm::mat4 translation = glm::translate(glm::mat4(1.0f), m_localPosition);
-						glm::mat4 scale = glm::scale(glm::mat4(1.0f), m_localScale);
-						glm::mat4 rotation = glm::mat4_cast(m_localOrientationRaw);
+						glm::mat4 scale							= glm::scale(glm::mat4(1.0f), m_localScale);
+						glm::mat4 rotation				= glm::mat4_cast(m_localOrientationRaw);
 
 						glm::mat4 localTransform = translation * rotation * scale;
 
@@ -82,13 +72,14 @@ namespace cogs
 
 				glm::mat4 Transform::worldTransform() const
 				{
-						glm::mat4 translation = glm::translate(glm::mat4(1.0f), m_worldPosition);
-						glm::mat4 scale = glm::scale(glm::mat4(1.0f), m_worldScale);
-						glm::mat4 rotation = glm::mat4_cast(m_worldOrientationRaw);
+						glm::mat4 worldTrans = localTransform();
 
-						glm::mat4 worldTransform = translation * rotation * scale;
+						if (m_parent != nullptr)
+						{
+								worldTrans = m_parent->worldTransform() * worldTrans;
+						}
 
-						return worldTransform;
+						return worldTrans;
 				}
 
 				bool Transform::operator==(const Transform & _rhs) const
@@ -241,13 +232,6 @@ namespace cogs
 								//if there is no parent, world == local
 								m_localScale = m_worldScale;
 						}
-				}
-
-				void Transform::internal_updateTransform()
-				{
-						internal_setLocalPosition(m_localPosition);
-						internal_setLocalOrientation(m_localOrientationRaw);
-						internal_setLocalScale(m_localScale);
 				}
 		}
 }

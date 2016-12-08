@@ -58,15 +58,11 @@ namespace cogs
 										Refreshing means to check if it's dead, and if it is, delete it. */
 						inline void refreshAll()
 						{
-								m_children.erase
-								(
-										std::remove_if(std::begin(m_children), std::end(m_children),
-												[](const std::shared_ptr<Entity>& _child)
+								refresh();
+								for (auto& child : m_children)
 								{
-										return _child->isDestroyed();
-								}),
-										std::end(m_children)
-										);
+										child->refreshAll();
+								}
 						}
 
 						/** \brief Add components to this element of any type
@@ -102,10 +98,7 @@ namespace cogs
 								/* create the new entity shared pointer */
 								std::shared_ptr<Entity> newChild = std::make_shared<Entity>(_name);
 								m_children.push_back(std::move(newChild));
-								if (m_name != "Root")
-								{
-										m_children.back()->getComponent<Transform>()->setParent(getComponent<Transform>());
-								}
+						 	m_children.back()->getComponent<Transform>()->setParent(getComponent<Transform>());
 								return m_children.back();
 						}
 
@@ -151,8 +144,22 @@ namespace cogs
 				private:
 						/* Update this entity (all its components) */
 						inline void update(float _deltaTime) { for (auto& component : m_components) { component->update(_deltaTime); } }
+
 						/* Render this entity (all its components) */
 						inline void render() { for (auto& component : m_components) { component->render(); } }
+
+						inline void refresh() 
+						{
+								m_children.erase
+								(
+										std::remove_if(std::begin(m_children), std::end(m_children),
+												[](const std::shared_ptr<Entity>& _child)
+										{
+												return _child->isDestroyed();
+										}),
+										std::end(m_children)
+								);
+						}
 
 				private:
 						/* An entity is also composed of numerous components
