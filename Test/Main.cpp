@@ -3,6 +3,7 @@
 #include <cogs\GLSLProgram.h>
 #include <cogs\Sprite.h>
 #include <cogs\Timing.h>
+#include <cogs\GLTexture.h>
 
 #include <iostream>
 
@@ -28,20 +29,29 @@ int main(int argc, char** argv)
 		cg::SpriteRenderer spriteRenderer;
 
 		std::weak_ptr<ce::Entity> sprite = root->addChild("testSprite");
-		sprite.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), &spriteRenderer);
+		sprite.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
+				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+				"Textures/img_test.png", true,
+				&spriteRenderer);
 
 		std::weak_ptr<ce::Entity> sprite2 = sprite.lock()->addChild("testSpriteChild");
-		sprite2.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f), glm::vec4(0.5f, 1.0f, 0.5f, 1.0f), &spriteRenderer);
+		sprite2.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
+				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+				"Textures/player.png", true,
+				&spriteRenderer);
 		sprite2.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
 
 		std::weak_ptr<ce::Entity> sprite3 = sprite2.lock()->addChild("testSpriteChild2");
-		sprite3.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), &spriteRenderer);
+		sprite3.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
+				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+				"Textures/red_bricks.png", true,
+				&spriteRenderer);
 		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
 
 		cg::GLSLProgram basicShader;
 		basicShader.compileShaders("Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
 
-		window.setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		window.setClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 		while (!quit)
 		{

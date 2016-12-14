@@ -14,6 +14,11 @@ namespace cogs
 
 				}
 
+				GLSLProgram::GLSLProgram(const std::string & _vsFilePath, const std::string & _fsFilePath, const std::string & _gsFilePath)
+				{
+						compileShaders(_vsFilePath, _fsFilePath, _gsFilePath);
+				}
+
 				GLSLProgram::~GLSLProgram()
 				{
 						if (m_programID > 0)

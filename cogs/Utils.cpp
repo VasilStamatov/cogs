@@ -1,6 +1,8 @@
 #include "Utils.h"
 
 #include <SDL\SDL_timer.h>
+#include <FreeImage\FreeImage.h>
+
 
 namespace cogs
 {

@@ -13,7 +13,6 @@ namespace cogs
 				SpriteRenderer::~SpriteRenderer()
 				{
 						dispose();
-						m_buffer = nullptr;
 				}
 
 				void SpriteRenderer::init()
@@ -29,9 +28,6 @@ namespace cogs
 						//bind the vertex buffer object
 						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-						//Allocate the memory space needed for the buffer
-						glBufferData(GL_ARRAY_BUFFER, BUFFER_SIZE, nullptr, GL_DYNAMIC_DRAW);
-
 						//enable the position attribute in the shader (index 0)
 						glEnableVertexAttribArray(POSITION_ATTRIBUTE_INDEX);
 						glVertexAttribPointer(POSITION_ATTRIBUTE_INDEX, // the index of the attribute in the shader
@@ -41,38 +37,18 @@ namespace cogs
 								sizeof(SpriteVertex), // the stride/size of the vertex, which lets opengl know the "position" in the buffer of the next vertex
 								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::position)); // the offset of bytes in the current vertex to get the desired value
 
-																																																																								//enable the color attribute in the shader (index 1)
+						// enable the uv attribute in the shader (index 1)
+						glEnableVertexAttribArray(UV_ATTRIBUTE_INDEX);
+						glVertexAttribPointer(UV_ATTRIBUTE_INDEX, 2, GL_FLOAT, GL_FALSE,	sizeof(SpriteVertex), 
+								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::uv));
+
+						//enable the color attribute in the shader (index 2)
 						glEnableVertexAttribArray(COLOR_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(COLOR_ATTRIBUTE_INDEX,
-								4,
-								GL_FLOAT,
-								GL_FALSE,
-								sizeof(SpriteVertex),
+						glVertexAttribPointer(COLOR_ATTRIBUTE_INDEX, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteVertex),
 								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::color));
 
 						//bind the index buffer object
 						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-
-						//Array to store all the indices' values
-						GLushort indices[INDICES_SIZE];
-
-						//Add all the indices' values
-						int offset = 0;
-						for (size_t i = 0; i < INDICES_SIZE; i += 6)
-						{
-								indices[i] = offset + 0;
-								indices[i + 1] = offset + 1;
-								indices[i + 2] = offset + 2;
-
-								indices[i + 3] = offset + 2;
-								indices[i + 4] = offset + 3;
-								indices[i + 5] = offset + 0;
-
-								offset += 4;
-						}
-
-						//Allocate and fill the index buffer with the created indices
-						glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES_SIZE * sizeof(GLushort), indices, GL_STATIC_DRAW);
 
 						//unbind the vao
 						glBindVertexArray(0);
@@ -80,85 +56,39 @@ namespace cogs
 
 				void SpriteRenderer::submit(ecs::Entity* _entity)
 				{
-						//The sprite to submit from the component (only has color for now)
-						ecs::Sprite*				sprite				= _entity->getComponent<ecs::Sprite>();
-
-						//The transform values of the sprite
-						ecs::Transform* transform = _entity->getComponent<ecs::Transform>();
-
-						//the components needed for the 4 vertices
-						const glm::vec4& color				= sprite->getColor();
-						const glm::vec2& size					= sprite->getSize();
-					 glm::mat4 worldTrans						= transform->worldTransform();
-						
-						//get the 4 vertices around the center 
-						glm::vec3 bottomLeft		= glm::vec3(-size.x * 0.5f, -size.y * 0.5f, 0.0f);
-						glm::vec3 topLeft				 = glm::vec3(-size.x * 0.5f,  size.y * 0.5f, 0.0f);
-						glm::vec3 topRight		  = glm::vec3( size.x * 0.5f,	 size.y * 0.5f, 0.0f);
-						glm::vec3 bottomRight = glm::vec3( size.x * 0.5f, -size.y * 0.5f, 0.0f);
-
-						//transform the 4 vertices by the world matrix
-						bottomLeft		= worldTrans * glm::vec4(bottomLeft, 1.0f);
-						topLeft					= worldTrans * glm::vec4(topLeft, 1.0f);
-						topRight				= worldTrans * glm::vec4(topRight, 1.0f);
-						bottomRight = worldTrans * glm::vec4(bottomRight, 1.0f);
-
-						/* submit the sprite by passing the 4 new vertices to the mapped buffer */
-
-						//bottom left
- 					m_buffer->position = bottomLeft;
- 					m_buffer->color = color;
- 					m_buffer++;
- 
- 					//top left
- 					m_buffer->position = topLeft;
- 					m_buffer->color = color;
- 					m_buffer++;
- 
- 					//top right
- 					m_buffer->position = topRight;
- 					m_buffer->color = color;
- 					m_buffer++;
- 
- 					//bottom right
-						m_buffer->position = bottomRight;
- 					m_buffer->color = color;
- 					m_buffer++;
-
-						//increment the indices count by 6 (3 per triangle)
-						m_indicesCount += 6;
+						m_entities.push_back(_entity);
 				}
 
 				void SpriteRenderer::flush()
 				{
-						// Render all the submitted data
-
-						// Bind the vao to set up opengl in the state it's needed
+						/* Bind the VAO. This sets up the opengl state we need, including the
+						vertex attribute pointers and it binds the VBO */
 						glBindVertexArray(m_vao);
 
-						// Draw all the triangles with the indices data
-						glDrawElements(GL_TRIANGLES, m_indicesCount, GL_UNSIGNED_SHORT, nullptr);
+						for (size_t i = 0; i < m_spriteBatches.size(); i++)
+						{
+								glBindTexture(GL_TEXTURE_2D, m_spriteBatches.at(i).m_texture);
 
-						// Unbind the vao
+								glDrawElements(GL_TRIANGLES,
+										m_spriteBatches.at(i).m_numIndices,
+										GL_UNSIGNED_INT,
+										(const GLvoid*)(m_spriteBatches.at(i).m_firstIndex * sizeof(unsigned int)));
+						}
+						//unbind the vao
 						glBindVertexArray(0);
 				}
 
-				void SpriteRenderer::begin()
+				void SpriteRenderer::begin(const SpriteSortType& _sortType /* = SpriteSortType::TEXTURE */)
 				{
-						// bind the vbo (which will contain all the vertex data)
-						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-						//map the sprite vertex data from the opengl buffer
-						m_buffer = (SpriteVertex*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+						m_sortType = _sortType;
+						m_spriteBatches.clear();
+						m_entities.clear();
 				}
 
 				void SpriteRenderer::end()
 				{
-						//unmap the buffer
-						glUnmapBuffer(GL_ARRAY_BUFFER);
-
-						//and unbind the vbo that's been written to
-						glBindBuffer(GL_ARRAY_BUFFER, 0);
+						SortSprites();
+						CreateSpriteBatches();
 				}
 
 				void SpriteRenderer::dispose()
@@ -182,6 +112,191 @@ namespace cogs
 								glDeleteBuffers(1, &m_ibo);
 								m_ibo = 0;
 						}
+				}
+				void SpriteRenderer::SortSprites()
+				{
+						switch (m_sortType)
+						{
+						case SpriteSortType::FRONT_TO_BACK:
+						{
+								std::stable_sort(m_entities.begin(), m_entities.end(),
+										[](ecs::Entity* _a, ecs::Entity* _b)
+								{
+										return (_a->getComponent<ecs::Transform>()->worldPosition().z < _b->getComponent<ecs::Transform>()->worldPosition().z);
+								});
+								break;
+						}
+						case SpriteSortType::BACK_TO_FRONT:
+						{
+								std::stable_sort(m_entities.begin(), m_entities.end(),
+										[](ecs::Entity* _a, ecs::Entity* _b)
+								{
+										return (_a->getComponent<ecs::Transform>()->worldPosition().z > _b->getComponent<ecs::Transform>()->worldPosition().z);
+								});
+								break;
+						}
+						case SpriteSortType::TEXTURE:
+						{
+								std::stable_sort(m_entities.begin(), m_entities.end(),
+										[](ecs::Entity* _a, ecs::Entity* _b)
+								{
+										return (_a->getComponent<ecs::Sprite>()->getTexture() > _b->getComponent<ecs::Sprite>()->getTexture());
+								});
+								break;
+						}
+						default:
+								break;
+						}
+				}
+
+				void SpriteRenderer::CreateSpriteBatches()
+				{
+						// This will store all the vertices that we need to upload
+						std::vector<SpriteVertex> vertices;
+						std::vector<GLuint> indices;
+
+						vertices.resize(m_entities.size() * 4);
+						indices.resize(m_entities.size() * 6);
+
+						if (m_entities.empty())
+						{
+								return;
+						}
+
+						int offset = 0;
+
+						for (size_t i = 0; i < indices.size(); i += 6)
+						{
+								indices.at(i) = offset + 0;
+								indices.at(i + 1) = offset + 1;
+								indices.at(i + 2) = offset + 2;
+
+								indices.at(i + 3) = offset + 2;
+								indices.at(i + 4) = offset + 3;
+								indices.at(i + 5) = offset + 0;
+
+								offset += 4;
+						}
+
+						int currentVertex = 0;
+						offset = 0;
+
+						{
+								ecs::Sprite*				sprite = m_entities.at(0)->getComponent<ecs::Sprite>();
+
+								//The transform values of the sprite
+								ecs::Transform* transform = m_entities.at(0)->getComponent<ecs::Transform>();
+
+								m_spriteBatches.emplace_back(offset, 6, sprite->getTexture().getID());
+
+								//the components needed for the 4 vertices
+								const glm::vec4& color = sprite->getColor();
+								const glm::vec2& size = sprite->getSize();
+								const std::array<glm::vec2, 4>& uv = sprite->getUV();
+								glm::mat4 worldTrans = transform->worldTransform();
+
+								//get the 4 vertices around the center 
+								glm::vec3 bottomLeft = glm::vec3(-size.x * 0.5f, -size.y * 0.5f, 0.0f);
+								glm::vec3 topLeft = glm::vec3(-size.x * 0.5f, size.y * 0.5f, 0.0f);
+								glm::vec3 topRight = glm::vec3(size.x * 0.5f, size.y * 0.5f, 0.0f);
+								glm::vec3 bottomRight = glm::vec3(size.x * 0.5f, -size.y * 0.5f, 0.0f);
+
+								//transform the 4 vertices by the world matrix
+								bottomLeft = worldTrans * glm::vec4(bottomLeft, 1.0f);
+								topLeft = worldTrans * glm::vec4(topLeft, 1.0f);
+								topRight = worldTrans * glm::vec4(topRight, 1.0f);
+								bottomRight = worldTrans * glm::vec4(bottomRight, 1.0f);
+
+								vertices.at(currentVertex).position = bottomLeft;
+								vertices.at(currentVertex).uv = uv.at(0);
+								vertices.at(currentVertex++).color = color;
+
+								vertices.at(currentVertex).position = topLeft;
+								vertices.at(currentVertex).uv = uv.at(1);
+								vertices.at(currentVertex++).color = color;
+
+								vertices.at(currentVertex).position = topRight;
+								vertices.at(currentVertex).uv = uv.at(2);
+								vertices.at(currentVertex++).color = color;
+
+								vertices.at(currentVertex).position = bottomRight;
+								vertices.at(currentVertex).uv = uv.at(3);
+								vertices.at(currentVertex++).color = color;
+
+								offset += 6;
+						}
+
+						for (size_t currentSprite = 1; currentSprite < m_entities.size(); currentSprite++)
+						{
+								ecs::Sprite*				sprite = m_entities.at(currentSprite)->getComponent<ecs::Sprite>();
+
+								//The transform values of the sprite
+								ecs::Transform* transform = m_entities.at(currentSprite)->getComponent<ecs::Transform>();
+
+								if (sprite->getTexture() !=
+										m_entities.at(currentSprite - 1)->getComponent<ecs::Sprite>()->getTexture())
+								{
+										m_spriteBatches.emplace_back(offset, 6, sprite->getTexture().getID());
+								}
+								else
+								{
+										// If its part of the current batch, just increase numVertices
+										m_spriteBatches.back().m_numIndices += 6;
+								}
+
+								//the components needed for the 4 vertices
+								const glm::vec4& color = sprite->getColor();
+								const glm::vec2& size = sprite->getSize();
+								const std::array<glm::vec2, 4>& uv = sprite->getUV();
+
+								glm::mat4 worldTrans = transform->worldTransform();
+
+								//get the 4 vertices around the center 
+								glm::vec3 bottomLeft	 = glm::vec3(-size.x * 0.5f, -size.y * 0.5f, 0.0f);
+								glm::vec3 topLeft				 = glm::vec3(-size.x * 0.5f, size.y * 0.5f, 0.0f);
+								glm::vec3 topRight				= glm::vec3(size.x * 0.5f, size.y * 0.5f, 0.0f);
+								glm::vec3 bottomRight = glm::vec3(size.x * 0.5f, -size.y * 0.5f, 0.0f);
+
+								//transform the 4 vertices by the world matrix
+								bottomLeft		= worldTrans * glm::vec4(bottomLeft, 1.0f);
+								topLeft					= worldTrans * glm::vec4(topLeft, 1.0f);
+								topRight				= worldTrans * glm::vec4(topRight, 1.0f);
+								bottomRight = worldTrans * glm::vec4(bottomRight, 1.0f);
+
+								vertices.at(currentVertex).position = bottomLeft;
+								vertices.at(currentVertex).uv = uv.at(0);
+								vertices.at(currentVertex++).color = color;
+
+								vertices.at(currentVertex).position = topLeft;
+								vertices.at(currentVertex).uv = uv.at(1);
+								vertices.at(currentVertex++).color = color;
+
+								vertices.at(currentVertex).position = topRight;
+								vertices.at(currentVertex).uv = uv.at(2);
+								vertices.at(currentVertex++).color = color;
+
+								vertices.at(currentVertex).position = bottomRight;
+								vertices.at(currentVertex).uv = uv.at(3);
+								vertices.at(currentVertex++).color = color;
+
+								offset += 6;
+						}
+						// Bind our VBO
+						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+						// Orphan the buffer (for speed)
+						glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(SpriteVertex), nullptr, GL_DYNAMIC_DRAW);
+						//upload the data
+						glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(SpriteVertex), vertices.data());
+						// Unbind the VBO
+						glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+						// Orphan the buffer
+						glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
+						// Upload the data
+						glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(GLuint), indices.data());
+						//unbind the ibo
+						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 				}
 		}
 }

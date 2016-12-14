@@ -3,6 +3,7 @@
 
 #include "Entity.h"
 #include "SpriteRenderer.h"
+#include "GLTexture.h"
 
 namespace cogs
 {
@@ -24,7 +25,8 @@ namespace cogs
 								* \param _color - the color of the sprite
 								* \param _renderer - the renderer this sprite will submit itself to
 								*/
-						Sprite(const glm::vec2& _size, const glm::vec4& _color, graphics::SpriteRenderer* _renderer);
+						Sprite(const glm::vec2& _size, const glm::vec4& _color,
+								const std::string& _texturePath, bool _alpha, graphics::SpriteRenderer* _renderer);
 
 						/**
 								* Sprite destructor
@@ -46,18 +48,27 @@ namespace cogs
 						 	*/
 						void render() override;
 
+						void setTexture(const std::string& _filePath, bool _alpha);
+
 						/**
 								* Getters
 								*/
-						const glm::vec4& getColor()			 const noexcept { return m_color; }
-						const glm::vec2& getSize()			 const noexcept		{ return m_size; }
+						const glm::vec4& getColor()													 const noexcept { return m_color; }
+						const glm::vec2& getSize()														 const noexcept { return m_size; }
+						const std::array<glm::vec2, 4>& getUV()		const noexcept	{ return m_uv; }
+						const graphics::GLTexture& getTexture()  const noexcept { return m_texture; }
+
+				private:
+						void setUVdefaults();
 
 				private:
 						Transform* m_transform{ nullptr };
 						glm::vec4 m_color{ 0.0f };
 						glm::vec2 m_size{ 0.0f };
+						std::array<glm::vec2, 4> m_uv;
 
-						graphics::SpriteRenderer* m_renderer;
+						graphics::GLTexture m_texture;
+						graphics::SpriteRenderer* m_renderer = nullptr;
 				};
 		}
 }

@@ -5,8 +5,13 @@ namespace cogs
 		namespace ecs
 		{
 				Sprite::Sprite() { }
-				Sprite::Sprite(const glm::vec2& _size, const glm::vec4& _color, graphics::SpriteRenderer* _renderer)
-						: m_color(_color), m_renderer(_renderer), m_size(_size) { }
+				Sprite::Sprite(const glm::vec2& _size, const glm::vec4& _color,
+						const std::string& _texturePath, bool _alpha, graphics::SpriteRenderer* _renderer)
+						: m_color(_color), m_renderer(_renderer), m_size(_size)
+				{
+						setUVdefaults();
+						m_texture.load(_texturePath, _alpha);
+				}
 				
 				Sprite::~Sprite()
 				{
@@ -27,6 +32,26 @@ namespace cogs
 				void Sprite::render()
 				{
 						m_renderer->submit(m_entity);
+				}
+
+				void Sprite::setTexture(const std::string & _filePath, bool _alpha)
+				{
+						m_texture.load(_filePath, _alpha);
+				}
+
+				void Sprite::setUVdefaults()
+				{
+						//bottom left
+						m_uv.at(0) = glm::vec2(0, 0);
+
+						//top left
+						m_uv.at(1) = glm::vec2(0, 1);
+
+						//top right
+						m_uv.at(2) = glm::vec2(1, 1);
+
+						//bottom right
+						m_uv.at(3) = glm::vec2(1, 0);
 				}
 		}
 }

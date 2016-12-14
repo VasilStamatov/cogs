@@ -1,11 +1,14 @@
 #version 330 core
 
 layout (location = 0) in vec3 position;
-layout (location = 1) in vec4 color;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec4 color;
+
 
 out VS_OUT
 {
 	vec3 position;
+	vec2 uv;
 	vec4 color;
 } vs_out;
 
@@ -20,7 +23,7 @@ void main()
     
 	//pass the world space coordinates
     vs_out.position = vec3(model * vec4(position, 1.0));;
-    
+    vs_out.uv = vec2(uv.x, 1.0 - uv.y);
     vs_out.color = color;
     
 }
