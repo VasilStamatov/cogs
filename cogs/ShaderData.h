@@ -23,7 +23,7 @@ namespace cogs
 
 						~ShaderData()
 						{
-
+								dispose();
 						}
 
 						/** Dispose of the shader*/
