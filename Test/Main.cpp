@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
 
 		cg::GLSLProgram basicShader;
-		basicShader.compileShaders("Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
+		basicShader.compileShaders("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
 
 		window.setClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 

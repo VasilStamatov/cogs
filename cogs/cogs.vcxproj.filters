@@ -75,6 +75,9 @@
     <ClInclude Include="TextureData.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderData.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">

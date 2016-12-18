@@ -1,33 +1,29 @@
 #ifndef GLSLPROGRAM_H
 #define GLSLPROGRAM_H
 
-#include <string>
-#include <GL/glew.h>
-#include <unordered_map>
+#include "ShaderData.h"
+
 #include <glm\mat4x4.hpp>
+#include <map>
+#include <memory>
 
 namespace cogs
 {
 		namespace graphics
 		{
-				using AttribLocation = GLuint;
-				using UniformLocation = GLuint;
-				using ProgramID = GLuint;
-				using ShaderID = GLuint;
-
 				/** This class handles the compilation, linking, and usage of a GLSL shader program. */
 				class GLSLProgram
 				{
 				public:
 						GLSLProgram();
-						GLSLProgram(const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
+						GLSLProgram(const std::string& _name, const std::string& _vsFilePath = "", const std::string& _fsFilePath = "", const std::string& _gsFilePath = "");
 						~GLSLProgram();
 
 						/**
 								* \brief Compiles the passed shaders
 								* \param[in] _shaders The shaders passed to the main program in order to be compiled
 								*/
-						void compileShaders(const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
+						void compileShaders(const std::string& _name, const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
 
 						/**
 								* \brief Compiling vertex and fragment shaders from source
@@ -144,33 +140,13 @@ namespace cogs
 						void compileShader(const char* _source, const std::string& _name, GLuint _id);
 
 						/** Links the shaders together */
-						void linkShaders();
+						void linkShaders(ProgramID _programID, ShaderID _vertID, ShaderID _fragID, ShaderID _geoID = 0);
 
-						/**
-								* \brief Gets the location of a specific attribute in the shader program
-								* \param[in] _attributeName The name of the searched attribute
-								* \return the GLint location of the specified attribute
-								*/
-						AttribLocation getAttribLoc(const std::string& _attributeName);
+				private:
+						static std::map<std::string, std::shared_ptr<ShaderData>> s_resourceMap;
 
-						/**
-								* \brief Get the uniform location
-								* \param[in] _uniformName The name of the requested uniform
-								* \return output is the GLint location of the uniform in the shader
-								*/
-						UniformLocation getUniformLoc(const std::string& _uniformName);
-
-						/* The program ID of the whole shader program */
-						ProgramID m_programID{ 0 };
-
-						/* The Id's of each shader */
-						ShaderID m_vertexShaderID{ 0 };
-						ShaderID m_fragmentShaderID{ 0 };
-						ShaderID m_geometryShaderID{ 0 };
-
-						/* a map of the locations in the shader for ease of access */
-						std::unordered_map<std::string, AttribLocation> m_attribList;
-						std::unordered_map<std::string, UniformLocation> m_unifLocationList;
+						std::weak_ptr<ShaderData> m_shaderData;
+						std::string m_programName{ "" };
 				};
 		}
 }

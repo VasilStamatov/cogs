@@ -56,6 +56,7 @@ namespace cogs
 								//if the texture is in the map, then
 								//return the already existing (cached) texture
 								m_textureData = iter->second;
+								m_filePath = _filePath;
 						}
 
 						//return success

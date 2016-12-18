@@ -16,7 +16,7 @@ namespace cogs
 						void setName(const std::string& _name) { m_name = _name; }
 						const std::string& getName() const noexcept { return m_name; }
 
-						void destroy() { m_destroyed = true; }
+						virtual void destroy() { m_destroyed = true; }
 						bool isDestroyed() const noexcept { return m_destroyed; }
 
 						virtual ~Object()
