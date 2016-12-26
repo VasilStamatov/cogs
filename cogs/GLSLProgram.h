@@ -16,7 +16,7 @@ namespace cogs
 				{
 				public:
 						GLSLProgram();
-						GLSLProgram(const std::string& _name, const std::string& _vsFilePath = "", const std::string& _fsFilePath = "", const std::string& _gsFilePath = "");
+						GLSLProgram(const std::string& _name, const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
 						~GLSLProgram();
 
 						/**

@@ -2,6 +2,7 @@
 #define SPRITE_RENDERER_H
 
 #include "Renderer.h"
+#include "GLSLProgram.h"
 
 #include <GL\glew.h>
 
@@ -45,7 +46,6 @@ namespace cogs
 				constexpr GLuint UV_ATTRIBUTE_INDEX						 = 1;
 				constexpr GLuint COLOR_ATTRIBUTE_INDEX		  = 2;
 
-
 				using VBO = GLuint;
 				using VAO = GLuint;
 				using IBO = GLuint;
@@ -54,6 +54,7 @@ namespace cogs
 				{
 				public:
 						SpriteRenderer();
+						SpriteRenderer(const std::string& _name, const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
 					 ~SpriteRenderer();
 						
 						/**
@@ -69,7 +70,7 @@ namespace cogs
 						/**
 								* Render all the submitted entities
 								*/
-						void flush() override;
+						void flush(const glm::mat4& _view, const glm::mat4& _projection) override;
 
 						/**
 								* Begin submission
@@ -86,6 +87,11 @@ namespace cogs
 								*/
 						void dispose();
 
+						/**
+								* sets the shader this renderer to use
+								*/
+						void setShader(const std::string& _name, const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
+
 				private:
 						void SortSprites();
 						void CreateSpriteBatches();
@@ -96,6 +102,8 @@ namespace cogs
 						VAO m_vao{ 0 };
 
 						SpriteSortType m_sortType;
+
+						GLSLProgram m_shader;
 
 						std::vector<ecs::Entity*> m_entities;
 						std::vector<SpriteBatch> m_spriteBatches;

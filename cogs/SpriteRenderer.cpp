@@ -8,11 +8,19 @@ namespace cogs
 				SpriteRenderer::SpriteRenderer() : Renderer()
 				{
 						init();
+						m_shader.compileShaders("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
+				}
+
+				SpriteRenderer::SpriteRenderer(const std::string & _name, const std::string & _vsFilePath, const std::string & _fsFilePath, const std::string & _gsFilePath)
+				{
+						init();
+						m_shader.compileShaders(_name, _vsFilePath, _fsFilePath, _gsFilePath);
 				}
 
 				SpriteRenderer::~SpriteRenderer()
 				{
 						dispose();
+						m_shader.dispose();
 				}
 
 				void SpriteRenderer::init()
@@ -59,8 +67,11 @@ namespace cogs
 						m_entities.push_back(_entity);
 				}
 
-				void SpriteRenderer::flush()
+				void SpriteRenderer::flush(const glm::mat4& _view, const glm::mat4& _projection)
 				{
+						m_shader.use();
+						m_shader.uploadValue("projection", _projection);
+						m_shader.uploadValue("view", _view);
 						/* Bind the VAO. This sets up the opengl state we need, including the
 						vertex attribute pointers and it binds the VBO */
 						glBindVertexArray(m_vao);
@@ -76,6 +87,8 @@ namespace cogs
 						}
 						//unbind the vao
 						glBindVertexArray(0);
+
+						m_shader.unUse();
 				}
 
 				void SpriteRenderer::begin(const SpriteSortType& _sortType /* = SpriteSortType::TEXTURE */)
@@ -113,6 +126,12 @@ namespace cogs
 								m_ibo = 0;
 						}
 				}
+
+				void SpriteRenderer::setShader(const std::string & _name, const std::string & _vsFilePath, const std::string & _fsFilePath, const std::string & _gsFilePath)
+				{
+						m_shader.compileShaders(_name, _vsFilePath, _fsFilePath, _gsFilePath);
+				}
+
 				void SpriteRenderer::SortSprites()
 				{
 						switch (m_sortType)
@@ -155,7 +174,9 @@ namespace cogs
 						std::vector<SpriteVertex> vertices;
 						std::vector<GLuint> indices;
 
+						//1 entity = 1 sprite = 4 vertices
 						vertices.resize(m_entities.size() * 4);
+						//1 sprite = 6 indices to connect the 4 verts (0, 1, 2 - 2, 3, 0)
 						indices.resize(m_entities.size() * 6);
 
 						if (m_entities.empty())
@@ -165,6 +186,7 @@ namespace cogs
 
 						int offset = 0;
 
+						//set all the indices
 						for (size_t i = 0; i < indices.size(); i += 6)
 						{
 								indices.at(i) = offset + 0;
@@ -181,59 +203,19 @@ namespace cogs
 						int currentVertex = 0;
 						offset = 0;
 
-						{
-								ecs::Sprite*				sprite = m_entities.at(0)->getComponent<ecs::Sprite>();
-
-								//The transform values of the sprite
-								ecs::Transform* transform = m_entities.at(0)->getComponent<ecs::Transform>();
-
-								m_spriteBatches.emplace_back(offset, 6, sprite->getTexture().getID());
-
-								//the components needed for the 4 vertices
-								const glm::vec4& color = sprite->getColor();
-								const glm::vec2& size = sprite->getSize();
-								const std::array<glm::vec2, 4>& uv = sprite->getUV();
-								glm::mat4 worldTrans = transform->worldTransform();
-
-								//get the 4 vertices around the center 
-								glm::vec3 bottomLeft = glm::vec3(-size.x * 0.5f, -size.y * 0.5f, 0.0f);
-								glm::vec3 topLeft = glm::vec3(-size.x * 0.5f, size.y * 0.5f, 0.0f);
-								glm::vec3 topRight = glm::vec3(size.x * 0.5f, size.y * 0.5f, 0.0f);
-								glm::vec3 bottomRight = glm::vec3(size.x * 0.5f, -size.y * 0.5f, 0.0f);
-
-								//transform the 4 vertices by the world matrix
-								bottomLeft = worldTrans * glm::vec4(bottomLeft, 1.0f);
-								topLeft = worldTrans * glm::vec4(topLeft, 1.0f);
-								topRight = worldTrans * glm::vec4(topRight, 1.0f);
-								bottomRight = worldTrans * glm::vec4(bottomRight, 1.0f);
-
-								vertices.at(currentVertex).position = bottomLeft;
-								vertices.at(currentVertex).uv = uv.at(0);
-								vertices.at(currentVertex++).color = color;
-
-								vertices.at(currentVertex).position = topLeft;
-								vertices.at(currentVertex).uv = uv.at(1);
-								vertices.at(currentVertex++).color = color;
-
-								vertices.at(currentVertex).position = topRight;
-								vertices.at(currentVertex).uv = uv.at(2);
-								vertices.at(currentVertex++).color = color;
-
-								vertices.at(currentVertex).position = bottomRight;
-								vertices.at(currentVertex).uv = uv.at(3);
-								vertices.at(currentVertex++).color = color;
-
-								offset += 6;
-						}
-
-						for (size_t currentSprite = 1; currentSprite < m_entities.size(); currentSprite++)
+						//set all the vertices
+						for (size_t currentSprite = 0; currentSprite < m_entities.size(); currentSprite++)
 						{
 								ecs::Sprite*				sprite = m_entities.at(currentSprite)->getComponent<ecs::Sprite>();
 
 								//The transform values of the sprite
 								ecs::Transform* transform = m_entities.at(currentSprite)->getComponent<ecs::Transform>();
 
-								if (sprite->getTexture() !=
+								if (currentSprite == 0)
+								{
+										m_spriteBatches.emplace_back(offset, 6, sprite->getTexture().getID());
+								}
+								else if (sprite->getTexture() !=
 										m_entities.at(currentSprite - 1)->getComponent<ecs::Sprite>()->getTexture())
 								{
 										m_spriteBatches.emplace_back(offset, 6, sprite->getTexture().getID());

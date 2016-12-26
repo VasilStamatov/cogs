@@ -15,7 +15,7 @@ namespace cogs
 
 						virtual void init() = 0;
 						virtual void submit(ecs::Entity* _entity) = 0;
-						virtual void flush() = 0;
+						virtual void flush(const glm::mat4& _view, const glm::mat4& _projection) = 0;
 				};
 		}
 }

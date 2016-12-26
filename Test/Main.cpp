@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 		camera.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 5.0f));
 		camera.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, -0.0f));
 
-		cg::SpriteRenderer spriteRenderer;
+		cg::SpriteRenderer spriteRenderer("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
 
 		std::weak_ptr<ce::Entity> sprite = root->addChild("testSprite");
 		sprite.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
@@ -47,9 +47,6 @@ int main(int argc, char** argv)
 				"Textures/red_bricks.png", true,
 				&spriteRenderer);
 		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
-
-		cg::GLSLProgram basicShader;
-		basicShader.compileShaders("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
 
 		window.setClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -196,13 +193,7 @@ int main(int argc, char** argv)
 				root->renderAll();
 				spriteRenderer.end();
 
-				basicShader.use();
-				basicShader.uploadValue("projection", camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix());
-				basicShader.uploadValue("view", camera.lock()->getComponent<ce::Camera>()->getViewMatrix());
-
-				spriteRenderer.flush();
-
-				basicShader.unUse();
+				spriteRenderer.flush(camera.lock()->getComponent<ce::Camera>()->getViewMatrix(), camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix());
 
 				window.swapBuffer();
 
