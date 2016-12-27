@@ -21,6 +21,11 @@ namespace cogs
 						compileShaders(_name, _vsFilePath, _fsFilePath, _gsFilePath);
 				}
 
+				GLSLProgram::GLSLProgram(const GLSLProgram & _other) :
+						m_programName(_other.m_programName), m_shaderData(_other.m_shaderData)
+				{
+				}
+
 				GLSLProgram::~GLSLProgram()
 				{
 						dispose();
