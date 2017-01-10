@@ -4,98 +4,48 @@ namespace cogs
 {
 		namespace graphics
 		{
-				Material::Material()
+				std::map<std::string, std::shared_ptr<MaterialData>> Material::s_resourceMap;
+
+				Material::Material(const std::string & _name) : m_name(_name)
 				{
+						auto iter = s_resourceMap.find(m_name);
+
+						if (iter == s_resourceMap.end())
+						{
+								std::shared_ptr<MaterialData> newMaterialData = std::make_shared<MaterialData>();
+								s_resourceMap.insert(std::make_pair(m_name, std::move(newMaterialData)));
+								m_materialData = s_resourceMap.at(m_name);
+						}
+						else
+						{
+								m_materialData = iter->second;
+						}
 				}
 
-				Material::Material(const std::string & _materialName, std::unique_ptr<GLSLProgram> _shader)
-						: ecs::Object(_materialName)
+				Material::Material(const std::string & _name, const GLSLProgram & _shader) : m_name(_name)
 				{
-						m_shader = std::move(_shader);
+						auto iter = s_resourceMap.find(m_name);
+
+						if (iter == s_resourceMap.end())
+						{
+								std::shared_ptr<MaterialData> newMaterialData = std::make_shared<MaterialData>(_shader);
+								s_resourceMap.insert(std::make_pair(m_name, std::move(newMaterialData)));
+								m_materialData = s_resourceMap.at(m_name);
+						}
+						else
+						{
+								m_materialData = iter->second;
+						}
 				}
 
-				Material::Material(const std::string & _materialName,
-						const std::string & _vsFilePath, const std::string & _fsFilePath, const std::string & _gsFilePath)
-						: ecs::Object(_materialName)
+				Material::Material(const Material & _other) :
+						m_name(_other.m_name),
+						m_materialData(_other.m_materialData)
 				{
-						m_shader = std::make_unique<GLSLProgram>(_vsFilePath, _fsFilePath, _gsFilePath);
 				}
-
 				Material::~Material()
 				{
-						m_shader->dispose();
+						m_materialData.reset();
 				}
-
-				void Material::bind()
-				{
-						m_shader->use();
-				}
-
-				void Material::unbind()
-				{
-						m_shader->unUse();
-				}
-
-				void Material::setShader(std::unique_ptr<GLSLProgram> _shader)
-				{
-						m_shader = std::move(_shader);
-				}
-
-				void Material::setShader(const std::string & _vsFilePath, const std::string & _fsFilePath, const std::string & _gsFilePath)
-				{
-						m_shader->dispose();
-						m_shader->compileShaders(_vsFilePath, _fsFilePath, _gsFilePath);
-				}
-
-				void Material::registerAttribute(const std::string & _attrib)
-				{
-						m_shader->registerAttribute(_attrib);
-				}
-
-				void Material::registerUniform(const std::string & _uniform)
-				{
-						m_shader->registerUniform(_uniform);
-				}
-
-				AttribLocation Material::getAttribLocation(const std::string & _attrib)
-				{
-						return m_shader->getAttribLocation(_attrib);
-				}
-
-				UniformLocation Material::getUniformLocation(const std::string & _uniform)
-				{
-						return m_shader->getUniformLocation(_uniform);
-				}
-
-				void Material::uploadValue(const std::string & _uniformName, const glm::mat4 & _matrix)
-				{
-						m_shader->uploadValue(_uniformName, _matrix);
-				}
-
-				void Material::uploadValue(const std::string & _uniformName, const float & _float)
-				{
-						m_shader->uploadValue(_uniformName, _float);
-				}
-
-				void Material::uploadValue(const std::string & _uniformName, const int & _int)
-				{
-						m_shader->uploadValue(_uniformName, _int);
-				}
-
-				void Material::uploadValue(const std::string & _uniformName, const glm::vec2 & _vec2)
-				{
-						m_shader->uploadValue(_uniformName, _vec2);
-				}
-
-				void Material::uploadValue(const std::string & _uniformName, const glm::vec3 & _vec3)
-				{
-						m_shader->uploadValue(_uniformName, _vec3);
-				}
-
-				void Material::uploadValue(const std::string & _uniformName, const glm::vec4 & _vec4)
-				{
-						m_shader->uploadValue(_uniformName, _vec4);
-				}
-
 		}
 }

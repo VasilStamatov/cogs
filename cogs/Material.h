@@ -1,52 +1,45 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "Object.h"
-#include "GLSLProgram.h"
-
-#include <memory>
+#include "MaterialData.h"
 
 namespace cogs
 {
 		namespace graphics
 		{
-				class Material : public ecs::Object
+				class Material
 				{
 				public:
-						Material();
-						Material(const std::string& _materialName, std::unique_ptr<GLSLProgram> _shader);
-						Material(const std::string& _materialName,
-								const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
-
+						Material(const std::string& _name);
+						Material(const std::string& _name, const GLSLProgram& _shader);
+						Material(const Material& _other);
 						~Material();
+						
+						inline void bind() { m_materialData.lock()->bind(); }
+						inline void unbind() { m_materialData.lock()->unbind(); }
 
-						void bind();
+						inline void uploadUniforms() { m_materialData.lock()->uploadUniforms(); }
+						inline void uploadTextures(const std::vector<GLTexture>& _textures)
+						{ m_materialData.lock()->uploadTextures(_textures); }
 
-						void unbind();
+						inline const GLSLProgram& getShader() const { return m_materialData.lock()->getShader(); }
+						inline void setShader(const GLSLProgram& _shader) { m_materialData.lock()->setShader(_shader); }
 
-						void setShader(std::unique_ptr<GLSLProgram> _shader);
-						void setShader(const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
+						inline void addFloat(const std::string& _name, float _value) { m_materialData.lock()->addFloat(_name, _value); }
+						inline void addVec3(const std::string& _name, const glm::vec3& _value) { m_materialData.lock()->addVec3(_name, _value); }
+						inline void addVec2(const std::string& _name, const glm::vec2& _value) { m_materialData.lock()->addVec2(_name, _value); }
+						inline void addMat4(const std::string& _name, const glm::mat4& _value) { m_materialData.lock()->addMat4(_name, _value); }
 
-						/* Registers the location of an attribute in this shader (must be called after linking) */
-						void registerAttribute(const std::string& _attrib);
+						inline void removeFloat(const std::string& _name) { m_materialData.lock()->removeFloat(_name); }
+						inline void removeVec3(const std::string& _name) { m_materialData.lock()->removeVec3(_name); }
+						inline void removeVec2(const std::string& _name) { m_materialData.lock()->removeVec2(_name); }
+						inline void removeMat4(const std::string& _name) { m_materialData.lock()->removeMat4(_name); }
 
-						/* Registers the location of a uniform in this shader (must be called after linking) */
-						void registerUniform(const std::string& _uniform);
-
-						//accesses elements : attributes/uniforms;
-						AttribLocation getAttribLocation(const std::string& _attrib);
-						UniformLocation getUniformLocation(const std::string& _uniform);
-
-						/* Upload values to the shader */
-						void uploadValue(const std::string& _uniformName, const glm::mat4& _matrix);
-						void uploadValue(const std::string& _uniformName, const float& _float);
-						void uploadValue(const std::string& _uniformName, const int& _int);
-						void uploadValue(const std::string& _uniformName, const glm::vec2& _vec2);
-						void uploadValue(const std::string& _uniformName, const glm::vec3& _vec3);
-						void uploadValue(const std::string& _uniformName, const glm::vec4& _vec4);
 				private:
-						std::unique_ptr<GLSLProgram> m_shader;
-						//TODO: Add vector of textures
+						static std::map<std::string, std::shared_ptr<MaterialData>> s_resourceMap;
+
+						std::weak_ptr<MaterialData> m_materialData;
+						std::string m_name{ "" };
 				};
 		}
 }
