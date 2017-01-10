@@ -98,7 +98,7 @@ namespace cogs
 								/* create the new entity shared pointer */
 								std::shared_ptr<Entity> newChild = std::make_shared<Entity>(_name);
 								m_children.push_back(std::move(newChild));
-						 	m_children.back()->getComponent<Transform>()->setParent(getComponent<Transform>());
+								m_children.back()->getComponent<Transform>()->setParent(getComponent<Transform>());
 								return m_children.back();
 						}
 
@@ -124,6 +124,19 @@ namespace cogs
 						}
 
 						template<typename T>
+						inline T* getComponentInChildren() const
+						{
+								for (auto& child : m_children)
+								{
+										if (child->hasComponent<T>())
+										{
+												return child->getComponent<T>();
+										}
+								}
+								return nullptr;
+						}
+
+						template<typename T>
 						inline std::vector<T*> getComponentsInChildren() const
 						{
 								std::vector<T*> components;
@@ -137,6 +150,16 @@ namespace cogs
 								return components;
 						}
 
+						inline Entity* getRoot()
+						{
+								Transform* parent = getComponent<Transform>()->getParent();
+								if (parent == nullptr)
+								{
+										return this;
+								}
+								return parent->getHolder()->getRoot();
+						}
+
 						inline unsigned int numChildren() const noexcept { return m_children.size(); }
 
 						inline std::weak_ptr<Entity> getChildAt(unsigned int _index) const { return m_children.at(_index); }
@@ -148,17 +171,17 @@ namespace cogs
 						/* Render this entity (all its components) */
 						inline void render() { for (auto& component : m_components) { component->render(); } }
 
-						inline void refresh() 
+						inline void refresh()
 						{
 								m_children.erase
 								(
 										std::remove_if(std::begin(m_children), std::end(m_children),
 												[](const std::shared_ptr<Entity>& _child)
-										{
-												return _child->isDestroyed();
-										}),
+								{
+										return _child->isDestroyed();
+								}),
 										std::end(m_children)
-								);
+										);
 						}
 
 				private:
