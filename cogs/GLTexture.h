@@ -15,22 +15,14 @@ namespace cogs
 				{
 				public:
 						GLTexture() { }
+						GLTexture(const std::string& _name, const std::string& _filePath, bool _alpha = true);
+						~GLTexture();
 
-						~GLTexture() { dispose(); }
-
-						bool load(const std::string& _filePath, bool _alpha = true);
+						void load(const std::string& _name, const std::string& _filePath, bool _alpha = true);
 
 						inline void bind()   const { m_textureData.lock()->bind(); }
 						inline void unbind() const { m_textureData.lock()->unbind(); }
-						inline void dispose()
-						{
-								if (m_textureData.lock())
-								{
-										m_textureData.lock()->dispose();
-										m_textureData.reset();
-										s_resourceMap.erase(m_filePath);
-								}
-						}
+						inline void dispose()      { m_textureData.reset(); }
 
 						inline bool operator> (const GLTexture& _rhs) const
 						{
@@ -41,15 +33,17 @@ namespace cogs
 								return m_textureData.lock() != _rhs.m_textureData.lock();
 						}
 
-						inline unsigned int getWidth()  const { return m_textureData.lock()->getWidth(); }
-						inline unsigned int getHeight() const { return m_textureData.lock()->getHeight(); }
-						inline unsigned int getID()					const { return m_textureData.lock()->getID(); }
+						inline unsigned int getWidth()										const { return m_textureData.lock()->getWidth(); }
+						inline unsigned int getHeight()									const { return m_textureData.lock()->getHeight(); }
+						inline unsigned int getID()													const { return m_textureData.lock()->getID(); }
+						inline const std::string& getFilePath() const { return m_textureData.lock()->getFilePath(); }
+						inline const std::string& getName()					const { return m_name; }
 
 				private:
 						static std::map<std::string, std::shared_ptr<TextureData>> s_resourceMap;
 
 						std::weak_ptr<TextureData> m_textureData;
-						std::string m_filePath;
+						std::string m_name{ "" };
 				};
 		}
 }
