@@ -2,6 +2,7 @@
 #define TEXTURE_DATA_H
 
 #include <GL\glew.h>
+#include <string>
 
 namespace cogs
 {
@@ -10,8 +11,8 @@ namespace cogs
 				class TextureData
 				{
 				public:
-						TextureData(GLenum _target, GLuint _id, int _width, int _height) :
-								m_target(_target), m_id(_id), m_width(_width), m_height(_height) { }
+						TextureData(GLenum _target, GLuint _id, int _width, int _height, const std::string& _filepath) :
+								m_target(_target), m_id(_id), m_width(_width), m_height(_height), m_filePath(_filepath) { }
 
 						~TextureData() { dispose(); }
 
@@ -36,10 +37,10 @@ namespace cogs
 								return m_id != _rhs.m_id;
 						}
 
-						inline unsigned int getWidth()  const { return m_width; }
-						inline unsigned int getHeight() const { return m_height; }
-						inline unsigned int getID()					const { return m_id; }
-
+						inline unsigned int getWidth()										const noexcept { return m_width; }
+						inline unsigned int getHeight()									const noexcept { return m_height; }
+						inline unsigned int getID()													const noexcept { return m_id; }
+					 const std::string& getFilePath()								const noexcept { return m_filePath; }
 				private:
 						// no copy or assignments
 						TextureData(TextureData& other) {}
@@ -50,6 +51,7 @@ namespace cogs
 						GLuint m_id{ 0 };
 						unsigned int m_width{ 0 };
 						unsigned int m_height{ 0 };
+						std::string m_filePath;
 				};
 		}
 }

@@ -109,6 +109,8 @@ namespace cogs
 						inline void setParent									 (Transform* _parent)						{ m_parent = _parent; }
 						inline Transform* getParent()		const noexcept											 { if (m_parent) return m_parent; else return nullptr; }
 
+						inline Entity* getHolder() { return m_entity; }
+
 						bool operator== (const Transform& _rhs) const;
 
 				private:

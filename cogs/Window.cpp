@@ -326,7 +326,7 @@ namespace cogs
 						glDepthFunc(GL_LESS);
 
 						//Enable multisampling
-						glEnable(GL_MULTISAMPLE);
+						//glEnable(GL_MULTISAMPLE);
 
 						//Enable gamma correction
 						//glEnable(GL_FRAMEBUFFER_SRGB);

@@ -37,8 +37,8 @@ namespace cogs
 						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
 						//enable the position attribute in the shader (index 0)
-						glEnableVertexAttribArray(POSITION_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(POSITION_ATTRIBUTE_INDEX, // the index of the attribute in the shader
+						glEnableVertexAttribArray(SPITE_POSITION_ATTRIBUTE_INDEX);
+						glVertexAttribPointer(SPITE_POSITION_ATTRIBUTE_INDEX, // the index of the attribute in the shader
 								3,								// the size of the attribute (3 as for 3 floats in vec3's)
 								GL_FLOAT, // the type of the attribute (vec3 = 3 floats => float type)
 								GL_FALSE, // flag whether it should be normalized
@@ -46,13 +46,13 @@ namespace cogs
 								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::position)); // the offset of bytes in the current vertex to get the desired value
 
 						// enable the uv attribute in the shader (index 1)
-						glEnableVertexAttribArray(UV_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(UV_ATTRIBUTE_INDEX, 2, GL_FLOAT, GL_FALSE,	sizeof(SpriteVertex), 
+						glEnableVertexAttribArray(SPITE_UV_ATTRIBUTE_INDEX);
+						glVertexAttribPointer(SPITE_UV_ATTRIBUTE_INDEX, 2, GL_FLOAT, GL_FALSE,	sizeof(SpriteVertex),
 								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::uv));
 
 						//enable the color attribute in the shader (index 2)
-						glEnableVertexAttribArray(COLOR_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(COLOR_ATTRIBUTE_INDEX, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteVertex),
+						glEnableVertexAttribArray(SPITE_COLOR_ATTRIBUTE_INDEX);
+						glVertexAttribPointer(SPITE_COLOR_ATTRIBUTE_INDEX, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteVertex),
 								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::color));
 
 						//bind the index buffer object

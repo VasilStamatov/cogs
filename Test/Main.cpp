@@ -4,7 +4,9 @@
 #include <cogs\Sprite.h>
 #include <cogs\Timing.h>
 #include <cogs\GLTexture.h>
-
+#include <cogs\MeshRenderer.h>
+#include <cogs/KeyCode.h>
+#include <cogs/Input.h>
 #include <iostream>
 
 namespace ce = cogs::ecs;
@@ -22,11 +24,14 @@ int main(int argc, char** argv)
 		std::shared_ptr<ce::Entity> root = std::make_shared<ce::Entity>("Root");
 
 		std::weak_ptr<ce::Entity> camera = root->addChild("Camera");
-		camera.lock()->addComponent<ce::Camera>(ce::ProjectionType::ORTHOGRAPHIC, window.getWidth(), window.getHeight());
+		camera.lock()->addComponent<ce::Camera>(ce::ProjectionType::PERSPECTIVE, window.getWidth(), window.getHeight());
 		camera.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 5.0f));
-		camera.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, -0.0f));
 
-		cg::SpriteRenderer spriteRenderer("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
+		std::weak_ptr<ce::Entity> model1 = root->addChild("TestModel");
+		model1.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("cube", "Models/nanosuit/nanosuit.obj"),
+				std::make_unique<cg::Material>("nanosuit_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
+
+		/*cg::SpriteRenderer spriteRenderer("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
 
 		std::weak_ptr<ce::Entity> sprite = root->addChild("testSprite");
 		sprite.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
@@ -46,7 +51,7 @@ int main(int argc, char** argv)
 				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 				"Textures/red_bricks.png", true,
 				&spriteRenderer);
-		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
+		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));*/
 
 		window.setClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -54,7 +59,7 @@ int main(int argc, char** argv)
 		{
 				fpsLimiter.beginFrame();
 				window.clear(true, true);
-
+				cu::Input::update();
 				//process input
 				SDL_Event evnt;
 				while (SDL_PollEvent(&evnt))
@@ -72,100 +77,22 @@ int main(int argc, char** argv)
 						}
 						case SDL_KEYDOWN:
 						{
-								if (evnt.key.keysym.sym == SDLK_SPACE)
-								{
-										std::cout << "Pos x: " << sprite2.lock()->getComponent<ce::Transform>()->localPosition().x << std::endl;
-										std::cout << "Pos y: " << sprite2.lock()->getComponent<ce::Transform>()->localPosition().y << std::endl;
-										std::cout << "Pos z: " << sprite2.lock()->getComponent<ce::Transform>()->localPosition().z << std::endl;
-
-										std::cout << "Scale x: " << sprite2.lock()->getComponent<ce::Transform>()->localScale().x << std::endl;
-										std::cout << "Scale y: " << sprite2.lock()->getComponent<ce::Transform>()->localScale().z << std::endl;
-										std::cout << "Scale z: " << sprite2.lock()->getComponent<ce::Transform>()->localScale().y << std::endl;
-
-										std::cout << "Rotation x: " << sprite2.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
-										std::cout << "Rotation y: " << sprite2.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
-										std::cout << "Rotation z: " << sprite2.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
-								}
-								if (evnt.key.keysym.sym == SDLK_w)
-								{
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f /* * fpsLimiter.deltaTIme() */, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_s)
-								{
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -50.0f /* * fpsLimiter.deltaTIme() */, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_a)
-								{
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-50.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_d)
-								{
-										sprite2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(50.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_1)
-								{
-										std::cout << "Camera is now perspective projection" << std::endl;
-										camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::PERSPECTIVE);
-								}
-								if (evnt.key.keysym.sym == SDLK_2)
-								{
-										std::cout << "Camera is now orthographic projection" << std::endl;
-										camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::ORTHOGRAPHIC);
-								}
-								if (evnt.key.keysym.sym == SDLK_q)
-								{
-										sprite.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, 10.0f /* * fpsLimiter.deltaTIme() */));
-								}
-								if (evnt.key.keysym.sym == SDLK_e)
-								{
-										sprite2.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, -10.0f /* * fpsLimiter.deltaTIme() */));
-								}
-								if (evnt.key.keysym.sym == SDLK_r)
-								{
-										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_f)
-								{
-										sprite.lock()->getComponent<ce::Transform>()->scale(glm::vec3(-1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_LEFT)
-								{
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-50.f  /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_RIGHT)
-								{
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(50.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_UP)
-								{
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f /* * fpsLimiter.deltaTIme() */, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_DOWN)
-								{
-										sprite.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -50.0f /* * fpsLimiter.deltaTIme() */, 0.0f));
-								}
-								if (evnt.key.keysym.sym == SDLK_z)
-								{
-										std::cout << "Increasing the size of the ortho camera by 0.5f" << std::endl;
-										camera.lock()->getComponent<ce::Camera>()->offsetSize(0.5f);
-								}
-								if (evnt.key.keysym.sym == SDLK_x)
-								{
-										std::cout << "Increasing the size of the ortho camera by -0.5f" << std::endl;
-										camera.lock()->getComponent<ce::Camera>()->offsetSize(-0.5f);
-								}
+								cu::Input::pressKey(evnt.key.keysym.sym);
 								break;
 						}
 						case SDL_KEYUP:
 						{
+								cu::Input::releaseKey(evnt.key.keysym.sym);
 								break;
 						}
 						case SDL_MOUSEBUTTONDOWN:
 						{
+								cu::Input::pressKey(evnt.button.button);
 								break;
 						}
 						case SDL_MOUSEBUTTONUP:
 						{
+								cu::Input::releaseKey(evnt.button.button);
 								break;
 						}
 						case SDL_MOUSEWHEEL:
@@ -183,17 +110,101 @@ int main(int argc, char** argv)
 						}
 						}
 				}
-				
+
+				if (cu::Input::isKeyPressed(cu::KeyCode::SPACE))
+				{
+						std::cout << "Pos x: " << model1.lock()->getComponent<ce::Transform>()->localPosition().x << std::endl;
+						std::cout << "Pos y: " << model1.lock()->getComponent<ce::Transform>()->localPosition().y << std::endl;
+						std::cout << "Pos z: " << model1.lock()->getComponent<ce::Transform>()->localPosition().z << std::endl;
+
+						std::cout << "Scale x: " << model1.lock()->getComponent<ce::Transform>()->localScale().x << std::endl;
+						std::cout << "Scale y: " << model1.lock()->getComponent<ce::Transform>()->localScale().z << std::endl;
+						std::cout << "Scale z: " << model1.lock()->getComponent<ce::Transform>()->localScale().y << std::endl;
+
+						std::cout << "Rotation x: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
+						std::cout << "Rotation y: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
+						std::cout << "Rotation z: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::W))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 0.5f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::S))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, -0.5f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::A))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-0.5f, 0.0f, 0.0f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::D))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.5f, 0.0f, 0.0f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::KEY1))
+				{
+						std::cout << "Camera is now perspective projection" << std::endl;
+						camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::PERSPECTIVE);
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::KEY2))
+				{
+						std::cout << "Camera is now orthographic projection" << std::endl;
+						camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::ORTHOGRAPHIC);
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::Q))
+				{
+						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, 10.0f /* * fpsLimiter.deltaTIme() */));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::E))
+				{
+						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 10.0f, 0.0f /* * fpsLimiter.deltaTIme() */));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::R))
+				{
+						model1.lock()->getComponent<ce::Transform>()->scale(glm::vec3(1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::F))
+				{
+						model1.lock()->getComponent<ce::Transform>()->scale(glm::vec3(-1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::LEFT))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-0.5f  /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::RIGHT))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.5f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::UP))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.5f /* * fpsLimiter.deltaTIme() */, 0.0f));
+				}
+				if (cu::Input::isKeyDown(cu::KeyCode::DOWN))
+				{
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -0.5f /* * fpsLimiter.deltaTIme() */, 0.0f));
+				}
+				if (cu::Input::isKeyPressed(cu::KeyCode::Z))
+				{
+						std::cout << "Increasing the FoV of the camera by 5" << std::endl;
+						camera.lock()->getComponent<ce::Camera>()->offsetFoV(5);
+				}
+				if (cu::Input::isKeyPressed(cu::KeyCode::X))
+				{
+						std::cout << "Increasing the FoV of the camera by -5" << std::endl;
+						camera.lock()->getComponent<ce::Camera>()->offsetFoV(-5);
+				}
+
+
 				//Update
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
 
 				//Render
-				spriteRenderer.begin();
+				//spriteRenderer.begin();
 				root->renderAll();
-				spriteRenderer.end();
+				//spriteRenderer.end();
 
-				spriteRenderer.flush(camera.lock()->getComponent<ce::Camera>()->getViewMatrix(), camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix());
+				//spriteRenderer.flush(camera.lock()->getComponent<ce::Camera>()->getViewMatrix(), camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix());
 
 				window.swapBuffer();
 

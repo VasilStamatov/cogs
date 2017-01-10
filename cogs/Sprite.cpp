@@ -10,7 +10,7 @@ namespace cogs
 						: m_color(_color), m_renderer(_renderer), m_size(_size)
 				{
 						setUVdefaults();
-						m_texture.load(_texturePath, _alpha);
+						m_texture.load(_texturePath, _texturePath, _alpha);
 				}
 				
 				Sprite::~Sprite()
@@ -36,7 +36,12 @@ namespace cogs
 
 				void Sprite::setTexture(const std::string & _filePath, bool _alpha)
 				{
-						m_texture.load(_filePath, _alpha);
+						m_texture.load(_filePath, _filePath, _alpha);
+				}
+
+				void Sprite::setRenderer(graphics::SpriteRenderer * _renderer)
+				{
+						m_renderer = _renderer;
 				}
 
 				void Sprite::setUVdefaults()

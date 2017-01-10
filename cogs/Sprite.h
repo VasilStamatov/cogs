@@ -49,14 +49,15 @@ namespace cogs
 						void render() override;
 
 						void setTexture(const std::string& _filePath, bool _alpha);
+						void setRenderer(graphics::SpriteRenderer* _renderer);
 
 						/**
 								* Getters
 								*/
-						const glm::vec4& getColor()													 const noexcept { return m_color; }
-						const glm::vec2& getSize()														 const noexcept { return m_size; }
-						const std::array<glm::vec2, 4>& getUV()		const noexcept	{ return m_uv; }
-						const graphics::GLTexture& getTexture()  const noexcept { return m_texture; }
+						inline const glm::vec4& getColor()													 const noexcept { return m_color; }
+						inline const glm::vec2& getSize()														 const noexcept { return m_size; }
+						inline const std::array<glm::vec2, 4>& getUV()		const noexcept	{ return m_uv; }
+						inline const graphics::GLTexture& getTexture()  const noexcept { return m_texture; }
 
 				private:
 						void setUVdefaults();

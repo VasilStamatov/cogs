@@ -42,9 +42,9 @@ namespace cogs
 						glm::vec4 color;
 				};
 
-				constexpr GLuint POSITION_ATTRIBUTE_INDEX = 0;
-				constexpr GLuint UV_ATTRIBUTE_INDEX						 = 1;
-				constexpr GLuint COLOR_ATTRIBUTE_INDEX		  = 2;
+				constexpr GLuint SPITE_POSITION_ATTRIBUTE_INDEX = 0;
+				constexpr GLuint SPITE_UV_ATTRIBUTE_INDEX						 = 1;
+				constexpr GLuint SPITE_COLOR_ATTRIBUTE_INDEX		  = 2;
 
 				using VBO = GLuint;
 				using VAO = GLuint;
