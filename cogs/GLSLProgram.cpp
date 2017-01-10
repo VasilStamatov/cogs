@@ -247,12 +247,7 @@ namespace cogs
 
 				void GLSLProgram::dispose()
 				{
-						if (m_shaderData.lock())
-						{
-								m_shaderData.lock()->dispose();
 								m_shaderData.reset();
-								s_resourceMap.erase(m_programName);
-						}
 				}
 
 				void GLSLProgram::registerAttribute(const std::string& _attrib)
