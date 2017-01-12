@@ -7,7 +7,7 @@ namespace cogs
 {
 		namespace utils
 		{
-				enum KeyCode : unsigned int
+				enum class KeyCode : unsigned int
 				{
 						UP		   = SDLK_UP,
 						DOWN   = SDLK_DOWN,
@@ -44,16 +44,16 @@ namespace cogs
 						B					 = SDLK_b,
 						N					 = SDLK_n,
 						M					 = SDLK_m,
-						KEY0		 = SDLK_0,
-						KEY1		 = SDLK_1,
-						KEY2		 = SDLK_2,
-						KEY3		 = SDLK_3,
-						KEY4		 = SDLK_4,
-						KEY5		 = SDLK_5,
-						KEY6		 = SDLK_6,
-						KEY7		 = SDLK_7,
-						KEY8		 = SDLK_8,
-						KEY9		 = SDLK_9,
+						ALPHA0		 = SDLK_0,
+						ALPHA1		 = SDLK_1,
+						ALPHA2		 = SDLK_2,
+						ALPHA3		 = SDLK_3,
+						ALPHA4		 = SDLK_4,
+						ALPHA5		 = SDLK_5,
+						ALPHA6		 = SDLK_6,
+						ALPHA7		 = SDLK_7,
+						ALPHA8		 = SDLK_8,
+						ALPHA9		 = SDLK_9,
 						MOUSE0 = 99990,
 						MOUSE1 = 99991,
 						MOUSE2 = 99992

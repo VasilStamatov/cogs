@@ -4,8 +4,8 @@ namespace cogs
 {
 		namespace utils
 		{
-				std::unordered_map<KeyID, bool> Input::m_keyMap;
-				std::unordered_map<KeyID, bool> Input::m_previousKeyMap;
+				std::unordered_map<KeyCode, bool> Input::m_keyMap;
+				std::unordered_map<KeyCode, bool> Input::m_previousKeyMap;
 				glm::vec2 Input::m_mouseCoords;
 
 				void Input::update()
@@ -16,18 +16,18 @@ namespace cogs
 						}
 				}
 
-				void Input::pressKey(KeyID _keyID)
+				void Input::pressKey(unsigned int _keyID)
 				{
 						// Here we are treating _keyMap as an associative array.
 						// if keyID doesn't already exist in _keyMap, it will get added
-						m_keyMap[_keyID] = true;
+						m_keyMap[(KeyCode)_keyID] = true;
 				}
 
-				void Input::releaseKey(KeyID _keyID)
+				void Input::releaseKey(unsigned int _keyID)
 				{
 						// Here we are treating _keyMap as an associative array.
 						// switch the pressed button from true (being pressed) to false (released)
-						m_keyMap[_keyID] = false;
+						m_keyMap[(KeyCode)_keyID] = false;
 				}
 
 				void Input::setMouseCoords(float _x, float _y)
@@ -36,7 +36,7 @@ namespace cogs
 						m_mouseCoords.y = _y;
 				}
 
-				bool Input::isKeyDown(KeyID _keyID)
+				bool Input::isKeyDown(const KeyCode& _keyID)
 				{
 						// We dont want to use the associative array approach here
 						// because we don't want to create a key if it doesnt exist.
@@ -54,7 +54,7 @@ namespace cogs
 						}
 				}
 
-				bool Input::isKeyPressed(KeyID _keyID)
+				bool Input::isKeyPressed(const KeyCode& _keyID)
 				{
 						//check if it was pressed this frame, and wasn't pressed last frame
 						if (isKeyDown(_keyID) == true && wasKeyDown(_keyID) == false)
@@ -64,7 +64,7 @@ namespace cogs
 						return false;
 				}
 
-				bool Input::wasKeyDown(KeyID _keyID)
+				bool Input::wasKeyDown(const KeyCode& _keyID)
 				{
 						// We dont want to use the associative array approach here
 						// because we don't want to create a key if it doesnt exist.
