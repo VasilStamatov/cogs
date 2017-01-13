@@ -22,6 +22,9 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{a30101a3-f3b8-4c92-8771-f86e3eda9fa5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{f23bc555-58c7-445f-b7ac-11a2e51fa4c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -99,6 +102,9 @@
     <ClInclude Include="KeyCode.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Random.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -144,6 +150,9 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Input.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Random.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>

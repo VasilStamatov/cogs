@@ -7,6 +7,7 @@
 #include <cogs\MeshRenderer.h>
 #include <cogs/KeyCode.h>
 #include <cogs/Input.h>
+#include <cogs/Random.h>
 #include <iostream>
 
 namespace ce = cogs::ecs;
@@ -66,48 +67,48 @@ int main(int argc, char** argv)
 				{
 						switch (evnt.type)
 						{
-						case SDL_QUIT:
-						{
-								quit = true;
-								break;
-						}
-						case SDL_MOUSEMOTION:
-						{
-								break;
-						}
-						case SDL_KEYDOWN:
-						{
-								cu::Input::pressKey(evnt.key.keysym.sym);
-								break;
-						}
-						case SDL_KEYUP:
-						{
-								cu::Input::releaseKey(evnt.key.keysym.sym);
-								break;
-						}
-						case SDL_MOUSEBUTTONDOWN:
-						{
-								cu::Input::pressKey(evnt.button.button);
-								break;
-						}
-						case SDL_MOUSEBUTTONUP:
-						{
-								cu::Input::releaseKey(evnt.button.button);
-								break;
-						}
-						case SDL_MOUSEWHEEL:
-						{
-								break;
-						}
-						case SDL_WINDOWEVENT:
-						{
-								window.handleEvent(evnt);
-								if (window.wasResized())
+								case SDL_QUIT:
 								{
-										camera.lock()->getComponent<ce::Camera>()->resize(window.getWidth(), window.getHeight());
-										window.resizeHandled();
+										quit = true;
+										break;
 								}
-						}
+								case SDL_MOUSEMOTION:
+								{
+										break;
+								}
+								case SDL_KEYDOWN:
+								{
+										cu::Input::pressKey(evnt.key.keysym.sym);
+										break;
+								}
+								case SDL_KEYUP:
+								{
+										cu::Input::releaseKey(evnt.key.keysym.sym);
+										break;
+								}
+								case SDL_MOUSEBUTTONDOWN:
+								{
+										cu::Input::pressKey(evnt.button.button);
+										break;
+								}
+								case SDL_MOUSEBUTTONUP:
+								{
+										cu::Input::releaseKey(evnt.button.button);
+										break;
+								}
+								case SDL_MOUSEWHEEL:
+								{
+										break;
+								}
+								case SDL_WINDOWEVENT:
+								{
+										window.handleEvent(evnt);
+										if (window.wasResized())
+										{
+												camera.lock()->getComponent<ce::Camera>()->resize(window.getWidth(), window.getHeight());
+												window.resizeHandled();
+										}
+								}
 						}
 				}
 
@@ -141,47 +142,47 @@ int main(int argc, char** argv)
 				{
 						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.5f, 0.0f, 0.0f));
 				}
-				if (cu::Input::isKeyDown(cu::KeyCode::KEY1))
+				if (cu::Input::isKeyDown(cu::KeyCode::ALPHA1))
 				{
 						std::cout << "Camera is now perspective projection" << std::endl;
 						camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::PERSPECTIVE);
 				}
-				if (cu::Input::isKeyDown(cu::KeyCode::KEY2))
+				if (cu::Input::isKeyDown(cu::KeyCode::ALPHA2))
 				{
 						std::cout << "Camera is now orthographic projection" << std::endl;
 						camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::ORTHOGRAPHIC);
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::Q))
 				{
-						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, 10.0f /* * fpsLimiter.deltaTIme() */));
+						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, 10.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::E))
 				{
-						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 10.0f, 0.0f /* * fpsLimiter.deltaTIme() */));
+						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 10.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::R))
 				{
-						model1.lock()->getComponent<ce::Transform>()->scale(glm::vec3(1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(10.0f, 0.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::F))
 				{
-						model1.lock()->getComponent<ce::Transform>()->scale(glm::vec3(-1.0f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(10.0f, 10.0f, 10.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::LEFT))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-0.5f  /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-0.5f, 0.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::RIGHT))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.5f /* * fpsLimiter.deltaTIme() */, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.5f, 0.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::UP))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.5f /* * fpsLimiter.deltaTIme() */, 0.0f));
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.5f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::DOWN))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -0.5f /* * fpsLimiter.deltaTIme() */, 0.0f));
+						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -0.5f, 0.0f));
 				}
 				if (cu::Input::isKeyPressed(cu::KeyCode::Z))
 				{
