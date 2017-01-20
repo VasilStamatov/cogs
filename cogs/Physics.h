@@ -39,6 +39,16 @@ namespace cogs
 						*/
 						static void stepSimulation();
 
+						/**
+						* Sets the debug renderer
+						*/
+						static void setDebugDrawer(btIDebugDraw* _debugDrawer);
+
+						/**
+						* Uses the debug renderer to draw the debug world
+						*/
+						static void debugDrawWorld();
+
 				private:
 						Physics() {}
 						~Physics() {}

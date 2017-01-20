@@ -37,5 +37,13 @@ namespace cogs
 				{
 						m_dynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
 				}
+				void Physics::setDebugDrawer(btIDebugDraw * _debugDrawer)
+				{
+						m_dynamicsWorld->setDebugDrawer(_debugDrawer);
+				}
+				void Physics::debugDrawWorld()
+				{
+						m_dynamicsWorld->debugDrawWorld();
+				}
 		}
 }

@@ -12,6 +12,7 @@
 #include <cogs\Collider.h>
 #include <cogs\RigidBody.h>
 #include <cogs\FPSCameraControl.h>
+#include <cogs\BulletDebugRenderer.h>
 #include <iostream>
 
 namespace ce = cogs::ecs;
@@ -47,7 +48,6 @@ int main(int argc, char** argv)
 		plane.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("plane", "Models/TestModels/plane2.obj"),
 				std::make_unique<cg::Material>("plane_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
 		plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -5.0f, 0.0f));
-		plane.lock()->getComponent<ce::Transform>()->scale(glm::vec3(50.0f, 0.0f, 50.0f));
 		plane.lock()->addComponent<ce::Collider>(ce::ColliderShape::STATIC_PLANE);
 		plane.lock()->addComponent<ce::RigidBody>(0.0f);
 
@@ -75,6 +75,11 @@ int main(int argc, char** argv)
 		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));*/
 
 		window.setClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+		cg::BulletDebugRenderer debugRenderer;
+
+		debugRenderer.setDebugMode(debugRenderer.DBG_DrawWireframe);
+		cp::Physics::setDebugDrawer(&debugRenderer);
 
 		while (!quit)
 		{
@@ -145,6 +150,8 @@ int main(int argc, char** argv)
 						std::cout << "Rotation x: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
 						std::cout << "Rotation y: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
 						std::cout << "Rotation z: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
+
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, 25.0f, 0.0f));
 				}
 
 				if (cu::Input::isKeyDown(cu::KeyCode::ALPHA1))
@@ -175,19 +182,19 @@ int main(int argc, char** argv)
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::LEFT))
 				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(-250.0f, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(-25.0f, 0.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::RIGHT))
 				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(250.0f, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(25.0f, 0.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::UP))
 				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, 0.0f, -250.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, 0.0f, -25.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::DOWN))
 				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, -0.0f, 250.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, -0.0f, 25.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::Z))
 				{
@@ -210,6 +217,13 @@ int main(int argc, char** argv)
 				//Render
 				//spriteRenderer.begin();
 				root->renderAll();
+
+				//use the debug renderer to draw the debug physics world
+				cp::Physics::debugDrawWorld();
+				debugRenderer.end();
+				debugRenderer.render(camera.lock()->getComponent<ce::Camera>()->getViewMatrix(),
+						camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix(), 1.0f);
+
 				//spriteRenderer.end();
 
 				//spriteRenderer.flush(camera.lock()->getComponent<ce::Camera>()->getViewMatrix(), camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix());

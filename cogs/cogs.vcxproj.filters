@@ -120,6 +120,9 @@
     <ClInclude Include="FPSCameraControl.h">
       <Filter>ECS</Filter>
     </ClInclude>
+    <ClInclude Include="BulletDebugRenderer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -184,6 +187,9 @@
     </ClCompile>
     <ClCompile Include="FPSCameraControl.cpp">
       <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="BulletDebugRenderer.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
