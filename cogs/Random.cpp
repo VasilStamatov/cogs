@@ -11,7 +11,7 @@ namespace cogs
 				{
 						if (!m_seeded)
 						{
-								m_generator.seed(HighResClock::now().time_since_epoch().count());
+								m_generator.seed(static_cast<unsigned int>(HighResClock::now().time_since_epoch().count()));
 								m_seeded = true;
 						}
 						std::uniform_int_distribution<int> intDis(_min, _max);
@@ -22,7 +22,7 @@ namespace cogs
 				{
 						if (!m_seeded)
 						{
-								m_generator.seed(HighResClock::now().time_since_epoch().count());
+								m_generator.seed(static_cast<unsigned int>(HighResClock::now().time_since_epoch().count()));
 								m_seeded = true;
 						}
 						std::uniform_real_distribution<float> realDis(_min, _max);

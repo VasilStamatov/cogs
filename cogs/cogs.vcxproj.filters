@@ -105,6 +105,21 @@
     <ClInclude Include="Random.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="CMotionState.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBody.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="FPSCameraControl.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -154,6 +169,21 @@
     </ClCompile>
     <ClCompile Include="Random.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="CMotionState.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="RIgidBody.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="FPSCameraControl.cpp">
+      <Filter>ECS</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

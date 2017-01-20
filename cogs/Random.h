@@ -10,10 +10,20 @@ namespace cogs
 		{
 				using HighResClock = std::chrono::high_resolution_clock;
 
+				/**
+				* Static class for random number generation
+				*/
 				class Random
 				{
 				public:
+						/**
+						* Generate a random integer between [min, max]
+						*/
 						static int getRandInt(int _min, int _max);
+
+						/**
+						* Generate a random float between [min, max]
+						*/
 						static float getRandFloat(float _min, float _max);
 
 				private:

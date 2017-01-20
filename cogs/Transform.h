@@ -34,6 +34,7 @@ namespace cogs
 						 	* \param _eulerAngles - vec3 euler angles in degrees to be added
 						 	*/
 						void rotate(const glm::vec3& _eulerAngles);
+						void rotate(const glm::quat& _rotationQuat);
 
 						/**
 						  *	\brief sets the orientation of the transform to be looking at the set target

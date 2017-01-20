@@ -42,6 +42,11 @@ namespace cogs
 						internal_setLocalOrientation(toRotate * m_localOrientationRaw);
 				}
 
+				void Transform::rotate(const glm::quat & _rotationQuat)
+				{
+						internal_setLocalOrientation(_rotationQuat * m_localOrientationRaw);
+				}
+
 				void Transform::lookAt(const glm::vec3 & _target)
 				{
 						glm::vec3 direction = glm::normalize(m_worldPosition - _target);

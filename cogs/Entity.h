@@ -102,6 +102,9 @@ namespace cogs
 								return m_children.back();
 						}
 
+						/**
+						* Checks if a specific component exists in the current entity
+						*/
 						template<typename T>
 						inline bool hasComponent() const
 						{
@@ -123,6 +126,9 @@ namespace cogs
 								return reinterpret_cast<T*>(component.lock().get());
 						}
 
+						/**
+						* checks if any child of this entity has T component, and returns the first one found
+						*/
 						template<typename T>
 						inline T* getComponentInChildren() const
 						{
@@ -136,6 +142,9 @@ namespace cogs
 								return nullptr;
 						}
 
+						/**
+						* checks if any child of this entity has T components, and returns a vector of all the components found
+						*/
 						template<typename T>
 						inline std::vector<T*> getComponentsInChildren() const
 						{
@@ -150,6 +159,9 @@ namespace cogs
 								return components;
 						}
 
+						/**
+						* goes up the tree until it reaches the root and returns it
+						*/
 						inline Entity* getRoot()
 						{
 								Transform* parent = getComponent<Transform>()->getParent();
@@ -160,8 +172,14 @@ namespace cogs
 								return parent->getHolder()->getRoot();
 						}
 
+						/**
+						* returns the number of children this entity has
+						*/
 						inline unsigned int numChildren() const noexcept { return m_children.size(); }
 
+						/**
+						* returns a reference to a child at specific index
+						*/
 						inline std::weak_ptr<Entity> getChildAt(unsigned int _index) const { return m_children.at(_index); }
 
 				private:
@@ -171,6 +189,7 @@ namespace cogs
 						/* Render this entity (all its components) */
 						inline void render() { for (auto& component : m_components) { component->render(); } }
 
+						/* Refresh this entity */
 						inline void refresh()
 						{
 								m_children.erase

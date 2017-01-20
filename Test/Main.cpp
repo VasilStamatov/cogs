@@ -5,17 +5,24 @@
 #include <cogs\Timing.h>
 #include <cogs\GLTexture.h>
 #include <cogs\MeshRenderer.h>
-#include <cogs/KeyCode.h>
-#include <cogs/Input.h>
-#include <cogs/Random.h>
+#include <cogs\KeyCode.h>
+#include <cogs\Input.h>
+#include <cogs\Random.h>
+#include <cogs\Physics.h>
+#include <cogs\Collider.h>
+#include <cogs\RigidBody.h>
+#include <cogs\FPSCameraControl.h>
 #include <iostream>
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
 namespace cu = cogs::utils;
+namespace cp = cogs::physics;
 
 int main(int argc, char** argv)
 {
+		cp::Physics::init(0.0f, -9.81f, 0.0f);
+
 		cg::Window window;
 		window.create("Test", 1024, 576, cg::WindowCreationFlags::RESIZABLE);
 		bool quit = false;
@@ -26,11 +33,24 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<ce::Entity> camera = root->addChild("Camera");
 		camera.lock()->addComponent<ce::Camera>(ce::ProjectionType::PERSPECTIVE, window.getWidth(), window.getHeight());
+		camera.lock()->addComponent<ce::FPSCameraControl>();
 		camera.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 5.0f));
 
 		std::weak_ptr<ce::Entity> model1 = root->addChild("TestModel");
-		model1.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("cube", "Models/nanosuit/nanosuit.obj"),
-				std::make_unique<cg::Material>("nanosuit_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
+		model1.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("sphere", "Models/TestModels/sphere.obj"),
+				std::make_unique<cg::Material>("sphere_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
+		model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f, 0.0f));
+		model1.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0f);
+		model1.lock()->addComponent<ce::RigidBody>(1.0f);
+
+		std::weak_ptr<ce::Entity> plane = root->addChild("StaticPlane");
+		plane.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("plane", "Models/TestModels/plane2.obj"),
+				std::make_unique<cg::Material>("plane_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
+		plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -5.0f, 0.0f));
+		plane.lock()->getComponent<ce::Transform>()->scale(glm::vec3(50.0f, 0.0f, 50.0f));
+		plane.lock()->addComponent<ce::Collider>(ce::ColliderShape::STATIC_PLANE);
+		plane.lock()->addComponent<ce::RigidBody>(0.0f);
+
 
 		/*cg::SpriteRenderer spriteRenderer("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
 
@@ -126,22 +146,7 @@ int main(int argc, char** argv)
 						std::cout << "Rotation y: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
 						std::cout << "Rotation z: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
 				}
-				if (cu::Input::isKeyDown(cu::KeyCode::W))
-				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 0.5f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::S))
-				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, -0.5f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::A))
-				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-0.5f, 0.0f, 0.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::D))
-				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.5f, 0.0f, 0.0f));
-				}
+
 				if (cu::Input::isKeyDown(cu::KeyCode::ALPHA1))
 				{
 						std::cout << "Camera is now perspective projection" << std::endl;
@@ -154,11 +159,11 @@ int main(int argc, char** argv)
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::Q))
 				{
-						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 0.0f, 10.0f));
+						plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -0.1f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::E))
 				{
-						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(0.0f, 10.0f, 0.0f));
+						plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.1f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::R))
 				{
@@ -170,26 +175,26 @@ int main(int argc, char** argv)
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::LEFT))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-0.5f, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(-250.0f, 0.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::RIGHT))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.5f, 0.0f, 0.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(250.0f, 0.0f, 0.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::UP))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.5f, 0.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, 0.0f, -250.0f));
 				}
 				if (cu::Input::isKeyDown(cu::KeyCode::DOWN))
 				{
-						model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -0.5f, 0.0f));
+						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, -0.0f, 250.0f));
 				}
-				if (cu::Input::isKeyPressed(cu::KeyCode::Z))
+				if (cu::Input::isKeyDown(cu::KeyCode::Z))
 				{
 						std::cout << "Increasing the FoV of the camera by 5" << std::endl;
 						camera.lock()->getComponent<ce::Camera>()->offsetFoV(5);
 				}
-				if (cu::Input::isKeyPressed(cu::KeyCode::X))
+				if (cu::Input::isKeyDown(cu::KeyCode::X))
 				{
 						std::cout << "Increasing the FoV of the camera by -5" << std::endl;
 						camera.lock()->getComponent<ce::Camera>()->offsetFoV(-5);
@@ -199,6 +204,8 @@ int main(int argc, char** argv)
 				//Update
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
+
+				cp::Physics::stepSimulation();
 
 				//Render
 				//spriteRenderer.begin();

@@ -24,6 +24,6 @@ uniform Material material;
 void main() 
 {
 	vec3 sampleColor = vec3(texture(material.texture_diffuse1, fs_in.uv));
-	//color = vec4(fs_in.uv.x, fs_in.uv.y, 0.0f, 1.0f);
-	color = vec4(sampleColor, 1.0f);
+	color = vec4(fs_in.uv.x, fs_in.uv.y, 0.0f, 1.0f);
+	// color = vec4(sampleColor, 1.0f);
 }

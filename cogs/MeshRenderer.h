@@ -11,9 +11,15 @@ namespace cogs
 		{
 				class Camera;
 
+				/**
+				* This component, given to an entity should render a mesh with a material
+				*/
 				class MeshRenderer : public Component
 				{
 				public:
+						/**
+						* Pass the model that you want to render and the material to be rendered with to the contructor
+						*/
 						MeshRenderer(std::unique_ptr<graphics::Model> _model, std::unique_ptr<graphics::Material> _material);
 						~MeshRenderer();
 
@@ -32,9 +38,15 @@ namespace cogs
 						*/
 						void render() override;
 
+						/**
+						* Getters
+						*/
 						const graphics::Material* getMaterial() const noexcept { return m_material.get(); }
 						const graphics::Model* getModel()					  const noexcept { return m_model.get(); }
 
+						/**
+						* Setters
+						*/
 						void setMaterial(std::unique_ptr<graphics::Material> _material) { m_material = std::move(_material); }
 						void setModel(std::unique_ptr<graphics::Model> _model)									 { m_model			 = std::move(_model); }
 

@@ -7,6 +7,9 @@ namespace cogs
 {
 		namespace utils
 		{
+				/**
+				* Enum class for all the supported key presses
+				*/
 				enum class KeyCode : unsigned int
 				{
 						UP		   = SDLK_UP,

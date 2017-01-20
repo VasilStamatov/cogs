@@ -9,24 +9,54 @@ namespace cogs
 {
 		namespace utils
 		{
+				/**
+				* Static class for the inputs
+				*/
 				class Input
 				{
 				public:
+						/**
+						* Upates the previous key map to be the same as the current
+						*/
 						static void update();
 
+						/**
+						* Sets a key id in the map to true
+						*/
 						static void pressKey(unsigned int _keyID);
+
+						/**
+						* sets a key id in the map to false
+						*/
 						static void releaseKey(unsigned int _keyID);
+
+						/**
+						* sets the mouse coordinates in screen space
+						*/
 						static void setMouseCoords(float _x, float _y);
 
+						/**
+						* Checks if a key is held down
+						*/
 						static bool isKeyDown(const KeyCode& _keyID);
+
+						/**
+						* Checks if a key has been pressed this frame
+						*/
 						static bool isKeyPressed(const KeyCode& _keyID);
 
+						/**
+						* Returns the screen space coordinates of the mouse
+						*/
 						static const glm::vec2& getMouseCoords() noexcept { return m_mouseCoords; }
 
 				private:
 						Input() {}
 						~Input() {}
 
+						/**
+						* Checks ia a key has been pressed last frame
+						*/
 						static bool wasKeyDown(const KeyCode& _keyID);
 
 				private:
