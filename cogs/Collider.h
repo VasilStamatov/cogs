@@ -54,6 +54,8 @@ namespace cogs
 						*/
 						void render() override;
 
+						void setLocalScaling(const glm::vec3& _scale);
+
 						/**
 						* Gets the btCollisionShape instance (usually for rigidbody construction)
 						*/

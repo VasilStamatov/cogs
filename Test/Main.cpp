@@ -151,7 +151,7 @@ int main(int argc, char** argv)
 						std::cout << "Rotation y: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
 						std::cout << "Rotation z: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
 
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, 25.0f, 0.0f));
+						model1.lock()->getComponent<ce::Collider>()->setLocalScaling(glm::vec3(2.0f, 2.0f, 2.0f));
 				}
 
 				if (cu::Input::isKeyDown(cu::KeyCode::ALPHA1))

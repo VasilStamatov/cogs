@@ -53,5 +53,9 @@ namespace cogs
 				void Collider::render()
 				{
 				}
+				void Collider::setLocalScaling(const glm::vec3 & _scale)
+				{
+						m_collisionShape->setLocalScaling(btVector3(_scale.x, _scale.y, _scale.z));
+				}
 		}
 }
