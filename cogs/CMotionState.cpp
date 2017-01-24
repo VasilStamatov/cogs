@@ -1,5 +1,7 @@
 #include "CMotionState.h"
 
+#include <glm\gtc\type_ptr.hpp>
+
 namespace cogs
 {
 		namespace physics
@@ -21,11 +23,8 @@ namespace cogs
 								return;
 						}
 
-						const glm::vec3& orientation = m_transform->worldOrientation();
-						const glm::vec3& pos = m_transform->worldPosition();
-
-						btTransform transform(btQuaternion(orientation.y, orientation.x, orientation.z),
-								btVector3(pos.x, pos.y, pos.z));
+						btTransform transform;
+						transform.setFromOpenGLMatrix(glm::value_ptr(m_transform->worldTransform()));
 
 						_worldTrans = transform;
 				}
