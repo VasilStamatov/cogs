@@ -6,7 +6,8 @@ namespace cogs
 		{
 				std::unordered_map<KeyCode, bool> Input::m_keyMap;
 				std::unordered_map<KeyCode, bool> Input::m_previousKeyMap;
-				glm::vec2 Input::m_mouseCoords;
+				glm::vec2 Input::m_mouseCoords = glm::vec2(0.0f, 0.0f);
+				glm::vec2 Input::m_mouseMotion = glm::vec2(0.0f, 0.0f);
 
 				void Input::update()
 				{
@@ -28,12 +29,6 @@ namespace cogs
 						// Here we are treating _keyMap as an associative array.
 						// switch the pressed button from true (being pressed) to false (released)
 						m_keyMap[(KeyCode)_keyID] = false;
-				}
-
-				void Input::setMouseCoords(float _x, float _y)
-				{
-						m_mouseCoords.x = _x;
-						m_mouseCoords.y = _y;
 				}
 
 				bool Input::isKeyDown(const KeyCode& _keyID)
@@ -62,6 +57,18 @@ namespace cogs
 								return true;
 						}
 						return false;
+				}
+
+				void Input::setMouseCoords(float _x, float _y)
+				{
+						m_mouseCoords.x = _x;
+						m_mouseCoords.y = _y;
+				}
+
+				void Input::setMouseMotion(float _x, float _y)
+				{
+						m_mouseMotion.x = _x;
+						m_mouseMotion.y = _y;
 				}
 
 				bool Input::wasKeyDown(const KeyCode& _keyID)

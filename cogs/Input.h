@@ -31,11 +31,6 @@ namespace cogs
 						static void releaseKey(unsigned int _keyID);
 
 						/**
-						* sets the mouse coordinates in screen space
-						*/
-						static void setMouseCoords(float _x, float _y);
-
-						/**
 						* Checks if a key is held down
 						*/
 						static bool isKeyDown(const KeyCode& _keyID);
@@ -50,6 +45,21 @@ namespace cogs
 						*/
 						static const glm::vec2& getMouseCoords() noexcept { return m_mouseCoords; }
 
+						/**
+						* sets the mouse coordinates in screen space
+						*/
+						static void setMouseCoords(float _x, float _y);
+
+						/**
+						* Returns the screen space coordinates of the mouse
+						*/
+						static const glm::vec2& getMouseMotion() noexcept { return m_mouseMotion; }
+
+						/**
+						* sets the mouse coordinates in screen space
+						*/
+						static void setMouseMotion(float _x, float _y);
+
 				private:
 						Input() {}
 						~Input() {}
@@ -63,6 +73,7 @@ namespace cogs
 						static std::unordered_map<KeyCode, bool> m_keyMap;
 						static std::unordered_map<KeyCode, bool> m_previousKeyMap;
 						static glm::vec2 m_mouseCoords;
+						static glm::vec2 m_mouseMotion;
 				};
 		}
 }
