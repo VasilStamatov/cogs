@@ -4,6 +4,8 @@
 #include "Collider.h"
 #include "Physics.h"
 
+#include <glm\gtc\type_ptr.hpp>
+
 namespace cogs
 {
 		namespace ecs
@@ -25,13 +27,19 @@ namespace cogs
 						btVector3 intertia(0.0f, 0.0f, 0.0f);
 
 						Collider* colliderShape = m_entity->getComponent<Collider>();
-						colliderShape->getShape().lock()->calculateLocalInertia(m_mass, intertia);
+
+						if (m_mass != 0.0f)
+						{
+								colliderShape->getShape().lock()->calculateLocalInertia(m_mass, intertia);
+						}
 
 						btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(m_mass, m_motionState.get(), colliderShape->getShape().lock().get(), intertia);
 
 						m_rigidBody = std::make_shared<btRigidBody>(rigidBodyCI);
 
 						physics::Physics::addRigidBody(m_rigidBody.get());
+
+						m_rigidBody->setUserPointer(m_entity);
 				}
 
 				void RigidBody::update(float _deltaTime)
@@ -47,6 +55,10 @@ namespace cogs
 				void RigidBody::applyCentralForce(const glm::vec3 & _force)
 				{
 						m_rigidBody->applyCentralForce(btVector3(_force.x, _force.y, _force.z));
+				}
+				void RigidBody::applyForce(const glm::vec3 & _force, const glm::vec3 & _relativePos)
+				{
+						m_rigidBody->applyForce(btVector3(_force.x, _force.y, _force.z), btVector3(_relativePos.x, _relativePos.y, _relativePos.z));
 				}
 				void RigidBody::setLinearVelocity(const glm::vec3 & _offset)
 				{
@@ -71,6 +83,12 @@ namespace cogs
 				void RigidBody::setDamping(float _x, float _y)
 				{
 						m_rigidBody->setDamping(_x, _y);
+				}
+				void RigidBody::setWorldTransform()
+				{
+						btTransform temp;
+						temp.setFromOpenGLMatrix(glm::value_ptr(m_entity->getComponent<Transform>()->worldTransform()));
+						m_rigidBody->setWorldTransform(temp);
 				}
 		}
 }

@@ -49,6 +49,11 @@ namespace cogs
 						void applyCentralForce(const glm::vec3& _force);
 
 						/**
+						* applies a force to the body from a specific relative position
+						*/
+						void applyForce(const glm::vec3& _force, const glm::vec3 & _relativePos);
+
+						/**
 						* Makes the rigid body move
 						*/
 						void setLinearVelocity(const glm::vec3& _offset);
@@ -79,10 +84,16 @@ namespace cogs
 						void setDamping(float _x, float _y);
 
 						/**
+						* Sets the rigidbody transform to equal the transform component's world transform
+						*/
+						void setWorldTransform();
+
+						/**
 						* Getters
 						*/
 						std::weak_ptr<btRigidBody> getRigidBody()											  const { return m_rigidBody; }
 						std::weak_ptr<physics::CMotionState> getMotionState() const { return m_motionState; }
+
 
 				private:
 						std::shared_ptr<btRigidBody> m_rigidBody{ nullptr }; ///< the rigid body that bullet uses
