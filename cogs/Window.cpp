@@ -256,6 +256,11 @@ namespace cogs
 						glClearColor(_r, _g, _b, _a);
 				}
 
+				void Window::setRelativeMouseMode(int _enabled)
+				{
+						SDL_SetRelativeMouseMode(SDL_bool(_enabled));
+				}
+
 				void Window::initSDL()
 				{
 						//initialize SDL
@@ -338,8 +343,8 @@ namespace cogs
 						//glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_REPLACE);
 						//glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP);
 
-						// Enable depth clamping
-						// glEnable(GL_DEPTH_CLAMP);
+						//Enable depth clamping
+						//glEnable(GL_DEPTH_CLAMP);
 				}
 		}
 }

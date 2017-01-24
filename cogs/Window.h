@@ -46,6 +46,7 @@ namespace cogs
 						void setBorder				 (bool _hasBorders);
 						void setWindowTitle(const std::string& _title);
 						void setClearColor (float _r, float _g, float _b, float _a);
+						void setRelativeMouseMode(int _enabled);
 						inline void resizeHandled()		noexcept { m_wasResized = false; }
 
 						//Getters
