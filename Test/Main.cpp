@@ -15,6 +15,8 @@
 #include <cogs\BulletDebugRenderer.h>
 #include <iostream>
 
+#include "CollisionTest.h"
+
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
 namespace cu = cogs::utils;
@@ -26,6 +28,7 @@ int main(int argc, char** argv)
 
 		cg::Window window;
 		window.create("Test", 1024, 576, cg::WindowCreationFlags::RESIZABLE);
+		window.setRelativeMouseMode(true);
 		bool quit = false;
 
 		cu::FpsLimiter fpsLimiter(60.0f);
@@ -34,7 +37,7 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<ce::Entity> camera = root->addChild("Camera");
 		camera.lock()->addComponent<ce::Camera>(ce::ProjectionType::PERSPECTIVE, window.getWidth(), window.getHeight());
-		camera.lock()->addComponent<ce::FPSCameraControl>();
+		camera.lock()->addComponent<ce::FPSCameraControl>(1.0f);
 		camera.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 5.0f));
 
 		std::weak_ptr<ce::Entity> model1 = root->addChild("TestModel");
@@ -43,13 +46,16 @@ int main(int argc, char** argv)
 		model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f, 0.0f));
 		model1.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0f);
 		model1.lock()->addComponent<ce::RigidBody>(1.0f);
+		model1.lock()->getComponent<ce::RigidBody>()->setActivationState(4);
+		model1.lock()->addComponent<CollisionTest>();
 
 		std::weak_ptr<ce::Entity> plane = root->addChild("StaticPlane");
 		plane.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("plane", "Models/TestModels/plane2.obj"),
 				std::make_unique<cg::Material>("plane_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
 		plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -5.0f, 0.0f));
-		plane.lock()->addComponent<ce::Collider>(ce::ColliderShape::STATIC_PLANE);
+		plane.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(20.0f, 0.0f, 20.0f));
 		plane.lock()->addComponent<ce::RigidBody>(0.0f);
+		plane.lock()->addComponent<CollisionTest>();
 
 
 		/*cg::SpriteRenderer spriteRenderer("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
@@ -99,6 +105,8 @@ int main(int argc, char** argv)
 								}
 								case SDL_MOUSEMOTION:
 								{
+										cu::Input::setMouseCoords(static_cast<float>(evnt.motion.x), static_cast<float>(evnt.motion.y));
+										cu::Input::setMouseMotion(static_cast<float>(evnt.motion.xrel), static_cast<float>(evnt.motion.yrel));
 										break;
 								}
 								case SDL_KEYDOWN:
@@ -136,10 +144,13 @@ int main(int argc, char** argv)
 								}
 						}
 				}
-
+				if (cu::Input::isKeyPressed(cu::KeyCode::ESC))
+				{
+						quit = true;
+				}
 				if (cu::Input::isKeyPressed(cu::KeyCode::SPACE))
 				{
-						std::cout << "Pos x: " << model1.lock()->getComponent<ce::Transform>()->localPosition().x << std::endl;
+						/*std::cout << "Pos x: " << model1.lock()->getComponent<ce::Transform>()->localPosition().x << std::endl;
 						std::cout << "Pos y: " << model1.lock()->getComponent<ce::Transform>()->localPosition().y << std::endl;
 						std::cout << "Pos z: " << model1.lock()->getComponent<ce::Transform>()->localPosition().z << std::endl;
 
@@ -149,8 +160,9 @@ int main(int argc, char** argv)
 
 						std::cout << "Rotation x: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
 						std::cout << "Rotation y: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
-						std::cout << "Rotation z: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;
+						std::cout << "Rotation z: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;*/
 
+						model1.lock()->getComponent<ce::RigidBody>()->activate();
 						model1.lock()->getComponent<ce::Collider>()->setLocalScaling(glm::vec3(2.0f, 2.0f, 2.0f));
 				}
 

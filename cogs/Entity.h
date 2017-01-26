@@ -65,6 +65,18 @@ namespace cogs
 								}
 						}
 
+						/** Calls the collision function of all components on this entity */
+						inline void collide(const glm::vec3& _pointA,
+								const glm::vec3& _pointB,
+								const glm::vec3& _normalOnB,
+								Entity* _other)
+						{
+								for (auto& component : m_components)
+								{
+										component->onCollision(_pointA, _pointB, _normalOnB, _other);
+								}
+						}
+
 						/** \brief Add components to this element of any type
 								* \param[in] T is the component type
 								* \param[in] TArgs is a parameter pack of types used to construct the component

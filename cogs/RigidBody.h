@@ -89,6 +89,23 @@ namespace cogs
 						void setWorldTransform();
 
 						/**
+						* Activates the rigidbody
+						*/
+						void activate();
+
+						/**
+						* Sets the activation state of the rigidbody
+						* \param _state - the state the rigid body can be set to:
+						* http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Activation_States
+						* ACTIVE_TAG										 = 1
+						* ISLAND_SLEEPING					 = 2
+						* WANTS_DEACTIVATION		 = 3
+						* DISABLE_DEACTIVATION = 4
+						* DISABLE_SIMULATION		 = 5
+						*/
+						void setActivationState(int _state);
+
+						/**
 						* Getters
 						*/
 						std::weak_ptr<btRigidBody> getRigidBody()											  const { return m_rigidBody; }
