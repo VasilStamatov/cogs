@@ -90,13 +90,5 @@ namespace cogs
 						temp.setFromOpenGLMatrix(glm::value_ptr(m_entity->getComponent<Transform>()->worldTransform()));
 						m_rigidBody->setWorldTransform(temp);
 				}
-				void RigidBody::activate()
-				{
-						m_rigidBody->activate();
-				}
-				void RigidBody::setActivationState(int _state)
-				{
-						m_rigidBody->forceActivationState(_state);
-				}
 		}
 }

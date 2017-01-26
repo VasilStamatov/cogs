@@ -1,7 +1,5 @@
 #include "Physics.h"
 
-#include "Entity.h"
-
 namespace cogs
 {
 		namespace physics
@@ -38,44 +36,6 @@ namespace cogs
 				void Physics::stepSimulation()
 				{
 						m_dynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
-
-						int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
-						for (int i = 0; i < numManifolds; i++)
-						{
-								btPersistentManifold* contactManifold = m_dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-								const btCollisionObject* obA = contactManifold->getBody0();
-								const btCollisionObject* obB = contactManifold->getBody1();
-
-								int numContacts = contactManifold->getNumContacts();
-								for (int j = 0; j < numContacts; j++)
-								{
-										btManifoldPoint& pt = contactManifold->getContactPoint(j);
-										if (pt.getDistance() < 0.f)
-										{
-												const btVector3& ptA = pt.getPositionWorldOnA();
-												const btVector3& ptB = pt.getPositionWorldOnB();
-												const btVector3& normalOnB = pt.m_normalWorldOnB;
-
-												ecs::Entity* objA = static_cast<ecs::Entity*>(obA->getUserPointer());
-												ecs::Entity* objB = static_cast<ecs::Entity*>(obB->getUserPointer());
-
-												if (objA == nullptr || objB == nullptr)
-												{
-														continue;
-												}
-
-												objA->collide(glm::vec3(ptA.x(), ptA.y(), ptA.z()),
-														glm::vec3(ptB.x(), ptB.y(), ptB.z()),
-														glm::vec3(normalOnB.x(), normalOnB.y(), normalOnB.z()),
-														objB);
-
-												objB->collide(glm::vec3(ptA.x(), ptA.y(), ptA.z()),
-														glm::vec3(ptB.x(), ptB.y(), ptB.z()),
-														glm::vec3(normalOnB.x(), normalOnB.y(), normalOnB.z()),
-														objA);
-										}
-								}
-						}
 				}
 				void Physics::setDebugDrawer(btIDebugDraw * _debugDrawer)
 				{
