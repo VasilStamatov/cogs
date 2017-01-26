@@ -1,6 +1,8 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
 
+#include <glm\vec3.hpp>
+
 namespace cogs
 {
 		namespace ecs
@@ -38,6 +40,11 @@ namespace cogs
 						/* Usually game components will have an Update and Draw function */
 						virtual void update(float _deltaTime) = 0;
 						virtual void render() = 0;
+
+						virtual void onCollision(const glm::vec3& _pointA,
+								const glm::vec3& _pointB,
+								const glm::vec3& _normalOnB,
+								Entity* _other) {}
 
 						virtual void setEntity(Entity* _entity) { m_entity = _entity; }
 				protected:
