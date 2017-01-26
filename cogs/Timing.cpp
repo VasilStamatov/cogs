@@ -55,8 +55,13 @@ namespace cogs
 				}
 
 				/*********** FPS Limiter ***********/
+				
+				float FpsLimiter::m_fps{ 0.0f };
+				float FpsLimiter::m_deltaTime{ 0.0f };
+				float FpsLimiter::m_desiredMillis{ 0.0f };
+				HRTimer FpsLimiter::m_timer;
 
-				FpsLimiter::FpsLimiter(float _maxFPS /* = 60.0f */) { setMaxFPS(_maxFPS); }
+				FpsLimiter::FpsLimiter() { }
 
 				FpsLimiter::~FpsLimiter() { }
 

@@ -52,26 +52,26 @@ namespace cogs
 				class FpsLimiter
 				{
 				public:
-						FpsLimiter(float _maxFPS = 60.0f);
+						FpsLimiter();
 						~FpsLimiter();
 
 						// Sets the desired max FPS
-						void setMaxFPS(float _maxFPS);
+						static void setMaxFPS(float _maxFPS);
 
 						//set the startTicks to the current frame ticks
-						void beginFrame();
+						static void beginFrame();
 
 						// end() will return the current FPS as a float
-						float endFrame();
+						static float endFrame();
 
-						float fps()						 const noexcept	{ return m_fps; }
-						float deltaTime() const noexcept { return m_deltaTime; }
+						static float fps()						 noexcept	{ return m_fps; }
+						static float deltaTime() noexcept { return m_deltaTime; }
 
 				private:
-						float m_fps									 { 0.0f }; ///< the current fps the app is running at
-						float m_deltaTime				{ 0.0f }; ///< the current deltaTime the app is running at
-						float m_desiredMillis{ 0.0f }; ///< the desired milliseconds
-						HRTimer m_timer; ///< the timer 
+						static float m_fps;											///< the current fps the app is running at
+						static float m_deltaTime;					///< the current deltaTime the app is running at
+						static float m_desiredMillis; ///< the desired milliseconds
+						static HRTimer m_timer;							///< the timer 
 				};
 		}
 }
