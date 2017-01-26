@@ -13,7 +13,7 @@ namespace cogs
 				class FPSCameraControl : public Component
 				{
 				public:
-						FPSCameraControl();
+						FPSCameraControl(float _moveSpeed);
 						~FPSCameraControl();
 
 						/**
@@ -33,6 +33,7 @@ namespace cogs
 
 				private:
 						Transform* m_transform{ nullptr };
+						float m_moveSpeed{ 1.0f };
 				};
 		}
 }
