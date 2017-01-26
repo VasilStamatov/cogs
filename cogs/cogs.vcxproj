@@ -158,12 +158,14 @@
     <ClInclude Include="BulletDebugRenderer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CMotionState.h" />
+    <ClInclude Include="Cogs.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FPSCameraControl.h" />
     <ClInclude Include="GLSLProgram.h" />
     <ClInclude Include="GLTexture.h" />
+    <ClInclude Include="IApplication.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="IOManager.h" />
     <ClInclude Include="KeyCode.h" />
@@ -195,6 +197,7 @@
     <ClCompile Include="FPSCameraControl.cpp" />
     <ClCompile Include="GLSLProgram.cpp" />
     <ClCompile Include="GLTexture.cpp" />
+    <ClCompile Include="IApplication.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="IOManager.cpp" />
     <ClCompile Include="Material.cpp" />

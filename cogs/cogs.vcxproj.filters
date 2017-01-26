@@ -25,6 +25,9 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{f23bc555-58c7-445f-b7ac-11a2e51fa4c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{c86ab8b4-d76c-4b43-a1e4-bd1791c32b3f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -123,6 +126,12 @@
     <ClInclude Include="BulletDebugRenderer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="IApplication.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Cogs.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -190,6 +199,9 @@
     </ClCompile>
     <ClCompile Include="BulletDebugRenderer.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="IApplication.cpp">
+      <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

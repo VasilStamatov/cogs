@@ -1,4 +1,5 @@
 #include "Sprite.h"
+#include "Entity.h"
 
 namespace cogs
 {
@@ -6,7 +7,7 @@ namespace cogs
 		{
 				Sprite::Sprite() { }
 				Sprite::Sprite(const glm::vec2& _size, const glm::vec4& _color,
-						const std::string& _texturePath, bool _alpha, graphics::SpriteRenderer* _renderer)
+						const std::string& _texturePath, bool _alpha, std::weak_ptr<graphics::SpriteRenderer> _renderer)
 						: m_color(_color), m_renderer(_renderer), m_size(_size)
 				{
 						setUVdefaults();
@@ -16,7 +17,6 @@ namespace cogs
 				Sprite::~Sprite()
 				{
 						m_transform = nullptr;
-						m_renderer = nullptr;
 				}
 
 				void Sprite::init()
@@ -31,7 +31,7 @@ namespace cogs
 
 				void Sprite::render()
 				{
-						m_renderer->submit(m_entity);
+						m_renderer.lock()->submit(m_entity);
 				}
 
 				void Sprite::setTexture(const std::string & _filePath, bool _alpha)
@@ -39,7 +39,7 @@ namespace cogs
 						m_texture.load(_filePath, _filePath, _alpha);
 				}
 
-				void Sprite::setRenderer(graphics::SpriteRenderer * _renderer)
+				void Sprite::setRenderer(std::weak_ptr<graphics::SpriteRenderer> _renderer)
 				{
 						m_renderer = _renderer;
 				}

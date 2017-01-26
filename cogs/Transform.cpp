@@ -26,7 +26,6 @@ namespace cogs
 				}
 				void Transform::update(float _deltaTime)
 				{
-						//internal_updateTransform();
 				}
 				void Transform::render()
 				{

@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "Entity.h"
+#include "Transform.h"
 
 namespace cogs
 {
@@ -119,8 +119,8 @@ namespace cogs
 						glm::mat4 m_perspMatrix{ 1.0f }; ///< perspective matrix for perspective camera
 						glm::mat4 m_viewMatrix{ 1.0f };  ///< Camera matrix
 
-						ecs::Transform* m_transform{ nullptr }; ///< the transform of the camera
-						ecs::Transform m_oldTransform;										///< the old transform (to be compared for view changes
+						Transform* m_transform{ nullptr }; ///< the transform of the camera
+						Transform m_oldTransform;										///< the old transform (to be compared for view changes
 
 						float m_size{ 5.0f }; ///< the size of the ortho camera (zoom)
 						int m_fov{ 60 };				  ///< the field of view of the perspective camera

@@ -1,5 +1,6 @@
 #include "MeshRenderer.h"
 #include "Camera.h"
+#include "Entity.h"
 
 namespace cogs
 {

@@ -1,7 +1,7 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "Entity.h"
+#include "Component.h"
 #include "SpriteRenderer.h"
 #include "GLTexture.h"
 
@@ -9,6 +9,7 @@ namespace cogs
 {
 		namespace ecs
 		{
+				class Transform;
 				/**
 						* The sprite component
 						*/
@@ -26,7 +27,7 @@ namespace cogs
 								* \param _renderer - the renderer this sprite will submit itself to
 								*/
 						Sprite(const glm::vec2& _size, const glm::vec4& _color,
-								const std::string& _texturePath, bool _alpha, graphics::SpriteRenderer* _renderer);
+								const std::string& _texturePath, bool _alpha, std::weak_ptr<graphics::SpriteRenderer> _renderer);
 
 						/**
 								* Sprite destructor
@@ -49,7 +50,7 @@ namespace cogs
 						void render() override;
 
 						void setTexture(const std::string& _filePath, bool _alpha);
-						void setRenderer(graphics::SpriteRenderer* _renderer);
+						void setRenderer(std::weak_ptr<graphics::SpriteRenderer> _renderer);
 
 						/**
 								* Getters
@@ -69,7 +70,7 @@ namespace cogs
 						std::array<glm::vec2, 4> m_uv;
 
 						graphics::GLTexture m_texture;
-						graphics::SpriteRenderer* m_renderer = nullptr;
+						std::weak_ptr<graphics::SpriteRenderer> m_renderer;
 				};
 		}
 }
