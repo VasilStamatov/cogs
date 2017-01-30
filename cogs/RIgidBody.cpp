@@ -10,7 +10,7 @@ namespace cogs
 {
 		namespace ecs
 		{
-				RigidBody::RigidBody(float _mass) : m_mass(_mass)
+				RigidBody::RigidBody(float _mass, bool _isKinematic) : m_mass(_mass), m_isKinematic(_isKinematic)
 				{
 						btClamp(m_mass, 0.0f, 1.0f);
 				}
@@ -37,6 +37,11 @@ namespace cogs
 
 						m_rigidBody = std::make_shared<btRigidBody>(rigidBodyCI);
 
+						if (m_isKinematic)
+						{
+								m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+						}
+
 						physics::Physics::addRigidBody(m_rigidBody.get());
 
 						m_rigidBody->setUserPointer(m_entity);
@@ -45,9 +50,7 @@ namespace cogs
 				void RigidBody::update(float _deltaTime)
 				{
 				}
-				void RigidBody::render()
-				{
-				}
+				
 				void RigidBody::translate(const glm::vec3 & _offset)
 				{
 						m_rigidBody->translate(btVector3(_offset.x, _offset.y, _offset.z));
@@ -71,6 +74,10 @@ namespace cogs
 				void RigidBody::setRestitution(float _restitution)
 				{
 						m_rigidBody->setRestitution(_restitution);
+				}
+				void RigidBody::setFriction(float _friction)
+				{
+						m_rigidBody->setFriction(_friction);
 				}
 				void RigidBody::setLinearFactor(const glm::vec3 & _offset)
 				{

@@ -50,9 +50,6 @@ namespace cogs
 				void Collider::update(float _deltaTime)
 				{
 				}
-				void Collider::render()
-				{
-				}
 				void Collider::setLocalScaling(const glm::vec3 & _scale)
 				{
 						m_collisionShape->setLocalScaling(btVector3(_scale.x, _scale.y, _scale.z));

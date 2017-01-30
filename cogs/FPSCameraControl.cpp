@@ -44,17 +44,14 @@ namespace cogs
 						const glm::vec2& mouseMotion = utils::Input::getMouseMotion();
 						if (mouseMotion.x != 0.0f || mouseMotion.y != 0.0f)
 						{
-								m_transform->rotate(glm::vec3(-mouseMotion.y * m_moveSpeed * _deltaTime,
-										-mouseMotion.x * m_moveSpeed * _deltaTime, 0.0f));
+								/*m_transform->rotate(glm::vec3(-mouseMotion.y * m_moveSpeed * _deltaTime,
+										-mouseMotion.x * m_moveSpeed * _deltaTime, 0.0f));*/
 
-								/*m_transform->rotate(m_transform->localRightAxis() * -mouseMotion.y * m_moveSpeed * _deltaTime);
-								m_transform->rotate(m_transform->localUpAxis()				* -mouseMotion.x * m_moveSpeed * _deltaTime);*/
+								m_transform->rotate(m_transform->localRightAxis() * -mouseMotion.y * m_moveSpeed * _deltaTime);
+								m_transform->rotate(m_transform->localUpAxis()				* -mouseMotion.x * m_moveSpeed * _deltaTime);
 
 								utils::Input::setMouseMotion(0.0f, 0.0f);
 						}
-				}
-				void FPSCameraControl::render()
-				{
 				}
 		}
 }

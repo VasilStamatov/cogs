@@ -27,7 +27,6 @@ namespace cogs
 
 						void init() override;
 						void update(float _deltaTime) override;
-						void render() override;
 
 						/**
 						 	*	\brief rotates the transform of the entity by euler angles in degrees
@@ -52,7 +51,7 @@ namespace cogs
 						  *	\brief scales the local scale of the transform by _offset
 						  * \param _offset - the vec3 offset to add
 						  */
-						void scale(const glm::vec3& _offset);
+						void setScale(const glm::vec3& _newScale);
 
 						/**
 								*	\brief local space getters

@@ -9,8 +9,6 @@ namespace cogs
 {
 		namespace ecs
 		{
-				class Camera;
-
 				/**
 				* This component, given to an entity should render a mesh with a material
 				*/
@@ -36,7 +34,7 @@ namespace cogs
 						/**
 						* The render component function
 						*/
-						void render() override;
+						void render(Camera* _camera) override;
 
 						/**
 						* Getters
@@ -51,7 +49,6 @@ namespace cogs
 						void setModel(std::unique_ptr<graphics::Model> _model)									 { m_model			 = std::move(_model); }
 
 				private:
-						Camera* m_camera;
 						std::unique_ptr<graphics::Model> m_model;
 						std::unique_ptr<graphics::Material> m_material;
 				};

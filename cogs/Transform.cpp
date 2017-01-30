@@ -27,10 +27,6 @@ namespace cogs
 				void Transform::update(float _deltaTime)
 				{
 				}
-				void Transform::render()
-				{
-				}
-
 				void Transform::rotate(const glm::vec3 & _eulerAngles)
 				{
 						glm::quat toRotate(glm::vec3(
@@ -58,9 +54,9 @@ namespace cogs
 						internal_setLocalPosition(m_localPosition + _offset);
 				}
 
-				void Transform::scale(const glm::vec3 & _offset)
+				void Transform::setScale(const glm::vec3 & _newScale)
 				{
-						internal_setLocalScale(m_localScale + _offset);
+						internal_setLocalScale(_newScale);
 				}
 
 				glm::mat4 Transform::localTransform() const

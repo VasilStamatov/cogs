@@ -41,8 +41,6 @@ namespace cogs
 						}
 				}
 
-				void Camera::render() { }
-
 				void Camera::setFoV(int _value)
 				{
 						m_fov = _value;

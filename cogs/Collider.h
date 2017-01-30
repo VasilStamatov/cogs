@@ -49,11 +49,6 @@ namespace cogs
 						*/
 						void update(float _deltaTime) override;
 
-						/**
-						* The render component function
-						*/
-						void render() override;
-
 						void setLocalScaling(const glm::vec3& _scale);
 
 						/**

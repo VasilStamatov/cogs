@@ -34,7 +34,6 @@ namespace cogs
 
 						void init() override;
 						void update(float _deltaTime) override;
-						void render() override;
 
 						/**
 								* \brief Changes the FoV of the perspective matrix and updates it

@@ -29,7 +29,7 @@ namespace cogs
 						
 				}
 
-				void Sprite::render()
+				void Sprite::render(Camera* _camera)
 				{
 						m_renderer.lock()->submit(m_entity);
 				}

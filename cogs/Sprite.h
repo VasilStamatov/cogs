@@ -47,7 +47,7 @@ namespace cogs
 						/**
 						 	* The render component function
 						 	*/
-						void render() override;
+						void render(Camera* _camera) override;
 
 						void setTexture(const std::string& _filePath, bool _alpha);
 						void setRenderer(std::weak_ptr<graphics::SpriteRenderer> _renderer);

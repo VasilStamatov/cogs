@@ -26,11 +26,6 @@ namespace cogs
 						*/
 						void update(float _deltaTime) override;
 
-						/**
-						* The render component function
-						*/
-						void render() override;
-
 				private:
 						Transform* m_transform{ nullptr };
 						float m_moveSpeed{ 1.0f };

@@ -16,12 +16,11 @@ namespace cogs
 				void MeshRenderer::init()
 				{
 						Entity* root = m_entity->getRoot();
-						m_camera = root->getComponentInChildren<Camera>();
 				}
 				void MeshRenderer::update(float _deltaTime)
 				{
 				}
-				void MeshRenderer::render()
+				void MeshRenderer::render(Camera* _camera)
 				{
 						m_material->bind();
 
@@ -31,8 +30,8 @@ namespace cogs
 						changes a value if it already exists (and does not actually add a new one) */
 
 						m_material->addMat4("model", m_entity->getComponent<Transform>()->worldTransform());
-						m_material->addMat4("view", m_camera->getViewMatrix());
-						m_material->addMat4("projection", m_camera->getProjectionMatrix());
+						m_material->addMat4("view", _camera->getViewMatrix());
+						m_material->addMat4("projection", _camera->getProjectionMatrix());
 
 						m_material->uploadUniforms();
 

@@ -25,6 +25,7 @@ namespace cogs
 				
 				/* forward declare the entity class */
 				class Entity;
+				class Camera;
 
 				/** The component class game components will inherit from*/
 				class Component
@@ -32,14 +33,18 @@ namespace cogs
 				public:
 						Component() {}
 						//since this is going to be used polymorphically the destructor needs to have the virtual keyword
-						virtual ~Component() {}
+						virtual ~Component() { destroy(); }
 
 						/* Let the component have an init function so it can be used as a constructor
 						 * init is called after the parent entity has been assigned, while the constructor doesn't have it */
 						virtual void init() = 0;
+
 						/* Usually game components will have an Update and Draw function */
 						virtual void update(float _deltaTime) = 0;
-						virtual void render() = 0;
+
+						virtual void render(Camera* _camera) {};
+
+						virtual void destroy() {}
 
 						virtual void onCollision(const glm::vec3& _pointA,
 								const glm::vec3& _pointB,

@@ -45,12 +45,12 @@ namespace cogs
 						}
 
 						/** Renders this entity and all its children */
-						inline void renderAll()
+						inline void renderAll(Camera* _camera)
 						{
-								render();
+								render(_camera);
 								for (auto& child : m_children)
 								{
-										child->renderAll();
+										child->renderAll(_camera);
 								}
 						}
 
@@ -184,6 +184,36 @@ namespace cogs
 								return parent->getHolder()->getRoot();
 						}
 
+						inline std::weak_ptr<Entity> getChild(const std::string& _entityName)
+						{
+								std::weak_ptr<Entity> child;
+
+								for (size_t i = 0; i < m_children.size(); i++)
+								{
+										if (m_children.at(i)->getName() == _entityName)
+										{
+												child = m_children.at(i);
+										}
+								}
+
+								return child;
+						}
+
+						inline std::vector<std::weak_ptr<Entity>> getChildren(const std::string& _entityName)
+						{
+								std::vector<std::weak_ptr<Entity>> children;
+
+								for (size_t i = 0; i < m_children.size(); i++)
+								{
+										if (m_children.at(i)->getName() == _entityName)
+										{
+												children.push_back(m_children.at(i));
+										}
+								}
+
+								return children;
+						}
+
 						/**
 						* returns the number of children this entity has
 						*/
@@ -199,7 +229,7 @@ namespace cogs
 						inline void update(float _deltaTime) { for (auto& component : m_components) { component->update(_deltaTime); } }
 
 						/* Render this entity (all its components) */
-						inline void render() { for (auto& component : m_components) { component->render(); } }
+						inline void render(Camera* _camera) { for (auto& component : m_components) { component->render(_camera); } }
 
 						/* Refresh this entity */
 						inline void refresh()
@@ -216,6 +246,10 @@ namespace cogs
 						}
 
 				private:
+						/*static std::vector<std::weak_ptr<Camera>> s_cameras;
+						static std::weak_ptr<Camera> s_main;
+						static std::weak_ptr<Camera> s_current;*/
+
 						/* An entity is also composed of numerous components
 							* Therefore the components will be stored in an std::vector as unique pointers to allow polymorphism */
 						std::vector<std::shared_ptr<Component>> m_components;
