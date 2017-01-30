@@ -5,6 +5,7 @@
 
 #include <memory>
 #include "CMotionState.h"
+#include "Physics.h"
 
 namespace cogs
 {
@@ -21,7 +22,7 @@ namespace cogs
 						/**
 						* Pass the mass that this entity should be (keep it between 0.0f and 1.0f)
 						*/
-						RigidBody(float _mass = 1.0f, bool _isKinematic = false);
+						RigidBody(std::weak_ptr<physics::Physics> _physicsWorld ,float _mass = 1.0f, bool _isKinematic = false);
 						~RigidBody();
 
 						/**
@@ -120,8 +121,9 @@ namespace cogs
 				private:
 						std::shared_ptr<btRigidBody> m_rigidBody{ nullptr }; ///< the rigid body that bullet uses
 						std::shared_ptr<physics::CMotionState> m_motionState{ nullptr }; ///< motion state implementation for this engine
+						std::weak_ptr<physics::Physics> m_physicsWorld; ///< the world this rigidbody belongs to
 						float m_mass{ 0.0f }; ///< the mass of this rigid body
-						bool m_isKinematic{ false };
+						bool m_isKinematic{ false }; ///< flag wether this body is kinematic or not
 				};
 		}
 }

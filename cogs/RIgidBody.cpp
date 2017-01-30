@@ -2,7 +2,6 @@
 
 #include "Entity.h"
 #include "Collider.h"
-#include "Physics.h"
 
 #include <glm\gtc\type_ptr.hpp>
 
@@ -10,14 +9,15 @@ namespace cogs
 {
 		namespace ecs
 		{
-				RigidBody::RigidBody(float _mass, bool _isKinematic) : m_mass(_mass), m_isKinematic(_isKinematic)
+				RigidBody::RigidBody(std::weak_ptr<physics::Physics> _physicsWorld, float _mass, bool _isKinematic) :
+						m_mass(_mass), m_isKinematic(_isKinematic), m_physicsWorld(_physicsWorld)
 				{
 						btClamp(m_mass, 0.0f, 1.0f);
 				}
 
 				RigidBody::~RigidBody()
 				{
-						physics::Physics::removeRigidBody(m_rigidBody.get());
+						m_physicsWorld.lock()->removeRigidBody(m_rigidBody.get());
 				}
 
 				void RigidBody::init()
@@ -42,7 +42,7 @@ namespace cogs
 								m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 						}
 
-						physics::Physics::addRigidBody(m_rigidBody.get());
+						m_physicsWorld.lock()->addRigidBody(m_rigidBody.get());
 
 						m_rigidBody->setUserPointer(m_entity);
 				}

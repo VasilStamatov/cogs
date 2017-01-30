@@ -6,12 +6,10 @@ namespace cogs
 {
 		namespace physics
 		{
-				std::unique_ptr<btBroadphaseInterface> Physics::m_broadphase = nullptr;
-				std::unique_ptr<btDefaultCollisionConfiguration> Physics::m_collisionConfiguration = nullptr;
-				std::unique_ptr<btCollisionDispatcher> Physics::m_dispatcher = nullptr;
-				std::unique_ptr<btSequentialImpulseConstraintSolver> Physics::m_solver = nullptr;
-				std::unique_ptr<btDiscreteDynamicsWorld> Physics::m_dynamicsWorld = nullptr;
-
+				Physics::Physics(float _xGravity, float _yGravity, float _zGravity)
+				{
+						init(_xGravity, _yGravity, _zGravity);
+				}
 				void Physics::init(float _xGravity, float _yGravity, float _zGravity)
 				{
 						m_broadphase = std::make_unique<btDbvtBroadphase>();
