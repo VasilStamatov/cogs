@@ -160,9 +160,11 @@
     <ClInclude Include="CMotionState.h" />
     <ClInclude Include="Cogs.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FPSCameraControl.h" />
+    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GLSLProgram.h" />
     <ClInclude Include="GLTexture.h" />
     <ClInclude Include="IApplication.h" />
@@ -194,7 +196,9 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMotionState.cpp" />
     <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="Color.cpp" />
     <ClCompile Include="FPSCameraControl.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GLSLProgram.cpp" />
     <ClCompile Include="GLTexture.cpp" />
     <ClCompile Include="IApplication.cpp" />

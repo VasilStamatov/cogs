@@ -132,6 +132,12 @@
     <ClInclude Include="Cogs.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -202,6 +208,12 @@
     </ClCompile>
     <ClCompile Include="IApplication.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Framebuffer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Color.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

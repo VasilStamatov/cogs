@@ -18,9 +18,21 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PaddleController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BallBehavior.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CollisionTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PaddleController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BallBehavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

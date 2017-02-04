@@ -11,11 +11,12 @@
 #include <cogs\Physics.h>
 #include <cogs\Collider.h>
 #include <cogs\RigidBody.h>
-#include <cogs\FPSCameraControl.h>
 #include <cogs\BulletDebugRenderer.h>
+#include <cogs\FPSCameraControl.h>
 #include <iostream>
 
-#include "CollisionTest.h"
+#include "PaddleController.h"
+#include "BallBehavior.h"
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
@@ -24,74 +25,105 @@ namespace cp = cogs::physics;
 
 int main(int argc, char** argv)
 {
-		cp::Physics::init(0.0f, -9.81f, 0.0f);
-
 		cg::Window window;
 		window.create("Test", 1024, 576, cg::WindowCreationFlags::RESIZABLE);
-		window.setRelativeMouseMode(true);
+		//window.setRelativeMouseMode(true);
+		window.setClearColor(&cg::Color::white);
 		bool quit = false;
 
 		cu::FpsLimiter fpsLimiter(60.0f);
 
+		std::shared_ptr<cp::Physics> physicsWorld = std::make_shared<cp::Physics>(0.0f, -9.81f, 0.0f);
+
 		std::shared_ptr<ce::Entity> root = std::make_shared<ce::Entity>("Root");
 
-		std::weak_ptr<ce::Entity> camera = root->addChild("Camera");
-		camera.lock()->addComponent<ce::Camera>(ce::ProjectionType::PERSPECTIVE, window.getWidth(), window.getHeight());
-		camera.lock()->addComponent<ce::FPSCameraControl>(1.0f);
-		camera.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 5.0f));
+		std::shared_ptr<cg::Framebuffer> test = cg::Framebuffer::create(window.getWidth(), window.getHeight());
 
-		std::weak_ptr<ce::Entity> model1 = root->addChild("TestModel");
-		model1.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("sphere", "Models/TestModels/sphere.obj"),
-				std::make_unique<cg::Material>("sphere_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
-		model1.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 50.0f, 0.0f));
-		model1.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0f);
-		model1.lock()->addComponent<ce::RigidBody>(1.0f);
-		model1.lock()->getComponent<ce::RigidBody>()->setActivationState(4);
-		model1.lock()->addComponent<CollisionTest>();
+		std::weak_ptr<ce::Entity> mainCamera = root->addChild("MainCamera");
+		mainCamera.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
+		mainCamera.lock()->addComponent<ce::FPSCameraControl>(1.0f);
+		mainCamera.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 55.0f));
+		//mainCamera.lock()->getComponent<ce::Camera>()->setRenderTarget(test);
 
-		std::weak_ptr<ce::Entity> plane = root->addChild("StaticPlane");
-		plane.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("plane", "Models/TestModels/plane2.obj"),
-				std::make_unique<cg::Material>("plane_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
-		plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -5.0f, 0.0f));
-		plane.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(20.0f, 0.0f, 20.0f));
-		plane.lock()->addComponent<ce::RigidBody>(0.0f);
-		plane.lock()->addComponent<CollisionTest>();
+		/*std::weak_ptr<ce::Entity> camera2 = root->addChild("Camera2");
+		camera2.lock()->addComponent<ce::Camera>(ce::ProjectionType::PERSPECTIVE, window.getWidth(), window.getHeight());
+		camera2.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.0f, 25.0f));*/
 
+		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
+		paddle.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("paddle", "Models/TestModels/cube.obj"),
+				std::make_unique<cg::Material>("paddle_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
+		paddle.lock()->getComponent<ce::Transform>()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
+		paddle.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
+		paddle.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(2.0f, 0.5f, 1.0f));
+		paddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
+		paddle.lock()->getComponent<ce::RigidBody>()->setActivationState(4);
+		paddle.lock()->getComponent<ce::RigidBody>()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
+		paddle.lock()->getComponent<ce::RigidBody>()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
+		paddle.lock()->getComponent<ce::RigidBody>()->setRestitution(1.0f);
+		paddle.lock()->addComponent<PaddleController>(1.0f);
 
-		/*cg::SpriteRenderer spriteRenderer("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag");
+		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
+		groundBound.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-2.5f, -5.0f, 0.0f));
+		groundBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(32.5f, 0.0f, 1.0f));
+		groundBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 
-		std::weak_ptr<ce::Entity> sprite = root->addChild("testSprite");
-		sprite.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
-		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-		"Textures/img_test.png", true,
-		&spriteRenderer);
+		std::weak_ptr<ce::Entity> ceilingBound = root->addChild("CeilingBoundary");
+		ceilingBound.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-2.5f, 30.0f, 0.0f));
+		ceilingBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(32.5f, 0.0f, 1.0f));
+		ceilingBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+		ceilingBound.lock()->getComponent<ce::RigidBody>()->setRestitution(1.0f);
 
-		std::weak_ptr<ce::Entity> sprite2 = sprite.lock()->addChild("testSpriteChild");
-		sprite2.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
-		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-		"Textures/player.png", true,
-		&spriteRenderer);
-		sprite2.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));
+		std::weak_ptr<ce::Entity> leftBound = root->addChild("LeftBoundary");
+		leftBound.lock()->getComponent<ce::Transform>()->translate(glm::vec3(-35.0f, 12.5f, 0.0f));
+		leftBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(0.0f, 17.0f, 1.0f));
+		leftBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+		leftBound.lock()->getComponent<ce::RigidBody>()->setRestitution(1.0f);
 
-		std::weak_ptr<ce::Entity> sprite3 = sprite2.lock()->addChild("testSpriteChild2");
-		sprite3.lock()->addComponent<ce::Sprite>(glm::vec2(200.0f, 200.0f),
-		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-		"Textures/red_bricks.png", true,
-		&spriteRenderer);
-		sprite3.lock()->getComponent<ce::Transform>()->setLocalPosition(glm::vec3(300.0f, 300.0f, 0.0f));*/
+		std::weak_ptr<ce::Entity> rightBound = root->addChild("RightBoundary");
+		rightBound.lock()->getComponent<ce::Transform>()->translate(glm::vec3(30, 12.5f, 0.0f));
+		rightBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(0.0f, 17.0f, 1.0f));
+		rightBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+		rightBound.lock()->getComponent<ce::RigidBody>()->setRestitution(1.0f);
 
-		window.setClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		std::weak_ptr<ce::Entity> ball = root->addChild("Ball");
+		ball.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("ball", "Models/TestModels/sphere.obj"),
+				std::make_unique<cg::Material>("ball_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
+		ball.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
+		ball.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0);
+		ball.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
+		ball.lock()->getComponent<ce::RigidBody>()->setActivationState(5);
+		ball.lock()->getComponent<ce::RigidBody>()->setLinearFactor(glm::vec3(1.0f, 1.0f, 0.0f));
+		ball.lock()->getComponent<ce::RigidBody>()->setRestitution(1.0f);
+		ball.lock()->addComponent<BallBehavior>();
+
+		for (int i = -30; i < 30; i += 4)
+		{
+				for (int j = -10; j < 0; j += 4)
+				{
+						std::weak_ptr<ce::Entity> brick = root->addChild("Brick");
+						brick.lock()->addComponent<ce::MeshRenderer>(std::make_unique<cg::Model>("brick", "Models/TestModels/cube.obj"),
+								std::make_unique<cg::Material>("bricks_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));
+						brick.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
+						brick.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+						brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+						brick.lock()->getComponent<ce::RigidBody>()->setActivationState(5);
+						brick.lock()->getComponent<ce::RigidBody>()->setRestitution(1.0f);
+				}
+		}
 
 		cg::BulletDebugRenderer debugRenderer;
 
 		debugRenderer.setDebugMode(debugRenderer.DBG_DrawWireframe);
-		cp::Physics::setDebugDrawer(&debugRenderer);
+		physicsWorld->setDebugDrawer(&debugRenderer);
 
 		while (!quit)
 		{
 				fpsLimiter.beginFrame();
+
 				window.clear(true, true);
+
 				cu::Input::update();
+
 				//process input
 				SDL_Event evnt;
 				while (SDL_PollEvent(&evnt))
@@ -138,107 +170,36 @@ int main(int argc, char** argv)
 								window.handleEvent(evnt);
 								if (window.wasResized())
 								{
-										camera.lock()->getComponent<ce::Camera>()->resize(window.getWidth(), window.getHeight());
+										//camera.lock()->getComponent<ce::Camera>()->resize(window.getWidth(), window.getHeight());
 										window.resizeHandled();
 								}
 						}
 						}
 				}
+
 				if (cu::Input::isKeyPressed(cu::KeyCode::ESC))
 				{
 						quit = true;
 				}
-				if (cu::Input::isKeyPressed(cu::KeyCode::SPACE))
-				{
-						/*std::cout << "Pos x: " << model1.lock()->getComponent<ce::Transform>()->localPosition().x << std::endl;
-						std::cout << "Pos y: " << model1.lock()->getComponent<ce::Transform>()->localPosition().y << std::endl;
-						std::cout << "Pos z: " << model1.lock()->getComponent<ce::Transform>()->localPosition().z << std::endl;
-
-						std::cout << "Scale x: " << model1.lock()->getComponent<ce::Transform>()->localScale().x << std::endl;
-						std::cout << "Scale y: " << model1.lock()->getComponent<ce::Transform>()->localScale().z << std::endl;
-						std::cout << "Scale z: " << model1.lock()->getComponent<ce::Transform>()->localScale().y << std::endl;
-
-						std::cout << "Rotation x: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().x << std::endl;
-						std::cout << "Rotation y: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().y << std::endl;
-						std::cout << "Rotation z: " << model1.lock()->getComponent<ce::Transform>()->localOrientation().z << std::endl;*/
-
-						model1.lock()->getComponent<ce::RigidBody>()->activate();
-						model1.lock()->getComponent<ce::Collider>()->setLocalScaling(glm::vec3(2.0f, 2.0f, 2.0f));
-				}
-
-				if (cu::Input::isKeyDown(cu::KeyCode::ALPHA1))
-				{
-						std::cout << "Camera is now perspective projection" << std::endl;
-						camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::PERSPECTIVE);
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::ALPHA2))
-				{
-						std::cout << "Camera is now orthographic projection" << std::endl;
-						camera.lock()->getComponent<ce::Camera>()->setProjectionType(ce::ProjectionType::ORTHOGRAPHIC);
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::Q))
-				{
-						plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, -0.1f, 0.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::E))
-				{
-						plane.lock()->getComponent<ce::Transform>()->translate(glm::vec3(0.0f, 0.1f, 0.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::R))
-				{
-						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(10.0f, 0.0f, 0.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::F))
-				{
-						model1.lock()->getComponent<ce::Transform>()->rotate(glm::vec3(10.0f, 10.0f, 10.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::LEFT))
-				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(-25.0f, 0.0f, 0.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::RIGHT))
-				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(25.0f, 0.0f, 0.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::UP))
-				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, 0.0f, -25.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::DOWN))
-				{
-						model1.lock()->getComponent<ce::RigidBody>()->applyCentralForce(glm::vec3(0.0f, -0.0f, 25.0f));
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::Z))
-				{
-						std::cout << "Increasing the FoV of the camera by 5" << std::endl;
-						camera.lock()->getComponent<ce::Camera>()->offsetFoV(5);
-				}
-				if (cu::Input::isKeyDown(cu::KeyCode::X))
-				{
-						std::cout << "Increasing the FoV of the camera by -5" << std::endl;
-						camera.lock()->getComponent<ce::Camera>()->offsetFoV(-5);
-				}
-
 
 				//Update
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
 
-				cp::Physics::stepSimulation();
+				physicsWorld->stepSimulation();
 
+				std::vector<ce::Camera*> cameras = root->getComponentsInChildren<ce::Camera>();
 				//Render
-				//spriteRenderer.begin();
-				root->renderAll();
+				for (ce::Camera* camera : cameras)
+				{
+						cg::Framebuffer::setActive(camera->getRenderTarget());
 
-				//use the debug renderer to draw the debug physics world
-				cp::Physics::debugDrawWorld();
-				debugRenderer.end();
-				debugRenderer.render(camera.lock()->getComponent<ce::Camera>()->getViewMatrix(),
-						camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix(), 1.0f);
-
-				//spriteRenderer.end();
-
-				//spriteRenderer.flush(camera.lock()->getComponent<ce::Camera>()->getViewMatrix(), camera.lock()->getComponent<ce::Camera>()->getProjectionMatrix());
+						root->renderAll(camera);
+						//use the debug renderer to draw the debug physics world
+						physicsWorld->debugDrawWorld();
+						debugRenderer.end();
+						debugRenderer.render(camera->getViewMatrix(), camera->getProjectionMatrix(), 1.0f);
+				}
 
 				window.swapBuffer();
 

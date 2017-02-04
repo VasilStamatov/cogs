@@ -51,7 +51,7 @@ namespace cogs
 						GLuint m_id{ 0 };
 						unsigned int m_width{ 0 };
 						unsigned int m_height{ 0 };
-						std::string m_filePath;
+						std::string m_filePath{ "" };
 				};
 		}
 }
