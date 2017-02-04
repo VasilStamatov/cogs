@@ -26,7 +26,7 @@ namespace cogs
 								* \param _color - the color of the sprite
 								* \param _renderer - the renderer this sprite will submit itself to
 								*/
-						Sprite(const glm::vec2& _size, const glm::vec4& _color,
+						Sprite(const glm::vec2& _size, const graphics::Color& _color,
 								const std::string& _texturePath, bool _alpha, std::weak_ptr<graphics::SpriteRenderer> _renderer);
 
 						/**
@@ -55,7 +55,7 @@ namespace cogs
 						/**
 								* Getters
 								*/
-						inline const glm::vec4& getColor()													 const noexcept { return m_color; }
+						inline const graphics::Color& getColor()								const noexcept { return m_color; }
 						inline const glm::vec2& getSize()														 const noexcept { return m_size; }
 						inline const std::array<glm::vec2, 4>& getUV()		const noexcept	{ return m_uv; }
 						inline const graphics::GLTexture& getTexture()  const noexcept { return m_texture; }
@@ -65,7 +65,7 @@ namespace cogs
 
 				private:
 						Transform* m_transform{ nullptr };
-						glm::vec4 m_color{ 0.0f };
+						graphics::Color m_color;
 						glm::vec2 m_size{ 0.0f };
 						std::array<glm::vec2, 4> m_uv;
 

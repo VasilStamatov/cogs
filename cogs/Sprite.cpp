@@ -6,7 +6,7 @@ namespace cogs
 		namespace ecs
 		{
 				Sprite::Sprite() { }
-				Sprite::Sprite(const glm::vec2& _size, const glm::vec4& _color,
+				Sprite::Sprite(const glm::vec2& _size, const graphics::Color& _color,
 						const std::string& _texturePath, bool _alpha, std::weak_ptr<graphics::SpriteRenderer> _renderer)
 						: m_color(_color), m_renderer(_renderer), m_size(_size)
 				{
