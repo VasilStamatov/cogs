@@ -54,9 +54,9 @@ namespace cogs
 						internal_setLocalPosition(m_localPosition + _offset);
 				}
 
-				void Transform::setScale(const glm::vec3 & _newScale)
+				void Transform::offsetScale(const glm::vec3 & _newScale)
 				{
-						internal_setLocalScale(_newScale);
+						internal_setLocalScale(m_localScale + _newScale);
 				}
 
 				glm::mat4 Transform::localTransform() const

@@ -51,7 +51,7 @@ namespace cogs
 						  *	\brief scales the local scale of the transform by _offset
 						  * \param _offset - the vec3 offset to add
 						  */
-						void setScale(const glm::vec3& _newScale);
+						void offsetScale(const glm::vec3& _newScale);
 
 						/**
 								*	\brief local space getters
