@@ -1,12 +1,17 @@
 #include "Window.h"
+#include "Color.h"
+
 #include <iostream>
 
 namespace cogs
 {
 		namespace graphics
 		{
+				int Window::m_width{ 0 };
+				int Window::m_height{ 0 };
+
 				int Window::create(const std::string& _windowName, int _screenWidth,
-						int _screenHeight, const WindowCreationFlags& _windowFlags)
+																						 int _screenHeight, const WindowCreationFlags& _windowFlags)
 				{
 						initSDL();
 
@@ -71,6 +76,8 @@ namespace cogs
 						SDL_GL_DeleteContext(m_glContext);
 						SDL_DestroyWindow(m_sdlWindow);
 						SDL_Quit();
+
+						m_sdlWindow = nullptr;
 				}
 
 				void Window::handleEvent(SDL_Event & _event)
@@ -251,9 +258,9 @@ namespace cogs
 						SDL_SetWindowTitle(m_sdlWindow, _title.c_str());
 				}
 
-				void Window::setClearColor(float _r, float _g, float _b, float _a)
+				void Window::setClearColor(Color* _color)
 				{
-						glClearColor(_r, _g, _b, _a);
+						glClearColor(_color->r / 255.0f, _color->g / 255.0f, _color->b / 255.0f, _color->a / 255.0f);
 				}
 
 				void Window::setRelativeMouseMode(int _enabled)

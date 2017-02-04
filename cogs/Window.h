@@ -10,6 +10,8 @@ namespace cogs
 {
 		namespace graphics
 		{
+				class Color;
+
 				enum WindowCreationFlags : unsigned int
 				{
 						NONE = 0,
@@ -29,7 +31,10 @@ namespace cogs
 						Window() {}
 						~Window() {}
 						//Initialize SDL -> Create the window -> Initialize OGL
-						int create(const std::string& _windowName, int _screenWidth, int _screenHeight, const WindowCreationFlags& _windowFlags);
+						int create(const std::string& _windowName,
+																	int _screenWidth,
+																	int _screenHeight,
+																	const WindowCreationFlags& _windowFlags);
 
 						//Close the window, destroy OGL context and quit SDL
 						void close();
@@ -46,13 +51,11 @@ namespace cogs
 						void setFullscreen (bool _isFullscreen);
 						void setBorder				 (bool _hasBorders);
 						void setWindowTitle(const std::string& _title);
-						void setClearColor (float _r, float _g, float _b, float _a);
+						void setClearColor (Color* _color);
 						void setRelativeMouseMode(int _enabled);
 						inline void resizeHandled()		noexcept { m_wasResized = false; }
 
 						//Getters
-						inline int getWidth()                   const noexcept { return m_width; }
-						inline int getHeight()                  const noexcept { return m_height; }
 						inline float getAspect()                const noexcept { return (float)m_width / (float)m_height; }
 						inline const std::string& getTitle()    const noexcept { return m_title; }
 						inline glm::vec2 getCenter()            const noexcept { return glm::vec2((float)m_width / 2.0f, (float)m_height / 2.0f); }
@@ -61,6 +64,9 @@ namespace cogs
 						inline bool hasKeyboardFocus()										const noexcept { return m_keyboardFocus; }
 						inline bool isMinimized()															const noexcept { return m_minimized; }
 						inline bool wasResized()									 						const noexcept { return m_wasResized; }
+
+						inline static int getWidth()																		noexcept { return m_width; }
+						inline static int getHeight()																	noexcept { return m_height; }
 
 				private:
 						//SDL must be initialized before window creation
@@ -72,10 +78,10 @@ namespace cogs
 						SDL_Window* m_sdlWindow = nullptr;
 						SDL_GLContext m_glContext;
 
-						std::string m_title{ "default" };
-						int m_width{ 0 };
-						int m_height{ 0 };
+						static int m_width;
+						static int m_height;
 
+						std::string m_title{ "default" };
 						bool m_mouseFocus{ false };
 						bool m_keyboardFocus{ false };
 						bool m_fullscreen{ false };
