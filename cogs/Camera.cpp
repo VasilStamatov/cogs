@@ -7,15 +7,16 @@ namespace cogs
 {
 		namespace ecs
 		{
-				Camera::Camera(const ProjectionType& _projType /* = ORTHO */,
-						int _screenWidth /* = 1024 */, int _screenHeight /* = 576 */)
+				Camera::Camera(int _screenWidth,
+																		 int _screenHeight,
+																		 const ProjectionType& _projType) :
+						m_projType(_projType),
+						m_cameraWidth(_screenWidth),
+						m_cameraHeight(_screenHeight)
 				{
-						m_projType = _projType;
-						m_screenWidth = _screenWidth;
-						m_screenHeight = _screenHeight;
 						//projection matrix
 						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_cameraWidth) * m_size, 0.0f, static_cast<float>(m_cameraHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
 				Camera::~Camera()
@@ -76,7 +77,7 @@ namespace cogs
 						{
 								m_size = 1.0f;
 						}
-						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_cameraWidth) * m_size, 0.0f, static_cast<float>(m_cameraHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
 				void Camera::offsetSize(float _value)
@@ -86,30 +87,35 @@ namespace cogs
 						{
 								m_size = 1.0f;
 						}
-						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_cameraWidth) * m_size, 0.0f, static_cast<float>(m_cameraHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
 				void Camera::setNearPlane(float _value)
 				{
 						m_nearPlane = _value;
 						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_cameraWidth) * m_size, 0.0f, static_cast<float>(m_cameraHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
 				void Camera::setFarPlane(float _value)
 				{
 						m_farPlane = _value;
 						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_cameraWidth) * m_size, 0.0f, static_cast<float>(m_cameraHeight) * m_size, m_nearPlane, m_farPlane);
+				}
+
+				void Camera::setRenderTarget(std::weak_ptr<graphics::Framebuffer> _renderTarget)
+				{
+						m_renderTarget = _renderTarget;
 				}
 
 				void Camera::resize(int _screenWidth, int _screenHeight)
 				{
-						m_screenWidth = _screenWidth;
-						m_screenHeight = _screenHeight;
+						m_cameraWidth = _screenWidth;
+						m_cameraHeight = _screenHeight;
 						//projection matrix
 						m_perspMatrix = glm::perspective(glm::radians(static_cast<float>(m_fov)), getAspectRatio(), m_nearPlane, m_farPlane);
-						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_screenWidth) * m_size, 0.0f, static_cast<float>(m_screenHeight) * m_size, m_nearPlane, m_farPlane);
+						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_cameraWidth) * m_size, 0.0f, static_cast<float>(m_cameraHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
 				const glm::mat4 & Camera::getProjectionMatrix() const noexcept

@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "Transform.h"
+#include "Framebuffer.h"
 
 namespace cogs
 {
@@ -28,8 +29,7 @@ namespace cogs
 								* \param _screenWidth - screen width
 								* \param _screenHeight - screen height
 								*/
-						Camera(const ProjectionType& _projType = ProjectionType::ORTHOGRAPHIC,
-								int _screenWidth = 1024, int _screenHeight = 576);
+						Camera(int _screenWidth, int _screenHeight, const ProjectionType& _projType);
 						~Camera();
 
 						void init() override;
@@ -87,7 +87,7 @@ namespace cogs
 								* \brief Gets the aspect ratio of the screen
 								* \return the division of SW / SH
 								*/
-						float getAspectRatio() const noexcept { return (float)m_screenWidth / (float)m_screenHeight; }
+						float getAspectRatio() const noexcept { return (float)m_cameraWidth / (float)m_cameraHeight; }
 
 						/**
 								* \brief Gets the projection matrix of the camera
@@ -102,21 +102,27 @@ namespace cogs
 						const glm::mat4& getViewMatrix() const noexcept { return m_viewMatrix; }
 
 						/**
+						* \brief Sets the target framebuffer this camera renders to
+						*/
+						void setRenderTarget(std::weak_ptr<graphics::Framebuffer> _renderTarget);
+						std::weak_ptr<graphics::Framebuffer> getRenderTarget() { return m_renderTarget; }
+
+						/**
 								* Some basic getters
 								*/
 						float getSize() const noexcept { return m_size; }
 						float getNear()	const noexcept { return m_nearPlane; }
 						float getFar()		const noexcept { return m_farPlane;; }
 						int getFoV()				const noexcept { return m_fov; }
-						int getWidth()		const noexcept { return m_screenWidth; }
-						int getHeight() const noexcept { return m_screenHeight; }
+						int getWidth()		const noexcept { return m_cameraWidth; }
+						int getHeight() const noexcept { return m_cameraHeight; }
 						
 				private:
 						ProjectionType m_projType{ ProjectionType::ORTHOGRAPHIC }; ///< the projection type of the camera
 
 						glm::mat4 m_orthoMatrix{ 1.0f }; ///< orthographic matrix for ortho camera
 						glm::mat4 m_perspMatrix{ 1.0f }; ///< perspective matrix for perspective camera
-						glm::mat4 m_viewMatrix{ 1.0f };  ///< Camera matrix
+						glm::mat4 m_viewMatrix	{ 1.0f }; ///< Camera view matrix
 
 						Transform* m_transform{ nullptr }; ///< the transform of the camera
 						Transform m_oldTransform;										///< the old transform (to be compared for view changes
@@ -124,11 +130,13 @@ namespace cogs
 						float m_size{ 5.0f }; ///< the size of the ortho camera (zoom)
 						int m_fov{ 60 };				  ///< the field of view of the perspective camera
 
-						int m_screenWidth{ 1024 }; ///< The width of the sdl screen
-						int m_screenHeight{ 576 }; ///< The height of the sdl screen
+						int m_cameraWidth{ 1024 }; ///< The width of the sdl screen
+						int m_cameraHeight{ 576 }; ///< The height of the sdl screen
 
 						float m_nearPlane{ 0.1f };  ///< the near clipping plane
 						float m_farPlane{ 100.0f }; ///< the far clipping plane
+
+						std::weak_ptr<graphics::Framebuffer> m_renderTarget;
 				};
 		}
 }
