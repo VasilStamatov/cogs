@@ -52,7 +52,7 @@ namespace cogs
 
 						//enable the color attribute in the shader (index 2)
 						glEnableVertexAttribArray(SPITE_COLOR_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(SPITE_COLOR_ATTRIBUTE_INDEX, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteVertex),
+						glVertexAttribPointer(SPITE_COLOR_ATTRIBUTE_INDEX, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(SpriteVertex),
 								(const GLvoid*)offsetof(SpriteVertex, SpriteVertex::color));
 
 						//bind the index buffer object
@@ -227,7 +227,7 @@ namespace cogs
 								}
 
 								//the components needed for the 4 vertices
-								const glm::vec4& color = sprite->getColor();
+								const graphics::Color& color = sprite->getColor();
 								const glm::vec2& size = sprite->getSize();
 								const std::array<glm::vec2, 4>& uv = sprite->getUV();
 

@@ -3,6 +3,7 @@
 
 #include "Renderer.h"
 #include "GLSLProgram.h"
+#include "Color.h"
 
 #include <GL\glew.h>
 
@@ -39,7 +40,7 @@ namespace cogs
 				{
 						glm::vec3 position;
 						glm::vec2 uv;
-						glm::vec4 color;
+						Color color;
 				};
 
 				constexpr GLuint SPITE_POSITION_ATTRIBUTE_INDEX = 0;
