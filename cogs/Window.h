@@ -10,7 +10,7 @@ namespace cogs
 {
 		namespace graphics
 		{
-				class Color;
+				struct Color;
 
 				enum WindowCreationFlags : unsigned int
 				{

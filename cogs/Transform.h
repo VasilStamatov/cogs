@@ -15,7 +15,7 @@ namespace cogs
 						/**
 								*	\brief default contructor to contain the transform of an entity in the world
 								* \param _pos - the world vec3 coordinates (set to origin (0,0,0) by default
-								* \param _eulerAngles - the orientation on each axis in degrees (set to 0 on each axis by default)
+								* \param _eulerAngles - the orientation on each axis in radians (set to 0 on each axis by default)
 								* \param _scale - the scale on each axis (set to 1 by default)
 								* \param _parent - a pointer to the parent transform for parent-child relationships (set to nullptr by default)
 								*/
@@ -29,10 +29,21 @@ namespace cogs
 						void update(float _deltaTime) override;
 
 						/**
-						 	*	\brief rotates the transform of the entity by euler angles in degrees
-						 	* \param _eulerAngles - vec3 euler angles in degrees to be added
+						 	*	\brief rotates the transform of the entity by euler angles in radians
+						 	* \param _eulerAngles - vec3 euler angles in radians to be added
 						 	*/
 						void rotate(const glm::vec3& _eulerAngles);
+						
+						/**
+						*	\brief rotates the transform of the entity around an axis by angle in radians
+						* \param _angle - vec3 euler angles in radians to be added
+						*/
+						void rotate(const glm::vec3& _axis, float _angle);
+
+						/**
+						*	\brief rotates the transform of the entity by quat concatenation
+						* \param _rotationQuat - the rotation quat to be applied
+						*/
 						void rotate(const glm::quat& _rotationQuat);
 
 						/**

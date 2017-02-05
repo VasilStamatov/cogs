@@ -29,10 +29,14 @@ namespace cogs
 				}
 				void Transform::rotate(const glm::vec3 & _eulerAngles)
 				{
-						glm::quat toRotate(glm::vec3(
-								glm::radians(_eulerAngles.x),
-								glm::radians(_eulerAngles.y),
-								glm::radians(_eulerAngles.z)));
+						glm::quat toRotate(_eulerAngles);
+
+						internal_setLocalOrientation(toRotate * m_localOrientationRaw);
+				}
+
+				void Transform::rotate(const glm::vec3 & _axis, float _angle)
+				{
+						glm::quat toRotate(glm::angleAxis((_angle), _axis));
 
 						internal_setLocalOrientation(toRotate * m_localOrientationRaw);
 				}
@@ -44,7 +48,7 @@ namespace cogs
 
 				void Transform::lookAt(const glm::vec3 & _target)
 				{
-						glm::vec3 direction = glm::normalize(m_worldPosition - _target);
+						glm::vec3 direction = glm::normalize(_target - m_worldPosition);
 						glm::mat4 lookAtMat = glm::lookAt(m_worldPosition, m_worldPosition + direction, worldUpAxis());
 						internal_setLocalOrientation(glm::quat_cast(lookAtMat));
 				}
@@ -130,7 +134,7 @@ namespace cogs
 				void Transform::internal_setLocalOrientation(const glm::vec3 & _value)
 				{
 						//convert the euler angle value to a quat and pass it to the overloaded function
-						internal_setLocalOrientation(glm::quat(glm::vec3(glm::radians(_value.x), glm::radians(_value.y), glm::radians(_value.z))));
+						internal_setLocalOrientation(glm::quat(_value));
 				}
 
 				void Transform::internal_setLocalPosition(const glm::vec3 & _value)
@@ -196,7 +200,7 @@ namespace cogs
 				void Transform::internal_setWorldOrientation(const glm::vec3 & _value)
 				{
 						//convert the euler angle value to a quat and pass it to the overloaded function
-						internal_setWorldOrientation(glm::quat(glm::vec3(glm::radians(_value.x), glm::radians(_value.y), glm::radians(_value.z))));
+						internal_setWorldOrientation(glm::quat(_value));
 				}
 
 				void Transform::internal_setWorldPosition(const glm::vec3 & _value)

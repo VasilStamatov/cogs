@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 		paddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
 		paddle.lock()->getComponent<ce::RigidBody>()->setActivationState(4);
 		paddle.lock()->getComponent<ce::RigidBody>()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
-		paddle.lock()->getComponent<ce::RigidBody>()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
+		//paddle.lock()->getComponent<ce::RigidBody>()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
 		paddle.lock()->getComponent<ce::RigidBody>()->setRestitution(1.0f);
 		paddle.lock()->addComponent<PaddleController>(1.0f);
 
