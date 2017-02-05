@@ -39,7 +39,7 @@ namespace cogs
 						btQuaternion rot = _worldTrans.getRotation();
 						const btVector3& pos = _worldTrans.getOrigin();
 
-						m_transform->setWorldOrientation(glm::quat(rot.x(), rot.y(), rot.z(), rot.w()));
+						m_transform->setWorldOrientation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
 						m_transform->setWorldPosition(glm::vec3(pos.x(), pos.y(), pos.z()));
 				}
 		}
