@@ -2,6 +2,7 @@
 #define COMPONENT_H
 
 #include <glm\vec3.hpp>
+#include <memory>
 
 namespace cogs
 {
@@ -42,7 +43,7 @@ namespace cogs
 						/* Usually game components will have an Update and Draw function */
 						virtual void update(float _deltaTime) = 0;
 
-						virtual void render(Camera* _camera) {};
+						virtual void render(std::weak_ptr<Camera> _camera) {};
 
 						virtual void destroy() {}
 
@@ -51,10 +52,10 @@ namespace cogs
 								const glm::vec3& _normalOnB,
 								Entity* _other) {}
 
-						virtual void setEntity(Entity* _entity) { m_entity = _entity; }
+						virtual void setEntity(std::weak_ptr<Entity> _entity) { m_entity = _entity; }
 				protected:
 						/* Store the parent entity containing this component in a pointer due to forward declaration */
-						Entity* m_entity{ nullptr };
+						std::weak_ptr<Entity> m_entity;
 				};
 
 				/* Get the unique ID of every component type (same component types have same IDs) */

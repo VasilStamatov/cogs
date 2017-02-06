@@ -7,7 +7,6 @@
 #include <bitset>
 #include <cassert>
 #include <vector>
-#include <memory>
 #include <array>
 
 namespace cogs
@@ -16,22 +15,30 @@ namespace cogs
 		{
 				constexpr std::size_t MAX_COMPONENTS{ 32 };
 
-				class Entity : public Object
+				class Entity : public Object, public std::enable_shared_from_this<Entity>
 				{
 				public:
 						/** The constructor adds a transform component, as all entities need at least a transform */
 						Entity()
 						{
-								addComponent<Transform>();
 						}
 
 						/** The constructor adds a transform component, as all entities need at least a transform */
 						Entity(const std::string& _name) : Object(_name)
 						{
-								addComponent<Transform>();
 						}
 						~Entity()
 						{
+						}
+
+						static std::shared_ptr<Entity> create(const std::string& _name)
+						{
+								//create a new entity shared ptr
+								std::shared_ptr<Entity> newEntity = std::make_shared<Entity>(_name);
+								//give it a transform
+								newEntity->addComponent<Transform>();
+								//return the created entity
+								return newEntity;
 						}
 
 						/** Updates this entity and all its children */
@@ -45,7 +52,7 @@ namespace cogs
 						}
 
 						/** Renders this entity and all its children */
-						inline void renderAll(Camera* _camera)
+						inline void renderAll(std::weak_ptr<Camera> _camera)
 						{
 								render(_camera);
 								for (auto& child : m_children)
@@ -89,7 +96,7 @@ namespace cogs
 
 								/* begin by allocating component of type T on the heap by forwarding the passed arguments to its constructor */
 								std::shared_ptr<Component> component = std::make_shared<T>(std::forward<TArgs>(_args)...);
-								component->setEntity(this);
+								component->setEntity(shared_from_this());
 								/* Call the virtual function init of the component */
 								component->init();
 
@@ -108,9 +115,27 @@ namespace cogs
 						std::weak_ptr<Entity> addChild(const std::string& _name)
 						{
 								/* create the new entity shared pointer */
-								std::shared_ptr<Entity> newChild = std::make_shared<Entity>(_name);
+								std::shared_ptr<Entity> newChild = create(_name);
+								/* move it to the children vector */
 								m_children.push_back(std::move(newChild));
-								m_children.back()->getComponent<Transform>()->setParent(getComponent<Transform>());
+								/* set the transform parent of the child entity to this entity's transform */
+								m_children.back()->getComponent<Transform>().lock()->setParent(getComponent<Transform>());
+								/* return a handle(reference) of the child */
+								return m_children.back();
+						}
+
+						/** \brief Adds an existing entity to the children vector of this entity
+						*				move semantics are used internally so the main child pointer is moved to the vector (making the main one empty)
+						*				after this the weak ptr handle should be used.
+						* \param[in] _child the entity to be added as a child
+						*/
+						std::weak_ptr<Entity> addChild(std::shared_ptr<Entity> _child)
+						{
+								/* move it to the children vector */
+								m_children.push_back(std::move(_child));
+								/* set the transform parent of the child entity to this entity's transform */
+								m_children.back()->getComponent<Transform>().lock()->setParent(getComponent<Transform>());
+								/* return a handle(reference) of the child */
 								return m_children.back();
 						}
 
@@ -128,21 +153,20 @@ namespace cogs
 								* \param[out] T* return a pointer to the component requested
 								*/
 						template<typename T>
-						inline T* getComponent() const
+						inline std::weak_ptr<T> getComponent() const
 						{
 								/* check if it has this component */
 								assert(hasComponent<T>());
 								//get the component pointer
 								std::weak_ptr<Component> component = (m_componentArray[getComponentTypeID<T>()]);
-
-								return reinterpret_cast<T*>(component.lock().get());
+								return std::static_pointer_cast<T>(component.lock());
 						}
 
 						/**
 						* checks if any child of this entity has T component, and returns the first one found
 						*/
 						template<typename T>
-						inline T* getComponentInChildren() const
+						inline std::weak_ptr<T> getComponentInChildren() const
 						{
 								for (auto& child : m_children)
 								{
@@ -151,16 +175,16 @@ namespace cogs
 												return child->getComponent<T>();
 										}
 								}
-								return nullptr;
+								return std::weak_ptr<T>();
 						}
 
 						/**
 						* checks if any child of this entity has T components, and returns a vector of all the components found
 						*/
 						template<typename T>
-						inline std::vector<T*> getComponentsInChildren() const
+						inline std::vector<std::weak_ptr<T>> getComponentsInChildren() const
 						{
-								std::vector<T*> components;
+								std::vector<std::weak_ptr<T>> components;
 								for (auto& child : m_children)
 								{
 										if (child->hasComponent<T>())
@@ -174,14 +198,14 @@ namespace cogs
 						/**
 						* goes up the tree until it reaches the root and returns it
 						*/
-						inline Entity* getRoot()
+						inline std::weak_ptr<Entity> getRoot()
 						{
-								Transform* parent = getComponent<Transform>()->getParent();
-								if (parent == nullptr)
+								std::weak_ptr<Transform> parent = getComponent<Transform>().lock()->getParent();
+								if (parent.expired())
 								{
-										return this;
+										return shared_from_this();
 								}
-								return parent->getHolder()->getRoot();
+								return parent.lock()->getHolder().lock()->getRoot();
 						}
 
 						inline std::weak_ptr<Entity> getChild(const std::string& _entityName)
@@ -229,7 +253,7 @@ namespace cogs
 						inline void update(float _deltaTime) { for (auto& component : m_components) { component->update(_deltaTime); } }
 
 						/* Render this entity (all its components) */
-						inline void render(Camera* _camera) { for (auto& component : m_components) { component->render(_camera); } }
+						inline void render(std::weak_ptr<Camera> _camera) { for (auto& component : m_components) { component->render(_camera); } }
 
 						/* Refresh this entity */
 						inline void refresh()
