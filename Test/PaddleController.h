@@ -27,7 +27,7 @@ public:
 				ce::Entity* _other) override;
 
 private:
-		ce::RigidBody* m_rb;
+		std::weak_ptr<ce::RigidBody> m_rb;
 		float m_moveSpeed{ 0.0f };
 };
 

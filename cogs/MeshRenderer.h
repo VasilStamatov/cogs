@@ -34,7 +34,7 @@ namespace cogs
 						/**
 						* The render component function
 						*/
-						void render(Camera* _camera) override;
+						void render(std::weak_ptr<Camera> _camera) override;
 
 						/**
 						* Getters

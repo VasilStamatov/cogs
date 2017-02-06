@@ -15,12 +15,11 @@ namespace cogs
 				}
 				void MeshRenderer::init()
 				{
-						Entity* root = m_entity->getRoot();
 				}
 				void MeshRenderer::update(float _deltaTime)
 				{
 				}
-				void MeshRenderer::render(Camera* _camera)
+				void MeshRenderer::render(std::weak_ptr<Camera> _camera)
 				{
 						m_material->bind();
 
@@ -29,9 +28,9 @@ namespace cogs
 						the .add functions in the material class treat the maps as associative arrays, meaning add
 						changes a value if it already exists (and does not actually add a new one) */
 
-						m_material->addMat4("model", m_entity->getComponent<Transform>()->worldTransform());
-						m_material->addMat4("view", _camera->getViewMatrix());
-						m_material->addMat4("projection", _camera->getProjectionMatrix());
+						m_material->addMat4("model", m_entity.lock()->getComponent<Transform>().lock()->worldTransform());
+						m_material->addMat4("view", _camera.lock()->getViewMatrix());
+						m_material->addMat4("projection", _camera.lock()->getProjectionMatrix());
 
 						m_material->uploadUniforms();
 

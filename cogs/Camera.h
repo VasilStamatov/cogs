@@ -124,7 +124,7 @@ namespace cogs
 						glm::mat4 m_perspMatrix{ 1.0f }; ///< perspective matrix for perspective camera
 						glm::mat4 m_viewMatrix	{ 1.0f }; ///< Camera view matrix
 
-						Transform* m_transform{ nullptr }; ///< the transform of the camera
+						std::weak_ptr<Transform> m_transform; ///< the transform of the camera
 						Transform m_oldTransform;										///< the old transform (to be compared for view changes
 
 						float m_size{ 5.0f }; ///< the size of the ortho camera (zoom)

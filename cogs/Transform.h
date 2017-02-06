@@ -17,12 +17,10 @@ namespace cogs
 								* \param _pos - the world vec3 coordinates (set to origin (0,0,0) by default
 								* \param _eulerAngles - the orientation on each axis in radians (set to 0 on each axis by default)
 								* \param _scale - the scale on each axis (set to 1 by default)
-								* \param _parent - a pointer to the parent transform for parent-child relationships (set to nullptr by default)
 								*/
 						Transform(const glm::vec3& _pos = glm::vec3(0.0f),
 								const glm::vec3& _eulerAngles = glm::vec3(0.0f, 0.0f, 0.0f),
-								const glm::vec3& _scale = glm::vec3(1.0f),
-								Transform* _parent = nullptr);
+								const glm::vec3& _scale = glm::vec3(1.0f));
 						~Transform();
 
 						void init() override;
@@ -117,10 +115,10 @@ namespace cogs
 						/**
 						 	*	\brief Getter and setter for the parent
 						 	*/
-						inline void setParent									 (Transform* _parent)						{ m_parent = _parent; }
-						inline Transform* getParent()		const noexcept											 { if (m_parent) return m_parent; else return nullptr; }
+						inline void setParent(std::weak_ptr<Transform> _parent)					{ m_parent = _parent; }
+						inline std::weak_ptr<Transform> getParent()		const noexcept	{ return m_parent; }
 
-						inline Entity* getHolder() { return m_entity; }
+						inline std::weak_ptr<Entity> getHolder() { return m_entity; }
 
 						bool operator== (const Transform& _rhs) const;
 
@@ -139,7 +137,7 @@ namespace cogs
 						void internal_setWorldScale					 (const glm::vec3& _value);
 
 				private:
-						Transform* m_parent;
+						std::weak_ptr<Transform> m_parent;
 
 						//The transform is the result of scaling->rotating->translating
 						glm::vec3 m_worldPosition;

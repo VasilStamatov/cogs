@@ -5,7 +5,6 @@
 
 #include <Bullet\btBulletDynamicsCommon.h>
 #include <glm\vec3.hpp>
-#include <memory>
 
 namespace cogs
 {

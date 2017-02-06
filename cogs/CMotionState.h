@@ -18,7 +18,7 @@ namespace cogs
 						* Pass the address of the entity's transform,
 						so the motion state can use it to set the rigidbody's position, and apply physics to it
 						*/
-						CMotionState(ecs::Transform* _transform);
+						CMotionState(std::weak_ptr<ecs::Transform> _transform);
 						virtual ~CMotionState();
 
 						/**
@@ -28,7 +28,7 @@ namespace cogs
 						virtual void setWorldTransform(const btTransform & _worldTrans) override;
 
 				private:
-						ecs::Transform* m_transform;
+						std::weak_ptr<ecs::Transform> m_transform;
 				};
 		}
 }

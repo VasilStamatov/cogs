@@ -28,8 +28,8 @@ public:
 				ce::Entity* _other) override;
 
 private:
-		ce::RigidBody* m_rb							{ nullptr };
-		ce::Transform* m_transform{ nullptr };
+		std::weak_ptr<ce::RigidBody> m_rb							;
+		std::weak_ptr<ce::Transform> m_transform;
 		float m_desiredVelocity{ 0.0f };
 };
 

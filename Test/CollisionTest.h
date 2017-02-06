@@ -26,11 +26,6 @@ public:
 		*/
 		void update(float _deltaTime) override {}
 
-		/**
-		* The render component function
-		*/
-		void render() override {}
-
 		void onCollision(const glm::vec3& _pointA,
 				const glm::vec3& _pointB,
 				const glm::vec3& _normalOnB,
@@ -43,7 +38,7 @@ public:
 						"\nNormal on B: x:" << _normalOnB.x << " y:" << _normalOnB.y << " z:" << _normalOnB.z <<
 						"\nOther Entity name: " << _other->getName() << std::endl;*/
 						std::cout << cu::Random::getRandInt(0, 1000) << std::endl;
-						std::cout << m_entity->getName() << " is colliding with " << _other->getName() << std::endl;
+						std::cout << m_entity.lock()->getName() << " is colliding with " << _other->getName() << std::endl;
 				}
 		}
 

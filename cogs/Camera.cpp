@@ -21,24 +21,23 @@ namespace cogs
 
 				Camera::~Camera()
 				{
-						m_transform = nullptr;
 				}
 
 				void Camera::init()
 				{
-						m_transform = m_entity->getComponent<Transform>();
-						m_oldTransform = *m_transform;
+						m_transform = m_entity.lock()->getComponent<Transform>();
+						m_oldTransform = *m_transform.lock();
 				}
 
 				void Camera::update(float _deltaTime)
 				{
-						if (!(*m_transform == m_oldTransform))
+						if (!(*m_transform.lock() == m_oldTransform))
 						{
-								m_viewMatrix = glm::lookAt(m_transform->worldPosition(),
-										m_transform->worldPosition() + m_transform->worldForwardAxis(),
-										m_transform->worldUpAxis());
+								m_viewMatrix = glm::lookAt(m_transform.lock()->worldPosition(),
+										m_transform.lock()->worldPosition() + m_transform.lock()->worldForwardAxis(),
+										m_transform.lock()->worldUpAxis());
 
-								m_oldTransform = *m_transform;
+								m_oldTransform = *m_transform.lock();
 						}
 				}
 

@@ -62,7 +62,7 @@ namespace cogs
 						glBindVertexArray(0);
 				}
 
-				void SpriteRenderer::submit(ecs::Entity* _entity)
+				void SpriteRenderer::submit(std::weak_ptr<ecs::Entity> _entity)
 				{
 						m_entities.push_back(_entity);
 				}
@@ -139,27 +139,29 @@ namespace cogs
 						case SpriteSortType::FRONT_TO_BACK:
 						{
 								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[](ecs::Entity* _a, ecs::Entity* _b)
+										[](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
 								{
-										return (_a->getComponent<ecs::Transform>()->worldPosition().z < _b->getComponent<ecs::Transform>()->worldPosition().z);
+										return (_a.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z <
+												_b.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z);
 								});
 								break;
 						}
 						case SpriteSortType::BACK_TO_FRONT:
 						{
 								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[](ecs::Entity* _a, ecs::Entity* _b)
+										[](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
 								{
-										return (_a->getComponent<ecs::Transform>()->worldPosition().z > _b->getComponent<ecs::Transform>()->worldPosition().z);
+										return (_a.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z >
+												_b.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z);
 								});
 								break;
 						}
 						case SpriteSortType::TEXTURE:
 						{
 								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[](ecs::Entity* _a, ecs::Entity* _b)
+										[](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
 								{
-										return (_a->getComponent<ecs::Sprite>()->getTexture() > _b->getComponent<ecs::Sprite>()->getTexture());
+										return (_a.lock()->getComponent<ecs::Sprite>().lock()->getTexture() > _b.lock()->getComponent<ecs::Sprite>().lock()->getTexture());
 								});
 								break;
 						}
@@ -206,19 +208,19 @@ namespace cogs
 						//set all the vertices
 						for (size_t currentSprite = 0; currentSprite < m_entities.size(); currentSprite++)
 						{
-								ecs::Sprite*				sprite = m_entities.at(currentSprite)->getComponent<ecs::Sprite>();
+								std::weak_ptr<ecs::Sprite> sprite = m_entities.at(currentSprite).lock()->getComponent<ecs::Sprite>();
 
 								//The transform values of the sprite
-								ecs::Transform* transform = m_entities.at(currentSprite)->getComponent<ecs::Transform>();
+								std::weak_ptr<ecs::Transform> transform = m_entities.at(currentSprite).lock()->getComponent<ecs::Transform>();
 
 								if (currentSprite == 0)
 								{
-										m_spriteBatches.emplace_back(offset, 6, sprite->getTexture().getID());
+										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().getID());
 								}
-								else if (sprite->getTexture() !=
-										m_entities.at(currentSprite - 1)->getComponent<ecs::Sprite>()->getTexture())
+								else if (sprite.lock()->getTexture() !=
+										m_entities.at(currentSprite - 1).lock()->getComponent<ecs::Sprite>().lock()->getTexture())
 								{
-										m_spriteBatches.emplace_back(offset, 6, sprite->getTexture().getID());
+										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().getID());
 								}
 								else
 								{
@@ -227,11 +229,11 @@ namespace cogs
 								}
 
 								//the components needed for the 4 vertices
-								const graphics::Color& color = sprite->getColor();
-								const glm::vec2& size = sprite->getSize();
-								const std::array<glm::vec2, 4>& uv = sprite->getUV();
+								const graphics::Color& color = sprite.lock()->getColor();
+								const glm::vec2& size = sprite.lock()->getSize();
+								const std::array<glm::vec2, 4>& uv = sprite.lock()->getUV();
 
-								glm::mat4 worldTrans = transform->worldTransform();
+								glm::mat4 worldTrans = transform.lock()->worldTransform();
 
 								//get the 4 vertices around the center 
 								glm::vec3 bottomLeft	 = glm::vec3(-size.x * 0.5f, -size.y * 0.5f, 0.0f);

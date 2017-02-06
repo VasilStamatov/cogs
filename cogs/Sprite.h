@@ -47,7 +47,7 @@ namespace cogs
 						/**
 						 	* The render component function
 						 	*/
-						void render(Camera* _camera) override;
+						void render(std::weak_ptr<Camera> _camera) override;
 
 						void setTexture(const std::string& _filePath, bool _alpha);
 						void setRenderer(std::weak_ptr<graphics::SpriteRenderer> _renderer);
@@ -64,7 +64,7 @@ namespace cogs
 						void setUVdefaults();
 
 				private:
-						Transform* m_transform{ nullptr };
+						std::weak_ptr<Transform> m_transform;
 						graphics::Color m_color;
 						glm::vec2 m_size{ 0.0f };
 						std::array<glm::vec2, 4> m_uv;

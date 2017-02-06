@@ -16,12 +16,11 @@ namespace cogs
 				
 				Sprite::~Sprite()
 				{
-						m_transform = nullptr;
 				}
 
 				void Sprite::init()
 				{
-						m_transform = m_entity->getComponent<Transform>();
+						m_transform = m_entity.lock()->getComponent<Transform>();
 				}
 
 				void Sprite::update(float _deltaTime)
@@ -29,7 +28,7 @@ namespace cogs
 						
 				}
 
-				void Sprite::render(Camera* _camera)
+				void Sprite::render(std::weak_ptr<Camera> _camera)
 				{
 						m_renderer.lock()->submit(m_entity);
 				}

@@ -27,7 +27,7 @@ namespace cogs
 						void update(float _deltaTime) override;
 
 				private:
-						Transform* m_transform{ nullptr };
+						std::weak_ptr<Transform> m_transform;
 						float m_moveSpeed{ 1.0f };
 				};
 		}

@@ -6,32 +6,31 @@ namespace cogs
 {
 		namespace physics
 		{
-				CMotionState::CMotionState(ecs::Transform * _transform)
+				CMotionState::CMotionState(std::weak_ptr<ecs::Transform> _transform)
 				{
 						m_transform = _transform;
 				}
 
 				CMotionState::~CMotionState()
 				{
-						m_transform = nullptr;
 				}
 
 				void CMotionState::getWorldTransform(btTransform & _worldTrans) const
 				{
-						if (m_transform == nullptr)
+						if (m_transform.expired())
 						{
 								return;
 						}
 
 						btTransform transform;
-						transform.setFromOpenGLMatrix(glm::value_ptr(m_transform->worldTransform()));
+						transform.setFromOpenGLMatrix(glm::value_ptr(m_transform.lock()->worldTransform()));
 
 						_worldTrans = transform;
 				}
 
 				void CMotionState::setWorldTransform(const btTransform & _worldTrans)
 				{
-						if (m_transform == nullptr)
+						if (m_transform.expired())
 						{
 								return;
 						}
@@ -39,8 +38,8 @@ namespace cogs
 						btQuaternion rot = _worldTrans.getRotation();
 						const btVector3& pos = _worldTrans.getOrigin();
 
-						m_transform->setWorldOrientation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
-						m_transform->setWorldPosition(glm::vec3(pos.x(), pos.y(), pos.z()));
+						m_transform.lock()->setWorldOrientation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
+						m_transform.lock()->setWorldPosition(glm::vec3(pos.x(), pos.y(), pos.z()));
 				}
 		}
 }

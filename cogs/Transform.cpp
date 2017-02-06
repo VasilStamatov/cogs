@@ -9,10 +9,8 @@ namespace cogs
 		{
 				Transform::Transform(const glm::vec3 & _pos /* = glm::vec3(0.0f)  */,
 						const glm::vec3 & _eulerAngles 											/* = identity quat				*/,
-						const glm::vec3 & _scale 																	/* = glm::vec3 (1.0f) */,
-						Transform * _parent																					 	/* = nullptr										*/)
+						const glm::vec3 & _scale 																	/* = glm::vec3 (1.0f) */)
 				{
-						m_parent = _parent;
 						internal_setWorldPosition(_pos);
 						internal_setWorldOrientation(_eulerAngles);
 						internal_setWorldScale(_scale);
@@ -78,9 +76,9 @@ namespace cogs
 				{
 						glm::mat4 worldTrans = localTransform();
 
-						if (m_parent != nullptr)
+						if (!m_parent.expired())
 						{
-								worldTrans = m_parent->worldTransform() * worldTrans;
+								worldTrans = m_parent.lock()->worldTransform() * worldTrans;
 						}
 
 						return worldTrans;
@@ -116,10 +114,10 @@ namespace cogs
 						m_localOrientation = glm::eulerAngles(m_localOrientationRaw);
 
 						//update the world orientation to be correct
-						if (m_parent != nullptr)
+						if (!m_parent.expired())
 						{
 								//to get the correct world orientation, multiply parent's world orientation by the childs local orientation
-								m_worldOrientationRaw = glm::normalize(m_parent->m_worldOrientationRaw * m_localOrientationRaw);
+								m_worldOrientationRaw = glm::normalize(m_parent.lock()->m_worldOrientationRaw * m_localOrientationRaw);
 						}
 						else
 						{
@@ -143,10 +141,10 @@ namespace cogs
 						m_localPosition = _value;
 
 						//update the world position to be correct
-						if (m_parent != nullptr)
+						if (!m_parent.expired())
 						{
 								//to get the correct world position, simply add the parent's world translation from the child's local translation
-								m_worldPosition = m_parent->m_worldPosition + m_localPosition;
+								m_worldPosition = m_parent.lock()->m_worldPosition + m_localPosition;
 						}
 						else
 						{
@@ -161,10 +159,10 @@ namespace cogs
 						m_localScale = _value;
 
 						//update the world scale to be correct
-						if (m_parent != nullptr)
+						if (!m_parent.expired())
 						{
 								//to get the correct world scale, multiply the components of the parent against the child's
-								m_worldScale = m_parent->m_worldScale * m_localScale;
+								m_worldScale = m_parent.lock()->m_worldScale * m_localScale;
 						}
 						else
 						{
@@ -182,10 +180,10 @@ namespace cogs
 						m_worldOrientation = glm::eulerAngles(m_worldOrientationRaw);
 
 						//update the local orientation to be correct
-						if (m_parent != nullptr)
+						if (!m_parent.expired())
 						{
 								//to get the correct local orientation, multiply the child's world rotation by the parent's conjugate
-								m_localOrientationRaw = m_worldOrientationRaw * glm::normalize(glm::conjugate(m_parent->m_worldOrientationRaw));
+								m_localOrientationRaw = m_worldOrientationRaw * glm::normalize(glm::conjugate(m_parent.lock()->m_worldOrientationRaw));
 						}
 						else
 						{
@@ -209,10 +207,10 @@ namespace cogs
 						m_worldPosition = _value;
 
 						//update the local position to be correct
-						if (m_parent != nullptr)
+						if (!m_parent.expired())
 						{
 								//to get the correct local position, subtract the parent's world translation from the child's world translation
-								m_localPosition = m_worldPosition - m_parent->m_worldPosition;
+								m_localPosition = m_worldPosition - m_parent.lock()->m_worldPosition;
 						}
 						else
 						{
@@ -226,10 +224,10 @@ namespace cogs
 						m_worldScale = _value;
 
 						//update the local scale to be correct
-						if (m_parent != nullptr)
+						if (!m_parent.expired())
 						{
 								//to get the correct local scale, multiply the child's world scale with the reciprocal of the parent's world scale
-								m_localScale = m_worldScale * (1.0f / m_parent->m_worldScale);
+								m_localScale = m_worldScale * (1.0f / m_parent.lock()->m_worldScale);
 						}
 						else
 						{

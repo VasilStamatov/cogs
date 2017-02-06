@@ -66,7 +66,7 @@ namespace cogs
 						/**
 								* Submit an entity to be rendered
 								*/
-						void submit(ecs::Entity* _entity) override;
+						void submit(std::weak_ptr<ecs::Entity> _entity) override;
 
 						/**
 								* Render all the submitted entities
@@ -106,7 +106,7 @@ namespace cogs
 
 						GLSLProgram m_shader;
 
-						std::vector<ecs::Entity*> m_entities;
+						std::vector<std::weak_ptr<ecs::Entity>> m_entities;
 						std::vector<SpriteBatch> m_spriteBatches;
 				};
 		}

@@ -11,37 +11,35 @@ BallBehavior::BallBehavior()
 
 BallBehavior::~BallBehavior()
 {
-		m_rb = nullptr;
-		m_transform = nullptr;
 }
 
 void BallBehavior::init()
 {
-		m_rb = m_entity->getComponent<ce::RigidBody>();
-		m_transform = m_entity->getComponent<ce::Transform>();
+		m_rb = m_entity.lock()->getComponent<ce::RigidBody>();
+		m_transform = m_entity.lock()->getComponent<ce::Transform>();
 }
 
 void BallBehavior::update(float _deltaTime)
 {
-		if (m_rb->getActivationState() == 5)
+		if (m_rb.lock()->getActivationState() == 5)
 		{
 				if (cu::Input::isKeyPressed(cu::KeyCode::SPACE))
 				{
-						m_transform->setParent(m_transform->getParent()->getParent());
-						m_rb->setActivationState(1);
-						m_rb->setLinearVelocity(glm::vec3(20.0f, 20.0f, 0.0f));
-						const btVector3& desiredVelocity = m_rb->getRigidBody().lock()->getLinearVelocity();
+						m_transform.lock()->setParent(m_transform.lock()->getParent().lock()->getParent());
+						m_rb.lock()->setActivationState(1);
+						m_rb.lock()->setLinearVelocity(glm::vec3(20.0f, 20.0f, 0.0f));
+						const btVector3& desiredVelocity = m_rb.lock()->getRigidBody().lock()->getLinearVelocity();
 						m_desiredVelocity = desiredVelocity.length();
 				}
 		}
 		else
 		{
-			 btVector3 currentVelocityDirection = m_rb->getRigidBody().lock()->getLinearVelocity();
+			 btVector3 currentVelocityDirection = m_rb.lock()->getRigidBody().lock()->getLinearVelocity();
 				float currentVelocty = currentVelocityDirection.length();
 				if (currentVelocty < m_desiredVelocity)
 				{
 						currentVelocityDirection *= (m_desiredVelocity / currentVelocty);
-						m_rb->setLinearVelocity(glm::vec3(currentVelocityDirection.x(), currentVelocityDirection.y(), currentVelocityDirection.z()));
+						m_rb.lock()->setLinearVelocity(glm::vec3(currentVelocityDirection.x(), currentVelocityDirection.y(), currentVelocityDirection.z()));
 				}
 		}
 }
@@ -56,7 +54,7 @@ void BallBehavior::onCollision(const glm::vec3 & _pointA, const glm::vec3 & _poi
 		}
 		else if (otherEntityName == "GroundBoundary")
 		{
-				m_entity->destroy();
+				m_entity.lock()->destroy();
 		}
 		else if (otherEntityName == "PlayerPaddle")
 		{

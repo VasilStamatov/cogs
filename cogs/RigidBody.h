@@ -3,7 +3,6 @@
 
 #include "Component.h"
 
-#include <memory>
 #include "CMotionState.h"
 #include "Physics.h"
 
