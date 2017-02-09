@@ -18,7 +18,7 @@
 #include "PaddleController.h"
 #include "BallBehavior.h"
 
-#define DEBUG_DRAW 0
+#define DEBUG_DRAW 1
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
@@ -30,7 +30,6 @@ int main(int argc, char** argv)
 		cg::Window window;
 		window.create("Test", 1024, 576, cg::WindowCreationFlags::RESIZABLE);
 		window.setRelativeMouseMode(true);
-		window.setClearColor(&cg::Color::white);
 		bool quit = false;
 
 		cu::FpsLimiter fpsLimiter(60.0f);
@@ -122,8 +121,6 @@ int main(int argc, char** argv)
 		{
 				fpsLimiter.beginFrame();
 
-				window.clear(true, true);
-
 				cu::Input::update();
 
 				//process input
@@ -196,15 +193,19 @@ int main(int argc, char** argv)
 				{
 						cg::Framebuffer::setActive(camera.lock()->getRenderTarget());
 
+						window.setClearColor(camera.lock()->getBackgroundColor());
+						window.clear(true, true);
+
 						root->renderAll(camera);
 
-						cg::Framebuffer::setActive(std::weak_ptr<cg::Framebuffer>());
 #if  DEBUG_DRAW
 						//use the debug renderer to draw the debug physics world
 						physicsWorld->debugDrawWorld();
 						debugRenderer.end();
-						debugRenderer.render(camera->getViewMatrix(), camera->getProjectionMatrix(), 1.0f);
+						debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 1.0f);
 #endif //  DEBUG_DRAW
+
+						cg::Framebuffer::setActive(std::weak_ptr<cg::Framebuffer>());
 				}
 
 				window.swapBuffer();

@@ -258,9 +258,9 @@ namespace cogs
 						SDL_SetWindowTitle(m_sdlWindow, _title.c_str());
 				}
 
-				void Window::setClearColor(Color* _color)
+				void Window::setClearColor(const Color& _color)
 				{
-						glClearColor(_color->r / 255.0f, _color->g / 255.0f, _color->b / 255.0f, _color->a / 255.0f);
+						glClearColor(_color.r / 255.0f, _color.g / 255.0f, _color.b / 255.0f, _color.a / 255.0f);
 				}
 
 				void Window::setRelativeMouseMode(int _enabled)

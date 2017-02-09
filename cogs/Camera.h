@@ -3,6 +3,7 @@
 
 #include "Transform.h"
 #include "Framebuffer.h"
+#include "Color.h"
 
 namespace cogs
 {
@@ -102,10 +103,16 @@ namespace cogs
 						const glm::mat4& getViewMatrix() const noexcept { return m_viewMatrix; }
 
 						/**
-						* \brief Sets the target framebuffer this camera renders to
+						* \brief get and set the target framebuffer this camera renders to
 						*/
 						void setRenderTarget(std::weak_ptr<graphics::Framebuffer> _renderTarget);
 						std::weak_ptr<graphics::Framebuffer> getRenderTarget() { return m_renderTarget; }
+
+						/**
+						* \brief get and set the background color
+						*/
+						void setBackgroundColor(const graphics::Color& _color) { m_backgroundColor = _color; }
+						const graphics::Color& getBackgroundColor() const noexcept { return m_backgroundColor; }
 
 						/**
 								* Some basic getters
@@ -137,6 +144,7 @@ namespace cogs
 						float m_farPlane{ 100.0f }; ///< the far clipping plane
 
 						std::weak_ptr<graphics::Framebuffer> m_renderTarget;
+						graphics::Color m_backgroundColor{ graphics::Color::white };
 				};
 		}
 }

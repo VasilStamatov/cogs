@@ -5,7 +5,7 @@ namespace cogs
 {
 		namespace graphics
 		{
-				using ubyte = unsigned char;
+				using byte = unsigned char;
 
 				struct Color
 				{
@@ -36,22 +36,24 @@ namespace cogs
 						/**
 						* constructor with the ability to set all values
 						*/
-						Color(ubyte _r, ubyte _g, ubyte _b, ubyte _a);
+						Color(byte _r, byte _g, byte _b, byte _a);
 
 						/**
 						* constructor with the ability to set rgb with the same value and seperate alpha
 						*/
-						Color(ubyte _rgb, ubyte _alpha);
+						Color(byte _rgb, byte _alpha);
 
 						/**
 						* Copy constructor
 						*/
 						Color(const Color& _other);
 
-						ubyte r{ 0 };
-						ubyte g{ 0 };
-						ubyte b{ 0 };
-						ubyte a{ 0 };
+						bool operator==(const Color& _rhs) const { return (r == _rhs.r && g == _rhs.g && b == _rhs.b && a == _rhs.a); }
+
+						byte r{ 0 };
+						byte g{ 0 };
+						byte b{ 0 };
+						byte a{ 0 };
 				};
 		}
 }

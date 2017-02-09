@@ -6,6 +6,8 @@
 #include <glm\vec2.hpp>
 #include <string>
 
+#include "Color.h"
+
 namespace cogs
 {
 		namespace graphics
@@ -51,7 +53,7 @@ namespace cogs
 						void setFullscreen (bool _isFullscreen);
 						void setBorder				 (bool _hasBorders);
 						void setWindowTitle(const std::string& _title);
-						void setClearColor (Color* _color);
+						void setClearColor (const Color& _color);
 						void setRelativeMouseMode(int _enabled);
 						inline void resizeHandled()		noexcept { m_wasResized = false; }
 

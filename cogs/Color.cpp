@@ -24,9 +24,9 @@ namespace cogs
 				Color Color::fuchsia = Color(255, 0, 255, 255);
 				Color Color::purple  = Color(128, 0, 128, 255);
 
-				Color::Color(ubyte R, ubyte G, ubyte B, ubyte A) : r(R), g(G), b(B), a(A) { }
+				Color::Color(byte _r, byte _g, byte _b, byte _a) : r(_r), g(_g), b(_b), a(_a) { }
 
-				Color::Color(ubyte _rgb, ubyte _alpha) : r(_rgb), g(_rgb), b(_rgb), a(_alpha) { }
+				Color::Color(byte _rgb, byte _alpha) : r(_rgb), g(_rgb), b(_rgb), a(_alpha) { }
 
 				Color::Color(const Color & _other) : r(_other.r), g(_other.g), b(_other.b), a(_other.a)
 				{
