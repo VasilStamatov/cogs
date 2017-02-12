@@ -234,13 +234,13 @@ namespace cogs
 				}
 
 				//enable the shader
-				void GLSLProgram::use()
+				void GLSLProgram::use()  const
 				{
 						glUseProgram(m_shaderData.lock()->getProgramID());
 				}
 
 				//disable the shader
-				void GLSLProgram::unUse()
+				void GLSLProgram::unUse() const
 				{
 						glUseProgram(0);
 				}

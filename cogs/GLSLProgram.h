@@ -110,10 +110,10 @@ namespace cogs
 						void uniformSubroutinesuiv(GLenum _shaderType, GLsizei _numSubrUniforms, const GLuint * _indices);
 
 						/** Begin using the shader*/
-						void use();
+						void use() const;
 
 						/** Stop using the shader*/
-						void unUse();
+						void unUse() const;
 
 						/** Dispose of the shader*/
 						void dispose();
