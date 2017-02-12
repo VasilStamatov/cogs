@@ -7,9 +7,13 @@ namespace cogs
 {
 		namespace ecs
 		{
+				std::weak_ptr<Camera> Camera::s_mainCamera;
+				std::weak_ptr<Camera> Camera::s_currentCamera;
+				std::vector<std::weak_ptr<Camera>> Camera::s_allCameras;
+
 				Camera::Camera(int _screenWidth,
-																		 int _screenHeight,
-																		 const ProjectionType& _projType) :
+						int _screenHeight,
+						const ProjectionType& _projType) :
 						m_projType(_projType),
 						m_cameraWidth(_screenWidth),
 						m_cameraHeight(_screenHeight)
@@ -27,6 +31,12 @@ namespace cogs
 				{
 						m_transform = m_entity.lock()->getComponent<Transform>();
 						m_oldTransform = *m_transform.lock();
+
+						if (m_entity.lock()->getName() == "MainCamera")
+						{
+								setMain(m_entity.lock()->getComponent<Camera>());
+						}
+								addCamera(m_entity.lock()->getComponent<Camera>());
 				}
 
 				void Camera::update(float _deltaTime)

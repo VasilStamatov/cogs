@@ -5,6 +5,8 @@
 #include "Framebuffer.h"
 #include "Color.h"
 
+#include <vector>
+
 namespace cogs
 {
 		namespace ecs
@@ -123,8 +125,19 @@ namespace cogs
 						int getFoV()				const noexcept { return m_fov; }
 						int getWidth()		const noexcept { return m_cameraWidth; }
 						int getHeight() const noexcept { return m_cameraHeight; }
-						
+
+						static void setMain(std::weak_ptr<Camera> _camera)    { s_mainCamera = _camera; }
+						static void setCurrent(std::weak_ptr<Camera> _camera) { s_currentCamera = _camera; }
+						static void addCamera(std::weak_ptr<Camera> _camera)  { s_allCameras.push_back(_camera); }
+
+						static std::weak_ptr<Camera> getMain()                    { return s_mainCamera; }
+						static std::weak_ptr<Camera> getCurrent()                 { return s_currentCamera; }
+						static std::vector<std::weak_ptr<Camera>> getAllCameras() { return s_allCameras; }
 				private:
+						static std::weak_ptr<Camera> s_mainCamera;
+						static std::weak_ptr<Camera> s_currentCamera;
+						static std::vector<std::weak_ptr<Camera>> s_allCameras;
+
 						ProjectionType m_projType{ ProjectionType::ORTHOGRAPHIC }; ///< the projection type of the camera
 
 						glm::mat4 m_orthoMatrix{ 1.0f }; ///< orthographic matrix for ortho camera
