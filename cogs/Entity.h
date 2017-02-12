@@ -44,20 +44,38 @@ namespace cogs
 						/** Updates this entity and all its children */
 						inline void updateAll(float _deltaTime)
 						{
-								update(_deltaTime);
-								for (auto& child : m_children)
+								if (m_isActive)
 								{
-										child->updateAll(_deltaTime);
+										update(_deltaTime);
+										for (auto& child : m_children)
+										{
+												child->updateAll(_deltaTime);
+										}
 								}
 						}
 
 						/** Renders this entity and all its children */
-						inline void renderAll(std::weak_ptr<Camera> _camera)
+						inline void renderAll()
 						{
-								render(_camera);
-								for (auto& child : m_children)
+								if (m_isActive)
 								{
-										child->renderAll(_camera);
+										render();
+										for (auto& child : m_children)
+										{
+												child->renderAll();
+										}
+								}
+						}
+
+						inline void postProcessAll()
+						{
+								if (m_isActive)
+								{
+										postProcess();
+										for (auto& child : m_children)
+										{
+												child->postProcessAll();
+										}
 								}
 						}
 
@@ -97,8 +115,6 @@ namespace cogs
 								/* begin by allocating component of type T on the heap by forwarding the passed arguments to its constructor */
 								std::shared_ptr<Component> component = std::make_shared<T>(std::forward<TArgs>(_args)...);
 								component->setEntity(shared_from_this());
-								/* Call the virtual function init of the component */
-								component->init();
 
 								/* Add the component to the vector (std::move is required as unique pointers cannot be copied) */
 								m_components.emplace_back(std::move(component));
@@ -106,6 +122,9 @@ namespace cogs
 								/* when a component of type T is added, add it to the bitset and the array */
 								m_componentArray[getComponentTypeID<T>()] = m_components.back();
 								m_componentBitset[getComponentTypeID<T>()] = true;
+
+								/* Call the virtual function init of the component */
+								m_components.back()->init();
 						}
 
 						/** \brief Adds a child to the vector of children
@@ -195,19 +214,6 @@ namespace cogs
 								return components;
 						}
 
-						/**
-						* goes up the tree until it reaches the root and returns it
-						*/
-						inline std::weak_ptr<Entity> getRoot()
-						{
-								std::weak_ptr<Transform> parent = getComponent<Transform>().lock()->getParent();
-								if (parent.expired())
-								{
-										return shared_from_this();
-								}
-								return parent.lock()->getHolder().lock()->getRoot();
-						}
-
 						inline std::weak_ptr<Entity> getChild(const std::string& _entityName)
 						{
 								std::weak_ptr<Entity> child;
@@ -238,22 +244,30 @@ namespace cogs
 								return children;
 						}
 
-						/**
-						* returns the number of children this entity has
-						*/
-						inline unsigned int numChildren() const noexcept { return m_children.size(); }
+						void setTag(const std::string& _tag) { m_tag = _tag; }
+						const std::string& getTag() const noexcept { return m_tag; }
 
-						/**
-						* returns a reference to a child at specific index
-						*/
-						inline std::weak_ptr<Entity> getChildAt(unsigned int _index) const { return m_children.at(_index); }
+						void setActive(bool _active) 
+						{
+								m_isActive = _active;
+								/*if (!m_isActive)
+								{
+										for (size_t i = 0; i < m_children.size(); i++)
+										{
+												m_children.at(i)->setActive(false);
+										}
+								}*/
+						}
+						bool isActive() const noexcept { return m_isActive; }
 
 				private:
 						/* Update this entity (all its components) */
 						inline void update(float _deltaTime) { for (auto& component : m_components) { component->update(_deltaTime); } }
 
 						/* Render this entity (all its components) */
-						inline void render(std::weak_ptr<Camera> _camera) { for (auto& component : m_components) { component->render(_camera); } }
+						inline void render() { for (auto& component : m_components) { component->render(); } }
+
+						inline void postProcess() { for (auto& component : m_components) { component->postProcess(); } }
 
 						/* Refresh this entity */
 						inline void refresh()
@@ -270,12 +284,14 @@ namespace cogs
 						}
 
 				private:
-						/*static std::vector<std::weak_ptr<Camera>> s_cameras;
-						static std::weak_ptr<Camera> s_main;
-						static std::weak_ptr<Camera> s_current;*/
+						/* The Entity's tag */
+						std::string m_tag{ "default" };
+
+						/* active flag of the entity */
+						bool m_isActive{ true };
 
 						/* An entity is also composed of numerous components
-							* Therefore the components will be stored in an std::vector as unique pointers to allow polymorphism */
+							* Therefore the components will be stored in an std::vector as shared pointers to allow polymorphism */
 						std::vector<std::shared_ptr<Component>> m_components;
 
 						/* The children of this entity */
