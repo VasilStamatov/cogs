@@ -3,21 +3,20 @@
 
 #include <memory>
 
+#include "Texture.h"
+
 namespace cogs
 {
 		namespace graphics
 		{
-				class Framebuffer
+				class Framebuffer : public Texture
 				{
 				public:
 						Framebuffer() {}
 						~Framebuffer();
 
-						unsigned int getWidth()					const noexcept { return m_width; }
-						unsigned int getHeight()				const noexcept { return m_height; }
-						unsigned int getFBO()							const noexcept { return m_fboID; }
-						unsigned int getRBO()							const noexcept { return m_rboID; }
-						unsigned int getTextureID() const noexcept { return m_textureID; }
+						uint getFBO()	const noexcept { return m_fboID; }
+						uint getRBO()	const noexcept { return m_rboID; }
 
 						static std::shared_ptr<Framebuffer> create(unsigned int _width, unsigned int _height);
 						static std::weak_ptr<Framebuffer> getCurrentActive() { return s_currentActive; }
@@ -26,11 +25,8 @@ namespace cogs
 				private:
 						static std::weak_ptr<Framebuffer> s_currentActive;
 
-						unsigned int m_width				{ 0 };
-						unsigned int m_height			{ 0 };
-						unsigned int m_fboID				{ 0 };
-						unsigned int m_rboID				{ 0 };
-						unsigned int m_textureID{ 0 };
+						uint m_fboID{ 0 };
+						uint m_rboID{ 0 };
 				};
 		}
 }

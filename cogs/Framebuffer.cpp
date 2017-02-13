@@ -21,12 +21,12 @@ namespace cogs
 						glGenFramebuffers(1, &newFramebuffer->m_fboID);
 						glBindFramebuffer(GL_FRAMEBUFFER, newFramebuffer->m_fboID);
 
-						if (newFramebuffer->m_textureID == 0)
+						if (newFramebuffer->m_id == 0)
 						{
-								glGenTextures(1, &newFramebuffer->m_textureID);
+								glGenTextures(1, &newFramebuffer->m_id);
 						}
 
-						glBindTexture(GL_TEXTURE_2D, newFramebuffer->m_textureID);
+						glBindTexture(GL_TEXTURE_2D, newFramebuffer->m_id);
 
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -41,7 +41,7 @@ namespace cogs
 
 						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, newFramebuffer->m_rboID);
 
-						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, newFramebuffer->m_textureID, 0);
+						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, newFramebuffer->m_id, 0);
 
 						if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 						{
