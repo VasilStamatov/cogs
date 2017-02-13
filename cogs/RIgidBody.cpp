@@ -50,7 +50,7 @@ namespace cogs
 				void RigidBody::update(float _deltaTime)
 				{
 				}
-				
+
 				void RigidBody::translate(const glm::vec3 & _offset)
 				{
 						m_rigidBody->translate(btVector3(_offset.x, _offset.y, _offset.z));
