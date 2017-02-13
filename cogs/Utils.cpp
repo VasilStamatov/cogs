@@ -1,10 +1,13 @@
 #include "Utils.h"
 
+#include "ResourceManager.h"
+
 #include <SDL\SDL_timer.h>
 #include <SOIL\SOIL.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <GL\glew.h>
 
 namespace cogs
 {
@@ -86,7 +89,7 @@ namespace cogs
 								std::vector<unsigned int> indices;
 								indices.reserve(mesh->mNumFaces * 3);
 
-								std::vector<graphics::GLTexture> textures;
+								std::vector<std::weak_ptr<graphics::GLTexture2D>> textures;
 
 								const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
@@ -121,32 +124,32 @@ namespace cogs
 
 										auto loadMaterialTextures = [&directory](aiMaterial * _mat, const aiTextureType & _type, const std::string & _name)
 										{
-												std::vector<graphics::GLTexture> textures;
+												std::vector<std::weak_ptr<graphics::GLTexture2D>> textures;
 
-												for (GLuint i = 0; i < _mat->GetTextureCount(_type); i++)
+												for (size_t i = 0; i < _mat->GetTextureCount(_type); i++)
 												{
 														aiString str;
 														_mat->GetTexture(_type, i, &str);
-														graphics::GLTexture texture(_name, directory + "/" + str.C_Str());
+														std::weak_ptr<graphics::GLTexture2D> texture = ResourceManager::getGLTexture2D(directory + "/" + str.C_Str(), _name);
 														textures.push_back(texture);
 												}
 												return textures;
 										};
 
 										// 1. Diffuse maps
-										std::vector<graphics::GLTexture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+										std::vector<std::weak_ptr<graphics::GLTexture2D>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 										textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
 										// 2. Specular maps
-										std::vector<graphics::GLTexture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+										std::vector<std::weak_ptr<graphics::GLTexture2D>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 										textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
 										// 3. Ambient maps
-										std::vector<graphics::GLTexture> ambientMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ambient");
+										std::vector<std::weak_ptr<graphics::GLTexture2D>> ambientMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ambient");
 										textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
 
 										// 4. Normal maps
-										std::vector<graphics::GLTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+										std::vector<std::weak_ptr<graphics::GLTexture2D>> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
 										textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 								}
 
