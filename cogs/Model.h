@@ -1,7 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "ModelData.h"
+#include "Utils.h"
 
 namespace cogs
 {
@@ -10,26 +10,38 @@ namespace cogs
 				class Model
 				{
 				public:
-						Model(const std::string& _name, const std::string& _filePath);
-						Model(const std::string& _name, const std::vector<graphics::Mesh>& _meshes);
-						Model(const Model& _other);
-						~Model();
+						Model(const std::string& _name, const std::string& _filePath)
+								: m_name(_name), m_filePath(_filePath)
+						{
+								m_meshes = utils::loadModel(m_filePath);
+						}
 
-						void render();
+						Model(const std::string& _name, const std::vector<graphics::Mesh>& _meshes)
+								: m_name(_name), m_meshes(_meshes), m_filePath(_name)
+						{}
 
-						void reupload() { m_modelData.lock()->reupload(); }
-						bool isValid() { return m_modelData.lock()->isValid(); }
-						void addMesh(const Mesh& _mesh) { m_modelData.lock()->addMesh(_mesh); }
+						~Model() { for (auto& mesh : m_meshes) mesh.dispose(); }
 
-						inline const std::string& getName()			const { return m_name; }
-						inline const std::string& getPath()			const { return m_modelData.lock()->getPath(); }
-						inline std::vector<Mesh>& getMeshes() const { return m_modelData.lock()->getMeshes(); }
+						void render() { for (auto& mesh : m_meshes) mesh.render(); }
+						void reupload() { for (auto& mesh : m_meshes) mesh.reupload(); }
+						bool isValid() 
+						{
+								for (auto& mesh : m_meshes)
+								{
+										if (!mesh.isValid()) return false;
+								}
+								return true;
+						}
+						void addMesh(const Mesh& _mesh) { m_meshes.push_back(_mesh); }
+
+						inline const std::string& getName()									const { return m_name; }
+						inline const std::string& getPath()									const { return m_filePath; }
+						inline const std::vector<Mesh>& getMeshes() const { return m_meshes; }
 
 				private:
-						static std::map<std::string, std::shared_ptr<ModelData>> s_resourceMap;
-
-						std::weak_ptr<ModelData> m_modelData;
 						std::string m_name{ "" };
+						std::string m_filePath{ "" };
+						std::vector<Mesh> m_meshes;
 				};
 		}
 }
