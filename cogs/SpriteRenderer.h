@@ -1,113 +1,47 @@
 #ifndef SPRITE_RENDERER_H
 #define SPRITE_RENDERER_H
 
-#include "Renderer.h"
-#include "GLSLProgram.h"
-#include "Color.h"
-
-#include <GL\glew.h>
+#include "Component.h"
+#include "Material.h"
+#include "Sprite.h"
+#include "Renderer2D.h"
 
 namespace cogs
 {
-		namespace graphics
+		namespace ecs
 		{
-				/**
-						* Determines how we should sort the sprites
-						*/
-				enum class SpriteSortType
-				{
-						NONE,
-						FRONT_TO_BACK,
-						BACK_TO_FRONT,
-						TEXTURE
-				};
-
-				// Each sprite batch is used for a single draw call
-				struct SpriteBatch
-				{
-						SpriteBatch(GLuint _offset, GLuint _numIndices, GLuint _texture) :
-								m_firstIndex(_offset), m_numIndices(_numIndices), m_texture(_texture) {
-						}
-						GLuint m_firstIndex{ 0 };
-						GLuint m_numIndices{ 0 };
-						GLuint m_texture{ 0 };
-				};
-
-				/**
-						* The per-vertex data for a sprite (4 total in a sprite)
-						*/
-				struct SpriteVertex
-				{
-						glm::vec3 position;
-						glm::vec2 uv;
-						Color color;
-				};
-
-				constexpr GLuint SPITE_POSITION_ATTRIBUTE_INDEX = 0;
-				constexpr GLuint SPITE_UV_ATTRIBUTE_INDEX						 = 1;
-				constexpr GLuint SPITE_COLOR_ATTRIBUTE_INDEX		  = 2;
-
-				using VBO = GLuint;
-				using VAO = GLuint;
-				using IBO = GLuint;
-
-				class SpriteRenderer : public Renderer
+				class SpriteRenderer : public Component
 				{
 				public:
-						SpriteRenderer();
-						SpriteRenderer(const std::string& _name, const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
-					 ~SpriteRenderer();
-						
-						/**
-								* Initializes the renderer
-								*/
+						SpriteRenderer(std::weak_ptr<graphics::Sprite> _sprite,
+								std::weak_ptr<graphics::Material> _material,
+								std::weak_ptr<graphics::Renderer2D> _renderer);
+						SpriteRenderer() {}
+						~SpriteRenderer();
+
 						void init() override;
 
-						/**
-								* Submit an entity to be rendered
-								*/
-						void submit(std::weak_ptr<ecs::Entity> _entity) override;
+						void update(float _deltaTime) override;
+
+						void render() override;
 
 						/**
-								* Render all the submitted entities
-								*/
-						void flush(const glm::mat4& _view, const glm::mat4& _projection) override;
+						* Getters
+						*/
+						std::weak_ptr<graphics::Material> getMaterial() const noexcept { return m_material; }
+						std::weak_ptr<graphics::Sprite>   getSprite()			const noexcept { return m_sprite; }
 
 						/**
-								* Begin submission
-								*/
-						void begin(const SpriteSortType& _sortType = SpriteSortType::TEXTURE);
-
-						/**
-						  * End submission
-						  */
-						void end();
-
-						/**
-								* Disposes of the buffer objects
-								*/
-						void dispose();
-
-						/**
-								* sets the shader this renderer to use
-								*/
-						void setShader(const std::string& _name, const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath = "");
+						* Setters
+						*/
+						void setMaterial(std::weak_ptr<graphics::Material> _material) { m_material = _material; }
+						void setModel(std::weak_ptr<graphics::Sprite> _sprite)							 { m_sprite		 = _sprite; }
+						void setRenderer(std::weak_ptr<graphics::Renderer2D> _renderer)	{ m_renderer = _renderer; }
 
 				private:
-						void SortSprites();
-						void CreateSpriteBatches();
-
-				private:
-						VBO m_vbo{ 0 };
-						IBO m_ibo{ 0 };
-						VAO m_vao{ 0 };
-
-						SpriteSortType m_sortType;
-
-						GLSLProgram m_shader;
-
-						std::vector<std::weak_ptr<ecs::Entity>> m_entities;
-						std::vector<SpriteBatch> m_spriteBatches;
+						std::weak_ptr<graphics::Material> m_material;
+						std::weak_ptr<graphics::Sprite> m_sprite;
+						std::weak_ptr<graphics::Renderer2D> m_renderer;
 				};
 		}
 }
