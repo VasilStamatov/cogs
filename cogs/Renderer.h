@@ -7,6 +7,10 @@ namespace cogs
 {
 		namespace graphics
 		{
+				using uint = unsigned int;
+				using VBO = uint;
+				using VAO = uint;
+
 				class Renderer
 				{
 				public:
@@ -15,7 +19,7 @@ namespace cogs
 
 						virtual void init() = 0;
 						virtual void submit(std::weak_ptr<ecs::Entity> _entity) = 0;
-						virtual void flush(const glm::mat4& _view, const glm::mat4& _projection) = 0;
+						virtual void flush() = 0;
 				};
 		}
 }
