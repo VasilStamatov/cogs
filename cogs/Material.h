@@ -1,7 +1,12 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "MaterialData.h"
+#include <unordered_map>
+
+#include <glm\vec2.hpp>
+#include <glm\vec3.hpp>
+#include <glm\vec4.hpp>
+#include <glm\mat4x4.hpp>
 
 namespace cogs
 {
@@ -10,36 +15,31 @@ namespace cogs
 				class Material
 				{
 				public:
-						Material(const std::string& _name);
-						Material(const std::string& _name, const GLSLProgram& _shader);
-						Material(const Material& _other);
-						~Material();
+						Material(const std::string& _name) : m_name(_name) {}
+						~Material() {}
 						
-						inline void bind() { m_materialData.lock()->bind(); }
-						inline void unbind() { m_materialData.lock()->unbind(); }
+						inline void addFloat(const std::string& _name, float _value)											{ m_floatMap[_name] = _value; }
+						inline void addVec3(const std::string& _name, const glm::vec3& _value) { m_vec3Map[_name] = _value; }
+						inline void addVec2(const std::string& _name, const glm::vec2& _value) { m_vec2Map[_name] = _value; }
+						inline void addMat4(const std::string& _name, const glm::mat4& _value) { m_matrixMap[_name] = _value; }
 
-						inline void uploadUniforms() { m_materialData.lock()->uploadUniforms(); }
-						inline void uploadTextures(const std::vector<GLTexture>& _textures)
-						{ m_materialData.lock()->uploadTextures(_textures); }
+						inline void removeFloat(const std::string& _name) { m_floatMap.erase(_name); }
+						inline void removeVec3(const std::string& _name)  { m_vec3Map.erase(_name); }
+						inline void removeVec2(const std::string& _name)  { m_vec2Map.erase(_name); }
+						inline void removeMat4(const std::string& _name)  { m_matrixMap.erase(_name); }
 
-						inline const GLSLProgram& getShader() const { return m_materialData.lock()->getShader(); }
-						inline void setShader(const GLSLProgram& _shader) { m_materialData.lock()->setShader(_shader); }
-
-						inline void addFloat(const std::string& _name, float _value) { m_materialData.lock()->addFloat(_name, _value); }
-						inline void addVec3(const std::string& _name, const glm::vec3& _value) { m_materialData.lock()->addVec3(_name, _value); }
-						inline void addVec2(const std::string& _name, const glm::vec2& _value) { m_materialData.lock()->addVec2(_name, _value); }
-						inline void addMat4(const std::string& _name, const glm::mat4& _value) { m_materialData.lock()->addMat4(_name, _value); }
-
-						inline void removeFloat(const std::string& _name) { m_materialData.lock()->removeFloat(_name); }
-						inline void removeVec3(const std::string& _name) { m_materialData.lock()->removeVec3(_name); }
-						inline void removeVec2(const std::string& _name) { m_materialData.lock()->removeVec2(_name); }
-						inline void removeMat4(const std::string& _name) { m_materialData.lock()->removeMat4(_name); }
+						inline std::unordered_map<std::string, float>     getFloatMap() { return m_floatMap; }
+						inline std::unordered_map<std::string, glm::vec3> getVec3Map()  { return m_vec3Map; }
+						inline std::unordered_map<std::string, glm::vec2> getVec2Map()  { return m_vec2Map; }
+						inline std::unordered_map<std::string, glm::mat4> getMat4Map()  { return m_matrixMap; }
 
 				private:
-						static std::map<std::string, std::shared_ptr<MaterialData>> s_resourceMap;
-
-						std::weak_ptr<MaterialData> m_materialData;
 						std::string m_name{ "" };
+
+						std::unordered_map<std::string, float> m_floatMap;
+						std::unordered_map<std::string, glm::vec3> m_vec3Map;
+						std::unordered_map<std::string, glm::vec2> m_vec2Map;
+						std::unordered_map<std::string, glm::mat4> m_matrixMap;
 				};
 		}
 }
