@@ -9,10 +9,19 @@ in VS_OUT
 	vec4 color;
 } fs_in;
 
-uniform sampler2D spriteTexture;
+struct Material
+{
+	sampler2D texture_diffuse1;
+	sampler2D texture_specular1;
+	sampler2D texture_ambient1;
+	sampler2D texture_normal1;
+	float shininess;
+};
+
+uniform Material material;
 
 void main() 
 {
-	vec4 textureColor = texture(spriteTexture, fs_in.uv);
+	vec4 textureColor = texture(material.texture_diffuse1, fs_in.uv);
     color = fs_in.color * textureColor;
 }

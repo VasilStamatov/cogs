@@ -25,9 +25,6 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{f23bc555-58c7-445f-b7ac-11a2e51fa4c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{c86ab8b4-d76c-4b43-a1e4-bd1791c32b3f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -54,15 +51,6 @@
     <ClInclude Include="Window.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteRenderer.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Sprite.h">
-      <Filter>ECS</Filter>
-    </ClInclude>
     <ClInclude Include="IOManager.h">
       <Filter>Utils</Filter>
     </ClInclude>
@@ -75,28 +63,13 @@
     <ClInclude Include="Material.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="GLTexture.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureData.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderData.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelData.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="MeshRenderer.h">
       <Filter>ECS</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialData.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
@@ -126,17 +99,35 @@
     <ClInclude Include="BulletDebugRenderer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="IApplication.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Cogs.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Framebuffer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Color.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteRenderer.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GLTexture2D.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer2D.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer3D.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -152,12 +143,6 @@
     <ClCompile Include="Window.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SpriteRenderer.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Sprite.cpp">
-      <Filter>ECS</Filter>
-    </ClCompile>
     <ClCompile Include="IOManager.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
@@ -168,9 +153,6 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="GLTexture.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
@@ -194,9 +176,6 @@
     <ClCompile Include="CMotionState.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="RIgidBody.cpp">
-      <Filter>ECS</Filter>
-    </ClCompile>
     <ClCompile Include="Collider.cpp">
       <Filter>ECS</Filter>
     </ClCompile>
@@ -206,14 +185,29 @@
     <ClCompile Include="BulletDebugRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="IApplication.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Framebuffer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Color.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteRenderer.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="GLTexture2D.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Rigidbody.cpp">
+      <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer2D.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer3D.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
