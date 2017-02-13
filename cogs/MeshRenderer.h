@@ -4,6 +4,7 @@
 #include "Component.h"
 #include "Model.h"
 #include "Material.h"
+#include "Renderer3D.h"
 
 namespace cogs
 {
@@ -18,7 +19,9 @@ namespace cogs
 						/**
 						* Pass the model that you want to render and the material to be rendered with to the contructor
 						*/
-						MeshRenderer(std::unique_ptr<graphics::Model> _model, std::unique_ptr<graphics::Material> _material);
+						MeshRenderer(std::weak_ptr<graphics::Model> _model,
+								std::weak_ptr<graphics::Material> _material,
+								std::weak_ptr<graphics::Renderer3D> _renderer);
 						~MeshRenderer();
 
 						/**
@@ -34,23 +37,25 @@ namespace cogs
 						/**
 						* The render component function
 						*/
-						void render(std::weak_ptr<Camera> _camera) override;
+						void render() override;
 
 						/**
 						* Getters
 						*/
-						const graphics::Material* getMaterial() const noexcept { return m_material.get(); }
-						const graphics::Model* getModel()					  const noexcept { return m_model.get(); }
+						std::weak_ptr<graphics::Material> getMaterial() const noexcept { return m_material; }
+						std::weak_ptr<graphics::Model> getModel()					  const noexcept { return m_model; }
 
 						/**
 						* Setters
 						*/
-						void setMaterial(std::unique_ptr<graphics::Material> _material) { m_material = std::move(_material); }
-						void setModel(std::unique_ptr<graphics::Model> _model)									 { m_model			 = std::move(_model); }
+						void setMaterial(std::weak_ptr<graphics::Material> _material) { m_material = _material; }
+						void setModel(std::weak_ptr<graphics::Model> _model) { m_model = _model; }
+						void setRenderer(std::weak_ptr<graphics::Renderer3D> _renderer) { m_renderer = _renderer; }
 
 				private:
-						std::unique_ptr<graphics::Model> m_model;
-						std::unique_ptr<graphics::Material> m_material;
+						std::weak_ptr<graphics::Model> m_model;
+						std::weak_ptr<graphics::Material> m_material;
+						std::weak_ptr<graphics::Renderer3D> m_renderer;
 				};
 		}
 }
