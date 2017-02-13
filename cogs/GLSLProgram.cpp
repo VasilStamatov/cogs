@@ -1,15 +1,16 @@
 #include "GLSLProgram.h"
 #include "IOManager.h"
+#include "Material.h"
 
 #include <fstream>
+#include <string>
 #include <glm\gtc\type_ptr.hpp>
+#include <GL\glew.h>
 
 namespace cogs
 {
 		namespace graphics
 		{
-				std::map<std::string, std::shared_ptr<ShaderData>> GLSLProgram::s_resourceMap;
-
 				//inoitialize all the variables to 0
 				GLSLProgram::GLSLProgram()
 				{
@@ -21,145 +22,149 @@ namespace cogs
 						compileShaders(_name, _vsFilePath, _fsFilePath, _gsFilePath);
 				}
 
-				GLSLProgram::GLSLProgram(const GLSLProgram & _other) :
-						m_programName(_other.m_programName), m_shaderData(_other.m_shaderData)
-				{
-				}
-
 				GLSLProgram::~GLSLProgram()
 				{
-						dispose();
 				}
 
 				//Compiles the shaders into a form that your GPU can understand
 				void GLSLProgram::compileShaders(const std::string& _name, const std::string& _vsFilePath, const std::string& _fsFilePath, const std::string& _gsFilePath/* = ""*/)
 				{
-						auto iter = s_resourceMap.find(_name);
+						m_programName = _name;
 
-						//check if it's not in the map
-						if (iter == s_resourceMap.end())
+						std::string vsSource;
+						std::string fsSource;
+						std::string gsSource;
+
+						utils::IOManager::readFileToBuffer(_vsFilePath, vsSource);
+						utils::IOManager::readFileToBuffer(_fsFilePath, fsSource);
+						if (_gsFilePath != "")
 						{
-								m_programName = _name;
-								std::string vsSource;
-								std::string fsSource;
-								std::string gsSource;
-
-								utils::IOManager::readFileToBuffer(_vsFilePath, vsSource);
-								utils::IOManager::readFileToBuffer(_fsFilePath, fsSource);
-								if (_gsFilePath != "")
-								{
-										utils::IOManager::readFileToBuffer(_gsFilePath, gsSource);
-										compileShadersFromSource(vsSource.c_str(), fsSource.c_str(), gsSource.c_str());
-								}
-								else
-								{
-										compileShadersFromSource(vsSource.c_str(), fsSource.c_str());
-								}
+								utils::IOManager::readFileToBuffer(_gsFilePath, gsSource);
+								compileShadersFromSource(vsSource.c_str(), fsSource.c_str(), gsSource.c_str());
 						}
 						else
 						{
-								m_programName = _name;
-								m_shaderData = iter->second;
+								compileShadersFromSource(vsSource.c_str(), fsSource.c_str());
 						}
 				}
 
 				void GLSLProgram::compileShadersFromSource(const char* _vertexSource, const char* _fragmentSource, const char* _geometrySource /*= nullptr*/)
 				{
 						//Create the GLSL program ID
-						ProgramID programID = glCreateProgram();
+						m_programID = glCreateProgram();
 
 						//Create the vertex shader object, and store its ID
-						ShaderID vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-						if (vertexShaderID == 0)
+						m_vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+						if (m_vertexShaderID == 0)
 						{
 								throw std::runtime_error("Vertex shader failed to be created");
 						}
 
 						//Create the fragment shader object, and store its ID
-						ShaderID fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-						if (fragmentShaderID == 0)
+						m_fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+						if (m_fragmentShaderID == 0)
 						{
 								throw std::runtime_error("Fragment shader failed to be created");
 						}
 
-						ShaderID geometryShaderID{ 0 };
 						//Check if there is a geometry shader
 						if (_geometrySource != nullptr)
 						{
 								//Create the geometry shader object, and store its ID
-							 geometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
-								if (geometryShaderID == 0)
+								m_geometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
+								if (m_geometryShaderID == 0)
 								{
 										throw std::runtime_error("Geometry shader failed to be created");
 								}
 						}
 
 						//Compile each shader
-						compileShader(_vertexSource, "Vertex Shader", vertexShaderID);
+						compileShader(_vertexSource, "Vertex Shader", m_vertexShaderID);
+						compileShader(_fragmentSource, "Fragment Shader", m_fragmentShaderID);
 						if (_geometrySource != nullptr)
 						{
-								compileShader(_geometrySource, "Geometry Shader", geometryShaderID);
+								compileShader(_geometrySource, "Geometry Shader", m_geometryShaderID);
 						}
-						compileShader(_fragmentSource, "Fragment Shader", fragmentShaderID);
 
-						linkShaders(programID, vertexShaderID, fragmentShaderID, geometryShaderID);
-
-						std::shared_ptr<ShaderData> newShaderData = std::make_shared<ShaderData>(programID, vertexShaderID, fragmentShaderID, geometryShaderID);
-						s_resourceMap.insert(std::make_pair(m_programName, std::move(newShaderData)));
-						m_shaderData = s_resourceMap.at(m_programName);
+						linkShaders();
 				}
 
-				void GLSLProgram::linkShaders(ProgramID _programID, ShaderID _vertID, ShaderID _fragID, ShaderID _geoID /* = 0 */)
+				void GLSLProgram::linkShaders()
 				{
 						//Attach our shaders to our program
-						glAttachShader(_programID, _vertID);
-						glAttachShader(_programID, _fragID);
-						if (_geoID != 0)
+						glAttachShader(m_programID, m_vertexShaderID);
+						glAttachShader(m_programID, m_fragmentShaderID);
+						if (m_geometryShaderID != 0)
 						{
-								glAttachShader(_programID, _geoID);
+								glAttachShader(m_programID, m_geometryShaderID);
 						}
 						//link our program
-						glLinkProgram(_programID);
+						glLinkProgram(m_programID);
 
 						//note the different functions here: glGetProgram* instead of glGetShader*
 						GLint isLinked = 0;
-						glGetProgramiv(_programID, GL_LINK_STATUS, (int *)&isLinked);
+						glGetProgramiv(m_programID, GL_LINK_STATUS, (int *)&isLinked);
 
 						if (isLinked == GL_FALSE)
 						{
 								GLint maxLength = 0;
 								//get the size of the string (maxlength)
-								glGetProgramiv(_programID, GL_INFO_LOG_LENGTH, &maxLength);
+								glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &maxLength);
 
 								//The maxLength includes the null char
 								std::vector<char> errorLog(maxLength);
-								glGetProgramInfoLog(_programID, maxLength, &maxLength, &errorLog[0]);
+								glGetProgramInfoLog(m_programID, maxLength, &maxLength, &errorLog[0]);
 
 								//we don't need this program anymore
-								glDeleteProgram(_programID);
+								glDeleteProgram(m_programID);
 
 								//dont leak shaders either
 								//Don't leak shaders either.
-								glDeleteShader(_vertID);
-								glDeleteShader(_fragID);
-								glDeleteShader(_geoID);
+								glDeleteShader(m_vertexShaderID);
+								glDeleteShader(m_fragmentShaderID);
+								glDeleteShader(m_geometryShaderID);
 
 								//print the error log and quit
 								std::printf("%s\n", &errorLog[0]);
 								throw std::runtime_error("Shaders failed to link!");
 						}
 						//Always detach shaders after a successful link.
-						glDetachShader(_programID, _vertID);
-						glDetachShader(_programID, _fragID);
-						glDetachShader(_programID, _geoID);
-						glDeleteShader(_vertID);
-						glDeleteShader(_fragID);
-						glDeleteShader(_geoID);
+						glDetachShader(m_programID, m_vertexShaderID);
+						glDetachShader(m_programID, m_fragmentShaderID);
+						glDetachShader(m_programID, m_geometryShaderID);
+						glDeleteShader(m_vertexShaderID);
+						glDeleteShader(m_fragmentShaderID);
+						glDeleteShader(m_geometryShaderID);
+				}
+
+				AttribLocation GLSLProgram::getAttribLoc(const std::string & _attributeName)
+				{
+						AttribLocation location = glGetAttribLocation(m_programID, _attributeName.c_str());
+						//error check
+						if (location == GL_INVALID_INDEX)
+						{
+								throw std::runtime_error("Attribute " + _attributeName + " not found in shader!");
+						}
+						//return it if successful
+						return location;
+				}
+
+				UniformLocation GLSLProgram::getUniformLoc(const std::string & _uniformName)
+				{
+						//get the uniform location
+						UniformLocation location = glGetUniformLocation(m_programID, _uniformName.c_str());
+						//error check
+						if (location == GL_INVALID_INDEX)
+						{
+								throw std::runtime_error("Uniform " + _uniformName + " not found in shader!");
+						}
+						//return it if successful
+						return location;
 				}
 
 				GLuint GLSLProgram::getUniformBlockIndex(const std::string& _uniformBlockName)
 				{
-						GLuint index = glGetUniformBlockIndex(m_shaderData.lock()->getProgramID(), _uniformBlockName.c_str());
+						GLuint index = glGetUniformBlockIndex(m_programID, _uniformBlockName.c_str());
 
 						//error check
 						if (index == GL_INVALID_INDEX)
@@ -170,12 +175,12 @@ namespace cogs
 						return index;
 				}
 
-				void GLSLProgram::getUniformBlockDataSize(GLuint _index, GLint* _params)
+				void GLSLProgram::getUniformBlockDataSize(uint _index, int* _params)
 				{
-						glGetActiveUniformBlockiv(m_shaderData.lock()->getProgramID(), _index, GL_UNIFORM_BLOCK_DATA_SIZE, _params);
+						glGetActiveUniformBlockiv(m_programID, _index, GL_UNIFORM_BLOCK_DATA_SIZE, _params);
 				}
 
-				void GLSLProgram::bindBufferRange(GLenum _target, GLuint _index, GLuint _buffer, GLintptr _offset, GLsizeiptr _size)
+				void GLSLProgram::bindBufferRange(uint _target, uint _index, uint _buffer, int _offset, int _size)
 				{
 						glBindBufferRange(_target, _index, _buffer, _offset, _size);
 						if (glGetError() == GL_INVALID_VALUE)
@@ -184,24 +189,24 @@ namespace cogs
 						}
 				}
 
-				void GLSLProgram::blockUniformBinding(GLuint _uniformBlockIndex, GLuint _uniformBlockBinding)
+				void GLSLProgram::blockUniformBinding(uint _uniformBlockIndex, uint _uniformBlockBinding)
 				{
-						glUniformBlockBinding(m_shaderData.lock()->getProgramID(), _uniformBlockIndex, _uniformBlockBinding);
+						glUniformBlockBinding(m_programID, _uniformBlockIndex, _uniformBlockBinding);
 				}
 
-				void GLSLProgram::getActiveUniformsIndexValues(GLsizei _numUniforms, GLuint * _uniformIndices, GLenum _pname, GLint * _attribute)
+				void GLSLProgram::getActiveUniformsIndexValues(int _numUniforms, uint * _uniformIndices, uint _pname, int * _attribute)
 				{
-						glGetActiveUniformsiv(m_shaderData.lock()->getProgramID(), _numUniforms, _uniformIndices, _pname, _attribute);
+						glGetActiveUniformsiv(m_programID, _numUniforms, _uniformIndices, _pname, _attribute);
 				}
 
-				void GLSLProgram::getUniformIndices(GLsizei _uniformCount, const char ** _uniformNames, GLuint * _uniformIndices)
+				void GLSLProgram::getUniformIndices(int _uniformCount, const char ** _uniformNames, uint * _uniformIndices)
 				{
-						glGetUniformIndices(m_shaderData.lock()->getProgramID(), _uniformCount, _uniformNames, _uniformIndices);
+						glGetUniformIndices(m_programID, _uniformCount, _uniformNames, _uniformIndices);
 				}
 
-				GLint GLSLProgram::getSubroutineUniformLocation(GLenum _shaderType, const std::string& _name)
+				int GLSLProgram::getSubroutineUniformLocation(uint _shaderType, const std::string& _name)
 				{
-						GLint location = glGetSubroutineUniformLocation(m_shaderData.lock()->getProgramID(), _shaderType, _name.c_str());
+						GLint location = glGetSubroutineUniformLocation(m_programID, _shaderType, _name.c_str());
 						//error check
 						if (location == GL_INVALID_INDEX)
 						{
@@ -211,9 +216,9 @@ namespace cogs
 						return location;
 				}
 
-				GLuint GLSLProgram::getSubroutineIndex(GLenum _shaderType, const std::string& _name)
+				int GLSLProgram::getSubroutineIndex(uint _shaderType, const std::string& _name)
 				{
-						GLuint index = glGetSubroutineIndex(m_shaderData.lock()->getProgramID(), _shaderType, _name.c_str());
+						GLuint index = glGetSubroutineIndex(m_programID, _shaderType, _name.c_str());
 						//error check
 						if (index == GL_INVALID_INDEX)
 						{
@@ -223,7 +228,7 @@ namespace cogs
 						return index;
 				}
 
-				void GLSLProgram::uniformSubroutinesuiv(GLenum _shaderType, GLsizei _numSubrUniforms, const GLuint * _indices)
+				void GLSLProgram::uniformSubroutinesuiv(uint _shaderType, int _numSubrUniforms, const uint * _indices)
 				{
 						glUniformSubroutinesuiv(_shaderType, _numSubrUniforms, _indices);
 
@@ -236,7 +241,7 @@ namespace cogs
 				//enable the shader
 				void GLSLProgram::use()  const
 				{
-						glUseProgram(m_shaderData.lock()->getProgramID());
+						glUseProgram(m_programID);
 				}
 
 				//disable the shader
@@ -245,29 +250,48 @@ namespace cogs
 						glUseProgram(0);
 				}
 
-				void GLSLProgram::dispose()
-				{
-								m_shaderData.reset();
-				}
-
 				void GLSLProgram::registerAttribute(const std::string& _attrib)
 				{
-						m_shaderData.lock()->registerAttribute(_attrib);
+						m_attribList[_attrib] = getAttribLoc(_attrib);
 				}
 
 				void GLSLProgram::registerUniform(const std::string& _uniform)
 				{
-						m_shaderData.lock()->registerUniform(_uniform);
+						m_unifLocationList[_uniform] = getUniformLoc(_uniform);
 				}
 
 				AttribLocation GLSLProgram::getAttribLocation(const std::string& _attrib)
 				{
-						return m_shaderData.lock()->getAttribLocation(_attrib);
+						auto it = m_attribList.find(_attrib);
+						if (it != m_attribList.end())
+						{
+								// Found the location
+								return it->second;
+						}
+						else
+						{
+								// Didn't find the location
+								// Try to register it if it just wasn't registered
+								registerAttribute(_attrib);
+								return m_attribList.at(_attrib);
+						}
 				}
 
 				UniformLocation GLSLProgram::getUniformLocation(const std::string& _uniform)
 				{
-						return m_shaderData.lock()->getUniformLocation(_uniform);
+						auto it = m_unifLocationList.find(_uniform);
+						if (it != m_unifLocationList.end())
+						{
+								// Found the location
+								return it->second;
+						}
+						else
+						{
+								// Didn't find the location
+								// Try to see if it just wasn't registered
+								registerUniform(_uniform);
+								return m_unifLocationList.at(_uniform);
+						}
 				}
 
 				void GLSLProgram::uploadValue(const std::string & _uniformName, const glm::mat4 & _matrix)
@@ -300,8 +324,75 @@ namespace cogs
 						glUniform4fv(getUniformLocation(_uniformName), 1, glm::value_ptr(_vec4));
 				}
 
+				void GLSLProgram::uploadValue(const std::string & _uniformName, uint _slot, std::weak_ptr<GLTexture2D> _texture)
+				{
+						//activate the texture
+						glActiveTexture(GL_TEXTURE0 + _slot);
+						//Bind it
+						_texture.lock()->bind();
+						// Now set the sampler to the correct texture unit
+						glUniform1i(getUniformLocation(_uniformName), _slot);
+				}
+
+				void GLSLProgram::uploadMaterial(std::weak_ptr<Material> _material)
+				{
+						//upload all the values from the material
+
+						for (auto& var : _material.lock()->getFloatMap())
+						{
+								uploadValue(var.first, var.second);
+						}
+						for (auto& var : _material.lock()->getVec2Map())
+						{
+								uploadValue(var.first, var.second);
+						}
+						for (auto& var : _material.lock()->getVec3Map())
+						{
+								uploadValue(var.first, var.second);
+						}
+						for (auto& var : _material.lock()->getMat4Map())
+						{
+								uploadValue(var.first, var.second);
+						}
+				}
+
+				void GLSLProgram::uploadMeshTextures(const std::vector<std::weak_ptr<GLTexture2D>>& _textures)
+				{
+						unsigned int diffuseNr = 1;
+						unsigned int specularNr = 1;
+						unsigned int ambientNr = 1;
+						unsigned int normalNr = 1;
+
+						// unbind the current texture
+						//glBindTexture(GL_TEXTURE_2D, 0);
+						for (unsigned int i = 0; i < _textures.size(); i++)
+						{
+								unsigned int number;
+								const std::string& textureName = _textures.at(i).lock()->getName();
+
+								if (textureName == "texture_diffuse")
+								{
+										number = diffuseNr++;
+								}
+								else if (textureName == "texture_specular")
+								{
+										number = specularNr++;
+								}
+								else if (textureName == "texture_ambient")
+								{
+										number = ambientNr++;
+								}
+								else if (textureName == "texture_normal")
+								{
+										number = normalNr++;
+								}
+								uploadValue("material." + textureName + std::to_string(number), i, _textures.at(i));
+						}
+						glActiveTexture(GL_TEXTURE0); // Always good practice to set everything back to defaults once configured.
+				}
+
 				//Compiles a single shader file
-				void GLSLProgram::compileShader(const char* _source, const std::string& _name, GLuint _id)
+				void GLSLProgram::compileShader(const char* _source, const std::string& _name, uint _id)
 				{
 						//tell opengl that we want to use fileContents as the contents of the shader file
 						glShaderSource(_id, 1, &_source, nullptr);
