@@ -1,4 +1,7 @@
 #include "BulletDebugRenderer.h"
+#include "ResourceManager.h"
+
+#include <GL\glew.h>
 
 namespace cogs
 {
@@ -6,7 +9,7 @@ namespace cogs
 		{
 				BulletDebugRenderer::BulletDebugRenderer()
 				{
-						m_shader.compileShaders("DebugShader", "Shaders/DebugShader.vert", "Shaders/DebugShader.frag");
+						m_shader = utils::ResourceManager::getGLSLProgram("DebugShader", "Shaders/DebugShader.vert", "Shaders/DebugShader.frag");
 						// Generate the buffers
 						glGenVertexArrays(1, &m_vao);
 						glGenBuffers(1, &m_vbo);
@@ -110,9 +113,9 @@ namespace cogs
 				void BulletDebugRenderer::render(const glm::mat4 & _view, const glm::mat4 & _projection, float _lineWidth)
 				{
 						//begin using the shader program
-						m_shader.use();
-						m_shader.uploadValue("projection", _projection);
-						m_shader.uploadValue("view", _view);
+						m_shader.lock()->use();
+						m_shader.lock()->uploadValue("projection", _projection);
+						m_shader.lock()->uploadValue("view", _view);
 						//set up the line width
 						glLineWidth(_lineWidth);
 						//bind the vertex array object
@@ -122,7 +125,7 @@ namespace cogs
 						//unbind the vao
 						glBindVertexArray(0);
 						//stop using the shader program
-						m_shader.unUse();
+						m_shader.lock()->unUse();
 				}
 		}
 }

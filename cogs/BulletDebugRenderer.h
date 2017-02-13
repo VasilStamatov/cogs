@@ -2,6 +2,7 @@
 #define BULLET_DEBUG_RENDERER_H
 
 #include <Bullet\LinearMath\btIDebugDraw.h>
+#include <vector>
 
 #include "GLSLProgram.h"
 
@@ -9,9 +10,9 @@ namespace cogs
 {
 		namespace graphics
 		{
-				using VBO = GLuint;
-				using VAO = GLuint;
-				using IBO = GLuint;
+				using VBO = uint;
+				using VAO = uint;
+				using IBO = uint;
 
 				//the debug vertex struct ( a vertex has a position and a color)
 				struct DebugVertex
@@ -20,8 +21,8 @@ namespace cogs
 						btVector3 color;
 				};
 
-				constexpr GLuint DEBUG_POSITION_ATTRIBUTE_INDEX = 0;
-				constexpr GLuint DEBUG_COLOR_ATTRIBUTE_INDEX				= 1;
+				constexpr uint DEBUG_POSITION_ATTRIBUTE_INDEX = 0;
+				constexpr uint DEBUG_COLOR_ATTRIBUTE_INDEX				= 1;
 
 				class BulletDebugRenderer : public btIDebugDraw
 				{
@@ -58,10 +59,10 @@ namespace cogs
 						VAO m_vao{ 0 };
 
 						std::vector<DebugVertex> m_verts;
-						std::vector<GLuint> m_indices;
-						GLuint m_numElements{ 0 };
+						std::vector<uint> m_indices;
+						uint m_numElements{ 0 };
 
-						GLSLProgram m_shader;
+						std::weak_ptr<GLSLProgram> m_shader;
 				};
 		}
 }
