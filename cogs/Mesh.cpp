@@ -16,7 +16,7 @@ namespace cogs
 						const std::vector<glm::vec2>& _uvs,
 						const std::vector<glm::vec3>& _normals,
 						const std::vector<glm::vec3>& _tangents,
-						const std::vector<GLTexture>& _textures) :
+						const std::vector<std::weak_ptr<GLTexture2D>>& _textures) :
 						m_indices(_indices),
 						m_positions(_positions),
 						m_uvs(_uvs),
@@ -32,7 +32,7 @@ namespace cogs
 						dispose();
 				}
 
-				void Mesh::render()
+				void Mesh::render() const
 				{
 						glBindVertexArray(m_VAO);
 
@@ -94,7 +94,7 @@ namespace cogs
 						m_indices.push_back(_vertIndex2);
 				}
 
-				void Mesh::addTexture(const GLTexture & _texture)
+				void Mesh::addTexture(std::weak_ptr<GLTexture2D> _texture)
 				{
 						m_textures.push_back(_texture);
 				}
@@ -221,29 +221,29 @@ namespace cogs
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObject::POSITION]);
 						glBufferData(GL_ARRAY_BUFFER, m_positions.size() * sizeof(m_positions.at(0)), m_positions.data(), GL_STATIC_DRAW);
 
-						glEnableVertexAttribArray(MESH_POSITION_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(MESH_POSITION_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+						glEnableVertexAttribArray(BufferObject::POSITION);
+						glVertexAttribPointer(BufferObject::POSITION, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 						// Upload UV data
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObject::TEXCOORD]);
 						glBufferData(GL_ARRAY_BUFFER, m_uvs.size() * sizeof(m_uvs.at(0)), m_uvs.data(), GL_STATIC_DRAW);
 
-						glEnableVertexAttribArray(MESH_UV_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(MESH_UV_ATTRIBUTE_INDEX, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+						glEnableVertexAttribArray(BufferObject::TEXCOORD);
+						glVertexAttribPointer(BufferObject::TEXCOORD, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 						// Upload normals data
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObject::NORMAL]);
 						glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(m_normals.at(0)), m_normals.data(), GL_STATIC_DRAW);
 
-						glEnableVertexAttribArray(MESH_NORMAL_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(MESH_NORMAL_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+						glEnableVertexAttribArray(BufferObject::NORMAL);
+						glVertexAttribPointer(BufferObject::NORMAL, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 						// Upload tangents data
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObject::TANGENT]);
 						glBufferData(GL_ARRAY_BUFFER, m_tangents.size() * sizeof(m_tangents.at(0)), m_tangents.data(), GL_STATIC_DRAW);
 
-						glEnableVertexAttribArray(MESH_TANGENT_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(MESH_TANGENT_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+						glEnableVertexAttribArray(BufferObject::TANGENT);
+						glVertexAttribPointer(BufferObject::TANGENT, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 						// Upload index data for indexed rendering
 						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBOs[BufferObject::INDEX]);
