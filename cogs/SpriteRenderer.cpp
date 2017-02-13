@@ -1,6 +1,5 @@
 #include "SpriteRenderer.h"
 
-#include "OGLRenderer.h"
 #include "Entity.h"
 
 namespace cogs
