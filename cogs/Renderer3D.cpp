@@ -38,18 +38,17 @@ namespace cogs
 
 						for (std::weak_ptr<ecs::Entity> entity : m_entities)
 						{
-								std::weak_ptr<Model> model = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getModel();
-								std::weak_ptr<Material> material = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMaterial();
-
 								//upload the model matrix as it's the same for 1 whole entity
 								m_shader.lock()->uploadValue("model", entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform());
-								//Upload the material uniform values (vec2's/3's, floats, mat4's)
-								m_shader.lock()->uploadMaterial(material);
+								
+								//get the model
+								std::weak_ptr<Model> model = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getModel();
 
+								//render all the meshes the model consists of
 								for (auto& mesh : model.lock()->getMeshes())
 								{
-										//upload the per-mesh textures
-										m_shader.lock()->uploadMeshTextures(mesh.getTextures());
+										//upload the per-mesh material data
+										m_shader.lock()->uploadMaterial(mesh.getMaterial());
 
 										//draw the mesh
 										mesh.render();
