@@ -118,7 +118,7 @@ namespace cogs
 								std::vector<unsigned int> indices;
 								indices.reserve(mesh->mNumFaces * 3);
 
-								std::vector<std::weak_ptr<graphics::GLTexture2D>> textures;
+								std::weak_ptr<graphics::Material> meshMaterial = ResourceManager::getMaterial(mesh->mName.C_Str());
 
 								const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
@@ -131,9 +131,9 @@ namespace cogs
 										const aiVector3D tangent = mesh->mTangents[currVert];
 
 										positions.at(currVert) = (glm::vec3(pos.x, pos.y, pos.z));
-										uvs.at(currVert)							= (glm::vec2(uv.x, uv.y));
-										normals.at(currVert)		 = (glm::vec3(normal.x, normal.y, normal.z));
-										tangents.at(currVert)		= (glm::vec3(tangent.x, tangent.y, tangent.z));
+										uvs.at(currVert) = (glm::vec2(uv.x, uv.y));
+										normals.at(currVert) = (glm::vec3(normal.x, normal.y, normal.z));
+										tangents.at(currVert) = (glm::vec3(tangent.x, tangent.y, tangent.z));
 								}
 
 								//load all the indices for indexed rendering
@@ -147,42 +147,36 @@ namespace cogs
 								}
 
 								//load all the textures for this mesh
-								if (mesh->mMaterialIndex > 0)
+								if (mesh->mMaterialIndex >= 0)
 								{
 										aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-										auto loadMaterialTextures = [&directory](aiMaterial * _mat, const aiTextureType & _type, const std::string & _name)
+										auto loadMaterialTexture = [&directory](aiMaterial * _mat, const aiTextureType & _type, const std::string & _name)
 										{
-												std::vector<std::weak_ptr<graphics::GLTexture2D>> textures;
-
-												for (size_t i = 0; i < _mat->GetTextureCount(_type); i++)
+												if (_mat->GetTextureCount(_type) > 0)
 												{
 														aiString str;
-														_mat->GetTexture(_type, i, &str);
+														_mat->GetTexture(_type, 0, &str);
 														std::weak_ptr<graphics::GLTexture2D> texture = ResourceManager::getGLTexture2D(directory + "/" + str.C_Str(), _name);
-														textures.push_back(texture);
+														return texture;
 												}
-												return textures;
+												return std::weak_ptr<graphics::GLTexture2D>();
 										};
 
-										// 1. Diffuse maps
-										std::vector<std::weak_ptr<graphics::GLTexture2D>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-										textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+										// 1. Diffuse map
+										meshMaterial.lock()->setDiffuseMap(loadMaterialTexture(material, aiTextureType_DIFFUSE, "texture_diffuse"));
 
 										// 2. Specular maps
-										std::vector<std::weak_ptr<graphics::GLTexture2D>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-										textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+										meshMaterial.lock()->setSpecularMap(loadMaterialTexture(material, aiTextureType_SPECULAR, "texture_specular"));
 
-										// 3. Ambient maps
-										std::vector<std::weak_ptr<graphics::GLTexture2D>> ambientMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ambient");
-										textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
+										// 3. reflection maps
+										meshMaterial.lock()->setReflectionMap(loadMaterialTexture(material, aiTextureType_AMBIENT, "texture_reflection"));
 
 										// 4. Normal maps
-										std::vector<std::weak_ptr<graphics::GLTexture2D>> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-										textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+										meshMaterial.lock()->setNormalMap(loadMaterialTexture(material, aiTextureType_HEIGHT, "texture_normal"));
 								}
 
-								meshes.emplace_back(indices, positions, uvs, normals, tangents, textures);
+								meshes.emplace_back(indices, positions, uvs, normals, tangents, meshMaterial);
 						}
 
 						return meshes;
