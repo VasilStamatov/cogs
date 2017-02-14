@@ -3,7 +3,6 @@
 
 #include "Component.h"
 #include "Model.h"
-#include "Material.h"
 #include "Renderer3D.h"
 
 namespace cogs
@@ -11,16 +10,16 @@ namespace cogs
 		namespace ecs
 		{
 				/**
-				* This component, given to an entity should render a mesh with a material
+				* This component, given to an entity should submit it to a 3D renderer
 				*/
 				class MeshRenderer : public Component
 				{
 				public:
 						/**
-						* Pass the model that you want to render and the material to be rendered with to the contructor
+						* Pass the model (collection of meshes) that will be rendered
+						* and the renderer that it will be submitted to
 						*/
 						MeshRenderer(std::weak_ptr<graphics::Model> _model,
-								std::weak_ptr<graphics::Material> _material,
 								std::weak_ptr<graphics::Renderer3D> _renderer);
 						~MeshRenderer();
 
@@ -42,19 +41,16 @@ namespace cogs
 						/**
 						* Getters
 						*/
-						std::weak_ptr<graphics::Material> getMaterial() const noexcept { return m_material; }
-						std::weak_ptr<graphics::Model> getModel()					  const noexcept { return m_model; }
+						std::weak_ptr<graphics::Model> getModel()	const noexcept { return m_model; }
 
 						/**
 						* Setters
 						*/
-						void setMaterial(std::weak_ptr<graphics::Material> _material) { m_material = _material; }
 						void setModel(std::weak_ptr<graphics::Model> _model) { m_model = _model; }
 						void setRenderer(std::weak_ptr<graphics::Renderer3D> _renderer) { m_renderer = _renderer; }
 
 				private:
 						std::weak_ptr<graphics::Model> m_model;
-						std::weak_ptr<graphics::Material> m_material;
 						std::weak_ptr<graphics::Renderer3D> m_renderer;
 				};
 		}
