@@ -4,6 +4,7 @@
 #include "Transform.h"
 #include "Framebuffer.h"
 #include "Color.h"
+#include "Skybox.h"
 
 #include <vector>
 
@@ -107,8 +108,15 @@ namespace cogs
 						/**
 						* \brief get and set the target framebuffer this camera renders to
 						*/
-						void setRenderTarget(std::weak_ptr<graphics::Framebuffer> _renderTarget);
+						void setRenderTarget(std::weak_ptr<graphics::Framebuffer> _renderTarget) { m_renderTarget = _renderTarget; }
 						std::weak_ptr<graphics::Framebuffer> getRenderTarget() { return m_renderTarget; }
+
+						/**
+						* \brief get and set the skybox this camera renders
+						*/
+						void setSkybox(std::weak_ptr<graphics::Skybox> _skybox) { m_skybox = _skybox; }
+						std::weak_ptr<graphics::Skybox> getSkybox() { return m_skybox; }
+						void renderSkybox();
 
 						/**
 						* \brief get and set the background color
@@ -157,6 +165,8 @@ namespace cogs
 						float m_farPlane{ 100.0f }; ///< the far clipping plane
 
 						std::weak_ptr<graphics::Framebuffer> m_renderTarget;
+						std::weak_ptr<graphics::Skybox> m_skybox;
+
 						graphics::Color m_backgroundColor{ graphics::Color::white };
 				};
 		}

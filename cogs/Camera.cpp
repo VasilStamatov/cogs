@@ -113,11 +113,6 @@ namespace cogs
 						m_orthoMatrix = glm::ortho(0.0f, static_cast<float>(m_cameraWidth) * m_size, 0.0f, static_cast<float>(m_cameraHeight) * m_size, m_nearPlane, m_farPlane);
 				}
 
-				void Camera::setRenderTarget(std::weak_ptr<graphics::Framebuffer> _renderTarget)
-				{
-						m_renderTarget = _renderTarget;
-				}
-
 				void Camera::resize(int _screenWidth, int _screenHeight)
 				{
 						m_cameraWidth = _screenWidth;
@@ -132,6 +127,13 @@ namespace cogs
 						if (m_projType == ProjectionType::ORTHOGRAPHIC) return m_orthoMatrix;
 						else
 								return m_perspMatrix;
+				}
+				void Camera::renderSkybox()
+				{
+						if (!m_skybox.expired())
+						{
+								m_skybox.lock()->render(m_transform.lock()->worldPosition());
+						}
 				}
 		}
 }
