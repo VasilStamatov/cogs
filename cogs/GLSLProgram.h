@@ -144,7 +144,6 @@ namespace cogs
 
 
 						void uploadMaterial(std::weak_ptr<Material> _material);
-						void uploadMeshTextures(const std::vector<std::weak_ptr<GLTexture2D>>& _textures);
 
 				private:
 						/* Compile a single shader program */

@@ -346,58 +346,37 @@ namespace cogs
 
 				void GLSLProgram::uploadMaterial(std::weak_ptr<Material> _material)
 				{
-						//upload all the values from the material
+						if (!_material.expired())
+						{
+								int slot{ 0 };
 
-						for (auto& var : _material.lock()->getFloatMap())
-						{
-								uploadValue("material." + var.first, var.second);
-						}
-						for (auto& var : _material.lock()->getVec2Map())
-						{
-								uploadValue("material." + var.first, var.second);
-						}
-						for (auto& var : _material.lock()->getVec3Map())
-						{
-								uploadValue("material." + var.first, var.second);
-						}
-						for (auto& var : _material.lock()->getMat4Map())
-						{
-								uploadValue("material." + var.first, var.second);
-						}
-				}
+								std::weak_ptr<GLTexture2D> diffuse = _material.lock()->getDiffuseMap();
+								if (!diffuse.expired())
+								{
+										uploadValue("material." + diffuse.lock()->getName(), slot++, diffuse);
+								}
 
-				void GLSLProgram::uploadMeshTextures(const std::vector<std::weak_ptr<GLTexture2D>>& _textures)
-				{
-						unsigned int diffuseNr = 1;
-						unsigned int specularNr = 1;
-						unsigned int ambientNr = 1;
-						unsigned int normalNr = 1;
+								std::weak_ptr<GLTexture2D> specular = _material.lock()->getSpecularMap();
+								if (!specular.expired())
+								{
+										uploadValue("material." + specular.lock()->getName(), slot++, specular);
+								}
 
-						// unbind the current texture
-						//glBindTexture(GL_TEXTURE_2D, 0);
-						for (unsigned int i = 0; i < _textures.size(); i++)
-						{
-								unsigned int number;
-								const std::string& textureName = _textures.at(i).lock()->getName();
+								std::weak_ptr<GLTexture2D> reflection = _material.lock()->getReflectionMap();
+								if (!reflection.expired())
+								{
+										uploadValue("material." + reflection.lock()->getName(), slot++, reflection);
+								}
 
-								if (textureName == "texture_diffuse")
+								std::weak_ptr<GLTexture2D> normal = _material.lock()->getNormalMap();
+								if (!normal.expired())
 								{
-										number = diffuseNr++;
+										uploadValue("material." + normal.lock()->getName(), slot++, normal);
 								}
-								else if (textureName == "texture_specular")
-								{
-										number = specularNr++;
-								}
-								else if (textureName == "texture_ambient")
-								{
-										number = ambientNr++;
-								}
-								else if (textureName == "texture_normal")
-								{
-										number = normalNr++;
-								}
-								uploadValue("material." + textureName + std::to_string(number), i, _textures.at(i));
+
+								uploadValue("material.shininess", _material.lock()->getShininess());
 						}
+
 						glActiveTexture(GL_TEXTURE0); // Always good practice to set everything back to defaults once configured.
 				}
 
