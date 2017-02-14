@@ -16,13 +16,13 @@ namespace cogs
 						const std::vector<glm::vec2>& _uvs,
 						const std::vector<glm::vec3>& _normals,
 						const std::vector<glm::vec3>& _tangents,
-						const std::vector<std::weak_ptr<GLTexture2D>>& _textures) :
+						std::weak_ptr<Material> _material) :
 						m_indices(_indices),
 						m_positions(_positions),
 						m_uvs(_uvs),
 						m_normals(_normals),
 						m_tangents(_tangents),
-						m_textures(_textures)
+						m_material(_material)
 				{
 						createBuffers();
 				}
@@ -92,11 +92,6 @@ namespace cogs
 						m_indices.push_back(_vertIndex0);
 						m_indices.push_back(_vertIndex1);
 						m_indices.push_back(_vertIndex2);
-				}
-
-				void Mesh::addTexture(std::weak_ptr<GLTexture2D> _texture)
-				{
-						m_textures.push_back(_texture);
 				}
 
 				void Mesh::calcNormals()

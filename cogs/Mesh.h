@@ -1,7 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "GLTexture2D.h"
+#include "Material.h"
 
 #include <vector>
 #include <memory>
@@ -22,7 +22,7 @@ namespace cogs
 								const std::vector<glm::vec2>& _uvs,
 								const std::vector<glm::vec3>& _normals,
 								const std::vector<glm::vec3>& _tangents,
-								const std::vector<std::weak_ptr<GLTexture2D>>& _textures);
+								std::weak_ptr<Material> _material);
 						~Mesh();
 
 						void render() const;
@@ -38,19 +38,19 @@ namespace cogs
 						void addNormal(const glm::vec3& _normal);
 						void addTangent(const glm::vec3& _tangent);
 						void addFace(unsigned int _vertIndex0, unsigned int _vertIndex1, unsigned int _vertIndex2);
-						void addTexture(std::weak_ptr<GLTexture2D> _texture);
 
 						inline void addVertex  (float x, float y, float z) { addPoint(glm::vec3(x, y, z)); }
 						inline void addTexCoord(float u, float v)									 { addTexCoord(glm::vec2(u, v)); }
 						inline void addNormal  (float x, float y, float z) { addNormal(glm::vec3(x, y, z)); }
 						inline void addTangent (float x, float y, float z) { addTangent(glm::vec3(x, y, z)); }
+						inline void setMaterial(std::weak_ptr<Material> _material) { m_material = _material;; }
 
 						inline const std::vector<unsigned int>& getIndices()  const noexcept { return m_indices; }
 						inline const std::vector<glm::vec3>& getPositions()   const noexcept { return m_positions; }
 						inline const std::vector<glm::vec2>& getTexCoords()   const noexcept { return m_uvs; }
 						inline const std::vector<glm::vec3>& getNormals()     const noexcept { return m_normals; }
 						inline const std::vector<glm::vec3>& getTangents()    const noexcept { return m_tangents; }
-						inline const std::vector<std::weak_ptr<GLTexture2D>>& getTextures()  const noexcept { return m_textures; }
+						inline std::weak_ptr<Material> getMaterial()										const noexcept { return m_material; }
 
 				private:
 						enum BufferObject
@@ -76,7 +76,7 @@ namespace cogs
 						std::vector<glm::vec3> m_normals;
 						std::vector<glm::vec3> m_tangents;
 						std::vector<unsigned int> m_indices;
-						std::vector<std::weak_ptr<GLTexture2D>> m_textures;
+						std::weak_ptr<Material> m_material;
 
 						unsigned int m_VAO{ 0 };
 						unsigned int m_VBOs[BufferObject::NUM_BUFFERS] = {0};
