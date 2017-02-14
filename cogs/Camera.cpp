@@ -132,7 +132,7 @@ namespace cogs
 				{
 						if (!m_skybox.expired())
 						{
-								m_skybox.lock()->render(m_transform.lock()->worldPosition());
+								m_skybox.lock()->render();
 						}
 				}
 		}

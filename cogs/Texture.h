@@ -12,15 +12,15 @@ namespace cogs
 				public:
 						Texture(uint _id, int _width, int _height) : m_id(_id), m_width(_width), m_height(_height) {}
 						Texture() {}
-						~Texture() {}
+						virtual ~Texture() {}
 
-						inline void setWidth(int _width)			{ m_width = _width; }
-						inline void setHeight(int _height) { m_height = _height; }
-						inline void setID(uint _id)							 { m_id = _id; }
+						virtual void bind() const = 0;
+						virtual void unbind() const = 0;
 
 						inline int getWidth()	  const noexcept { return m_width; }
 						inline int getHeight()  const noexcept { return m_height; }
 						inline uint getID()					const noexcept { return m_id; }
+
 				protected:
 						uint m_id{ 0 };
 						int m_width{ 0 };

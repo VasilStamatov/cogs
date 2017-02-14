@@ -129,6 +129,12 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="GLCubemapTexture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -208,6 +214,12 @@
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="GLCubemapTexture.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

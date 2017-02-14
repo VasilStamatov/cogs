@@ -19,10 +19,10 @@ namespace cogs
 				}
 				void FPSCameraControl::update(float _deltaTime)
 				{
-						const glm::vec3& orientation = m_transform.lock()->worldOrientation();
+						//const glm::vec3& orientation = m_transform.lock()->worldOrientation();
 
-						//keep the z axis locked
-						m_transform.lock()->setWorldOrientation(glm::vec3(orientation.x, orientation.y, 0.0f));
+						////keep the z axis locked
+						//m_transform.lock()->setWorldOrientation(glm::vec3(orientation.x, orientation.y, 0.0f));
 
 						// Handle movement
 
