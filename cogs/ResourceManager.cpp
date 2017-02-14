@@ -9,6 +9,7 @@ namespace cogs
 				std::map<std::string, std::shared_ptr<graphics::Material>> ResourceManager::s_materialMap = {};
 				std::map<std::string, std::shared_ptr<graphics::Model>> ResourceManager::s_modelMap = {};
 				std::map<std::string, std::shared_ptr<graphics::Sprite>> ResourceManager::s_spriteMap = {};
+				std::map<std::string, std::shared_ptr<graphics::GLCubemapTexture>> ResourceManager::s_glTex3DMap = {};
 
 				std::weak_ptr<graphics::GLSLProgram> ResourceManager::getGLSLProgram(const std::string & _name)
 				{
@@ -86,6 +87,46 @@ namespace cogs
 
 								//return it as it 100% exists
 								return s_glTex2DMap.at(_filePath);
+						}
+						else
+						{
+								//return the found resource
+								return iter->second;
+						}
+				}
+
+				std::weak_ptr<graphics::GLCubemapTexture> ResourceManager::getGLCubemap(const std::string & _name)
+				{
+						auto iter = s_glTex3DMap.find(_name);
+
+						//check if it's not in the map
+						if (iter == s_glTex3DMap.end())
+						{
+								return std::weak_ptr<graphics::GLCubemapTexture>();
+						}
+						else
+						{
+								//return the found resource
+								return iter->second;
+						}
+				}
+
+				std::weak_ptr<graphics::GLCubemapTexture> ResourceManager::getGLCubemap(const std::string & _name, const std::vector<std::string>& _fileNames)
+				{
+						auto iter = s_glTex3DMap.find(_name);
+
+						//check if it's not in the map
+						if (iter == s_glTex3DMap.end())
+						{
+								// if the resource does not exist, create it
+								std::shared_ptr<graphics::GLCubemapTexture> newTexture =
+										std::make_shared<graphics::GLCubemapTexture>(_name, _fileNames);
+
+								//insert it into the resource map
+								s_glTex3DMap.insert(std::make_pair(_name, std::move(newTexture)));
+
+								//return it as it 100% exists
+								return s_glTex3DMap.at(_name);
 						}
 						else
 						{
@@ -228,6 +269,7 @@ namespace cogs
 				{
 						clearGLSLPrograms();
 						clearGLTexture2Ds();
+						clearGLCubemaps();
 						clearMaterials();
 						clearModels();
 						clearSprites();
@@ -241,6 +283,11 @@ namespace cogs
 				void ResourceManager::clearGLTexture2Ds()
 				{
 						s_glTex2DMap.clear();
+				}
+
+				void ResourceManager::clearGLCubemaps()
+				{
+						s_glTex3DMap.clear();
 				}
 
 				void ResourceManager::clearMaterials()

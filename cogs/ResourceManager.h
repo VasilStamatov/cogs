@@ -3,6 +3,7 @@
 
 #include "GLSLProgram.h"
 #include "GLTexture2D.h"
+#include "GLCubemapTexture.h"
 #include "Material.h"
 #include "Model.h"
 #include "Sprite.h"
@@ -27,6 +28,10 @@ namespace cogs
 						static std::weak_ptr<graphics::GLTexture2D> getGLTexture2D(const std::string& _filePath);
 						static std::weak_ptr<graphics::GLTexture2D> getGLTexture2D(const std::string& _filePath, const std::string& _name, bool _alpha = true);
 
+						/* GLCubemapTexture getters */
+						static std::weak_ptr<graphics::GLCubemapTexture> getGLCubemap(const std::string& _name);
+						static std::weak_ptr<graphics::GLCubemapTexture> getGLCubemap(const std::string& _name, const std::vector<std::string>& _fileNames);
+
 						/* Material getters */
 						static std::weak_ptr<graphics::Material> getMaterial(const std::string& _name);
 
@@ -50,6 +55,9 @@ namespace cogs
 						/* clear the GLTexture2D map */
 						static void clearGLTexture2Ds();
 
+						/* clear the GLTexture2D map */
+						static void clearGLCubemaps();
+
 						/* clear the material map */
 						static void clearMaterials();
 
@@ -66,6 +74,7 @@ namespace cogs
 				private:
 						static std::map<std::string, std::shared_ptr<graphics::GLSLProgram>> s_shaderMap;
 						static std::map<std::string, std::shared_ptr<graphics::GLTexture2D>> s_glTex2DMap;
+						static std::map<std::string, std::shared_ptr<graphics::GLCubemapTexture>> s_glTex3DMap;
 						static std::map<std::string, std::shared_ptr<graphics::Material>> s_materialMap;
 						static std::map<std::string, std::shared_ptr<graphics::Model>> s_modelMap;
 						static std::map<std::string, std::shared_ptr<graphics::Sprite>> s_spriteMap;
