@@ -88,15 +88,15 @@ namespace cogs
 				{
 						auto boolVec = glm::equal(m_worldPosition, _rhs.m_worldPosition);
 
-						if (boolVec.x == boolVec.y == boolVec.z == true)
+						if ((boolVec.x == true) && (boolVec.y == true) && (boolVec.z == true))
 						{
 								boolVec = glm::equal(m_worldScale, _rhs.m_worldScale);
 
-								if (boolVec.x == boolVec.y == boolVec.z == true)
+								if ((boolVec.x == true) && (boolVec.y == true) && (boolVec.z == true))
 								{
 										boolVec = glm::equal(m_worldOrientation, _rhs.m_worldOrientation);
 
-										if (boolVec.x == boolVec.y == boolVec.z == true)
+										if ((boolVec.x == true) && (boolVec.y == true) && (boolVec.z == true))
 										{
 												return true;
 										}

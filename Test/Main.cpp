@@ -81,9 +81,7 @@ int main(int argc, char** argv)
 				std::make_shared<cg::Material>("nanosuit_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));*/
 
 		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
-		paddle.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("paddle", "Models/TestModels/cube.obj"),
-				cu::ResourceManager::getMaterial("paddle_mtl"), renderer3D);
-
+		paddle.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("paddle", "Models/TestModels/cube.obj"), renderer3D);
 		paddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
 		paddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
 		paddle.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(2.0f, 0.5f, 1.0f));
@@ -118,8 +116,7 @@ int main(int argc, char** argv)
 		rightBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> ball = root->addChild("Ball");
-		ball.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("ball", "Models/TestModels/sphere.obj"),
-				cu::ResourceManager::getMaterial("ball_mtl"), renderer3D);
+		ball.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("ball", "Models/TestModels/sphere.obj"), renderer3D);
 		ball.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
 		ball.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0);
 		ball.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
@@ -133,8 +130,7 @@ int main(int argc, char** argv)
 				for (int j = -10; j < 0; j += 4)
 				{
 						std::weak_ptr<ce::Entity> brick = root->addChild("Brick");
-						brick.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("brick", "Models/TestModels/cube.obj"),
-								cu::ResourceManager::getMaterial("brick_mtl"), renderer3D);
+						brick.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("brick", "Models/TestModels/cube.obj"), renderer3D);
 
 						brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
 						brick.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));

@@ -12,10 +12,10 @@ in VS_OUT
 
 struct Material
 {
-	sampler2D texture_diffuse1;
-	sampler2D texture_specular1;
-	sampler2D texture_ambient1;
-	sampler2D texture_normal1;
+	sampler2D texture_diffuse;
+	sampler2D texture_specular;
+	sampler2D texture_reflection;
+	sampler2D texture_normal;
 	float shininess;
 };
 
@@ -23,7 +23,7 @@ uniform Material material;
 
 void main() 
 {
-	vec3 sampleColor = vec3(texture(material.texture_diffuse1, fs_in.uv));
+	vec3 sampleColor = vec3(texture(material.texture_diffuse, fs_in.uv));
 	// color = vec4(fs_in.uv.x, fs_in.uv.y, 0.0f, 1.0f);
 	color = vec4(sampleColor, 1.0f);
 }
