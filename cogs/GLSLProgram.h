@@ -2,6 +2,7 @@
 #define GLSLPROGRAM_H
 
 #include "GLTexture2D.h"
+#include "GLCubemapTexture.h"
 
 #include <glm\mat4x4.hpp>
 #include <unordered_map>
@@ -139,6 +140,8 @@ namespace cogs
 						void uploadValue(const std::string& _uniformName, const glm::vec3& _vec3);
 						void uploadValue(const std::string& _uniformName, const glm::vec4& _vec4);
 						void uploadValue(const std::string& _uniformName, uint _slot, std::weak_ptr<GLTexture2D> _texture);
+						void uploadValue(const std::string& _uniformName, uint _slot, std::weak_ptr<GLCubemapTexture> _texture);
+
 
 						void uploadMaterial(std::weak_ptr<Material> _material);
 						void uploadMeshTextures(const std::vector<std::weak_ptr<GLTexture2D>>& _textures);

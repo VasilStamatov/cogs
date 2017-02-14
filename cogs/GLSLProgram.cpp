@@ -334,25 +334,35 @@ namespace cogs
 						glUniform1i(getUniformLocation(_uniformName), _slot);
 				}
 
+				void GLSLProgram::uploadValue(const std::string & _uniformName, uint _slot, std::weak_ptr<GLCubemapTexture> _texture)
+				{
+						//activate the texture
+						glActiveTexture(GL_TEXTURE0 + _slot);
+						//Bind it
+						_texture.lock()->bind();
+						// Now set the sampler to the correct texture unit
+						glUniform1i(getUniformLocation(_uniformName), _slot);
+				}
+
 				void GLSLProgram::uploadMaterial(std::weak_ptr<Material> _material)
 				{
 						//upload all the values from the material
 
 						for (auto& var : _material.lock()->getFloatMap())
 						{
-								uploadValue(var.first, var.second);
+								uploadValue("material." + var.first, var.second);
 						}
 						for (auto& var : _material.lock()->getVec2Map())
 						{
-								uploadValue(var.first, var.second);
+								uploadValue("material." + var.first, var.second);
 						}
 						for (auto& var : _material.lock()->getVec3Map())
 						{
-								uploadValue(var.first, var.second);
+								uploadValue("material." + var.first, var.second);
 						}
 						for (auto& var : _material.lock()->getMat4Map())
 						{
-								uploadValue(var.first, var.second);
+								uploadValue("material." + var.first, var.second);
 						}
 				}
 
