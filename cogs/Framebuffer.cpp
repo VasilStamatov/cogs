@@ -9,6 +9,33 @@ namespace cogs
 
 				Framebuffer::~Framebuffer()
 				{
+						if (m_fboID != 0)
+						{
+								glDeleteFramebuffers(1, &m_fboID);
+								m_fboID = 0;
+						}
+						if (m_id != 0)
+						{
+								glDeleteTextures(1, &m_id);
+								m_id = 0;
+						}
+						if (m_rboID != 0)
+						{
+								glDeleteRenderbuffers(1, &m_rboID);
+								m_rboID = 0;
+						}
+				}
+
+				void Framebuffer::bind() const
+				{
+						glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
+						glViewport(0, 0, m_width, m_height);
+				}
+
+				void Framebuffer::unbind() const
+				{
+						glBindFramebuffer(GL_FRAMEBUFFER, 0);
+						glViewport(0, 0, Window::getWidth(), Window::getHeight());
 				}
 
 				std::shared_ptr<Framebuffer> Framebuffer::create(unsigned int _width, unsigned int _height)
@@ -64,8 +91,7 @@ namespace cogs
 
 						if (!_fb.expired())
 						{
-								glBindFramebuffer(GL_FRAMEBUFFER, _fb.lock()->m_fboID);
-								glViewport(0, 0, _fb.lock()->m_width, _fb.lock()->m_height);
+								_fb.lock()->bind();
 						}
 						else
 						{

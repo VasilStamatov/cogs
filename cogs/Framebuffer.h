@@ -15,6 +15,9 @@ namespace cogs
 						Framebuffer() {}
 						~Framebuffer();
 
+						void bind()   const override;
+						void unbind() const override;
+
 						uint getFBO()	const noexcept { return m_fboID; }
 						uint getRBO()	const noexcept { return m_rboID; }
 
