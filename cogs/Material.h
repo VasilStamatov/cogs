@@ -1,12 +1,7 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include <unordered_map>
-
-#include <glm\vec2.hpp>
-#include <glm\vec3.hpp>
-#include <glm\vec4.hpp>
-#include <glm\mat4x4.hpp>
+#include "GLSLProgram.h"
 
 namespace cogs
 {
@@ -17,29 +12,38 @@ namespace cogs
 				public:
 						Material(const std::string& _name) : m_name(_name) {}
 						~Material() {}
-						
-						inline void addFloat(const std::string& _name, float _value)											{ m_floatMap[_name] = _value; }
-						inline void addVec3(const std::string& _name, const glm::vec3& _value) { m_vec3Map[_name] = _value; }
-						inline void addVec2(const std::string& _name, const glm::vec2& _value) { m_vec2Map[_name] = _value; }
-						inline void addMat4(const std::string& _name, const glm::mat4& _value) { m_matrixMap[_name] = _value; }
 
-						inline void removeFloat(const std::string& _name) { m_floatMap.erase(_name); }
-						inline void removeVec3(const std::string& _name)  { m_vec3Map.erase(_name); }
-						inline void removeVec2(const std::string& _name)  { m_vec2Map.erase(_name); }
-						inline void removeMat4(const std::string& _name)  { m_matrixMap.erase(_name); }
+						/*void setShader(std::weak_ptr<GLSLProgram> _shader) { m_shader = _shader; }
+						std::weak_ptr<GLSLProgram> getShader() { return m_shader; }*/
 
-						inline std::unordered_map<std::string, float>     getFloatMap() { return m_floatMap; }
-						inline std::unordered_map<std::string, glm::vec3> getVec3Map()  { return m_vec3Map; }
-						inline std::unordered_map<std::string, glm::vec2> getVec2Map()  { return m_vec2Map; }
-						inline std::unordered_map<std::string, glm::mat4> getMat4Map()  { return m_matrixMap; }
+						void setDiffuseMap(std::weak_ptr<GLTexture2D> _diffuseMap) { m_diffuseMap = _diffuseMap; }
+						std::weak_ptr<GLTexture2D> getDiffuseMap()																	{ return m_diffuseMap; }
+
+						void setNormalMap(std::weak_ptr<GLTexture2D> _normalMap) { m_normalMap = _normalMap; }
+						std::weak_ptr<GLTexture2D> getNormalMap()                { return m_normalMap; }
+
+						void setSpecularMap(std::weak_ptr<GLTexture2D> _specularMap) { m_specularMap = _specularMap; }
+						std::weak_ptr<GLTexture2D> getSpecularMap()																	 { return m_specularMap; }
+
+						void setReflectionMap(std::weak_ptr<GLTexture2D> _reflectionMap) { m_reflectionMap = _reflectionMap; }
+						std::weak_ptr<GLTexture2D> getReflectionMap()																			 { return m_reflectionMap; }
+
+						void setName(const std::string& _name) { m_name = _name; }
+						const std::string& getName()										 { return m_name; }
+
+						void setName(float _shininess) { m_shininess = _shininess; }
+					 float getShininess()											{ return m_shininess; }
 
 				private:
 						std::string m_name{ "" };
+						float m_shininess{ 8.0f };
 
-						std::unordered_map<std::string, float> m_floatMap;
-						std::unordered_map<std::string, glm::vec3> m_vec3Map;
-						std::unordered_map<std::string, glm::vec2> m_vec2Map;
-						std::unordered_map<std::string, glm::mat4> m_matrixMap;
+						//std::weak_ptr<GLSLProgram> m_shader;
+
+						std::weak_ptr<GLTexture2D> m_diffuseMap;
+						std::weak_ptr<GLTexture2D> m_normalMap;
+						std::weak_ptr<GLTexture2D> m_specularMap;
+						std::weak_ptr<GLTexture2D> m_reflectionMap;
 				};
 		}
 }
