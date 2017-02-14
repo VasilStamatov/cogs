@@ -17,9 +17,9 @@ namespace cogs
 						virtual void bind() const = 0;
 						virtual void unbind() const = 0;
 
-						inline int getWidth()	  const noexcept { return m_width; }
-						inline int getHeight()  const noexcept { return m_height; }
-						inline uint getID()					const noexcept { return m_id; }
+						inline int getWidth()	     const noexcept { return m_width; }
+						inline int getHeight()     const noexcept { return m_height; }
+						inline uint getTextureID() const noexcept { return m_id; }
 
 				protected:
 						uint m_id{ 0 };

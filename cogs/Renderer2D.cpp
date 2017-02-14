@@ -232,12 +232,12 @@ namespace cogs
 
 								if (currentSprite == 0)
 								{
-										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().lock()->getID());
+										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().lock()->getTextureID());
 								}
 								else if (sprite.lock()->getTexture().lock() !=
 										m_entities.at(currentSprite - 1).lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite().lock()->getTexture().lock())
 								{
-										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().lock()->getID());
+										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().lock()->getTextureID());
 								}
 								else
 								{
