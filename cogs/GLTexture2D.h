@@ -17,8 +17,8 @@ namespace cogs
 
 						void load(const std::string& _name, const std::string& _filePath, bool _alpha = true);
 
-						void bind()   const;
-						void unbind() const;
+						void bind()   const override;
+						void unbind() const override;
 
 						inline bool operator> (const GLTexture2D& _rhs) const
 						{
