@@ -1,19 +1,21 @@
 #ifndef GLSLPROGRAM_H
 #define GLSLPROGRAM_H
 
-#include "GLTexture2D.h"
-#include "GLCubemapTexture.h"
-
 #include <glm\mat4x4.hpp>
 #include <unordered_map>
 #include <memory>
+
+#include "Light.h"
 
 namespace cogs
 {
 		namespace graphics
 		{
 				class Material;
+				class GLTexture2D;
+				class GLCubemapTexture;
 
+				using uint = unsigned int;
 				using AttribLocation = uint;
 				using UniformLocation = uint;
 				using ProgramID = uint;
@@ -141,7 +143,7 @@ namespace cogs
 						void uploadValue(const std::string& _uniformName, const glm::vec4& _vec4);
 						void uploadValue(const std::string& _uniformName, uint _slot, std::weak_ptr<GLTexture2D> _texture);
 						void uploadValue(const std::string& _uniformName, uint _slot, std::weak_ptr<GLCubemapTexture> _texture);
-
+						void uploadValue(const std::string& _uniformName, std::weak_ptr<ecs::Light> _light);
 
 						void uploadMaterial(std::weak_ptr<Material> _material);
 

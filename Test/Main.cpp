@@ -50,13 +50,22 @@ int main(int argc, char** argv)
 
 		std::shared_ptr<cg::Skybox> testSkybox = cg::Skybox::create(
 				cu::ResourceManager::getGLSLProgram("SkyboxShader", "Shaders/Skybox.vert", "Shaders/Skybox.frag"),
-				cu::ResourceManager::getGLCubemap("skyboxTexture", skyboxFilenames), true);
+				cu::ResourceManager::getGLCubemap("skyboxTexture", skyboxFilenames), false);
 
 		std::weak_ptr<ce::Entity> mainCamera = root->addChild("MainCamera");
 		mainCamera.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
 		mainCamera.lock()->addComponent<ce::FPSCameraControl>(1.0f);
 		mainCamera.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 0.0f, 55.0f));
 		mainCamera.lock()->getComponent<ce::Camera>().lock()->setSkybox(testSkybox);
+		mainCamera.lock()->addComponent<ce::Light>();
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::SPOT);
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 0.0f, 1.0f));
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.0f);
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(1.0f);
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setCutOff(glm::cos(glm::radians(12.5f)));
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setOuterCutOff(glm::cos(glm::radians(15.0f)));
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
 		//mainCamera.lock()->getComponent<ce::Camera>().lock()->setRenderTarget(test);
 
 		/*std::weak_ptr<ce::Entity> camera2 = root->addChild("Camera2");
@@ -72,13 +81,22 @@ int main(int argc, char** argv)
 		/*std::weak_ptr<ce::Entity> testSprite = root->addChild("testSprite");
 		testSprite.lock()->addComponent<ce::SpriteRenderer>(
 				cu::ResourceManager::getSprite("TestSprite",
-						cu::ResourceManager::getGLTexture2D("Textures/img_test.png","texture_diffuse"),
-						glm::vec2(10.0f, 10.0f), cg::Color::white),
-				cu::ResourceManager::getMaterial("TestMaterial"), renderer2D);*/
+						cu::ResourceManager::getGLTexture2D("Textures/img_test.dds","texture_diffuse"),
+						glm::vec2(10.0f, 10.0f), cg::Color::white), renderer2D);*/
 
 		/*std::weak_ptr<ce::Entity> nanosuit = root->addChild("nanosuit");
-		nanosuit.lock()->addComponent<ce::MeshRenderer>(std::make_shared<cg::Model>("nanosuit", "Models/nanosuit/nanosuit.obj"),
-				std::make_shared<cg::Material>("nanosuit_mtl", cg::GLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag")));*/
+		nanosuit.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("nanosuit", "Models/nanosuit/nanosuit.obj"), renderer3D);*/
+
+		std::weak_ptr<ce::Entity> directionalLight = root->addChild("PointLight");
+		directionalLight.lock()->addComponent<ce::Light>();
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::DIRECTIONAL);
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.05f);
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.4f);
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(0.5f);
+		directionalLight.lock()->getComponent<ce::Transform>().lock()->setLocalOrientation(glm::vec3(-0.2f, -1.0f, -0.3f));
+		//directionalLight.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
+
 
 		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
 		paddle.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("paddle", "Models/TestModels/cube.obj"), renderer3D);
@@ -124,6 +142,13 @@ int main(int argc, char** argv)
 		ball.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 1.0f, 0.0f));
 		ball.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 		ball.lock()->addComponent<BallBehavior>();
+		ball.lock()->addComponent<ce::Light>();
+		ball.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::POINT);
+		ball.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		ball.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.05f);
+		ball.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.8f);
+		ball.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);
+		ball.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
 
 		for (int i = -30; i < 30; i += 4)
 		{

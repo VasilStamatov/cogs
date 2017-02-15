@@ -1,6 +1,8 @@
 #include "GLSLProgram.h"
 #include "IOManager.h"
 #include "Material.h"
+#include "GLTexture2D.h"
+#include "GLCubemapTexture.h"
 
 #include <fstream>
 #include <string>
@@ -342,6 +344,52 @@ namespace cogs
 						_texture.lock()->bind();
 						// Now set the sampler to the correct texture unit
 						glUniform1i(getUniformLocation(_uniformName), _slot);
+				}
+
+				void GLSLProgram::uploadValue(const std::string & _uniformName, std::weak_ptr<ecs::Light> _light)
+				{
+						switch (_light.lock()->getLightType())
+						{
+								case ecs::LightType::POINT:
+								{
+										uploadValue(_uniformName + ".position", _light.lock()->getPosition());
+										uploadValue(_uniformName + ".ambient", _light.lock()->getAmbientIntensity());
+										uploadValue(_uniformName + ".diffuse", _light.lock()->getDiffuseIntensity());
+										uploadValue(_uniformName + ".specular", _light.lock()->getSpecularIntensity());
+										uploadValue(_uniformName + ".constant", _light.lock()->getAttenuation().m_constant);
+										uploadValue(_uniformName + ".linear", _light.lock()->getAttenuation().m_linear);
+										uploadValue(_uniformName + ".quadratic", _light.lock()->getAttenuation().m_quadratic);
+										uploadValue(_uniformName + ".color", _light.lock()->getColor());
+										break;
+								}
+								case ecs::LightType::SPOT:
+								{
+										uploadValue(_uniformName + ".position", _light.lock()->getPosition());
+										uploadValue(_uniformName + ".direction", _light.lock()->getDirection());
+										uploadValue(_uniformName + ".ambient", _light.lock()->getAmbientIntensity());
+										uploadValue(_uniformName + ".diffuse", _light.lock()->getDiffuseIntensity());
+										uploadValue(_uniformName + ".specular", _light.lock()->getSpecularIntensity());
+										uploadValue(_uniformName + ".constant", _light.lock()->getAttenuation().m_constant);
+										uploadValue(_uniformName + ".linear", _light.lock()->getAttenuation().m_linear);
+										uploadValue(_uniformName + ".quadratic", _light.lock()->getAttenuation().m_quadratic);
+										uploadValue(_uniformName + ".cutOff", _light.lock()->getCutOff());
+										uploadValue(_uniformName + ".outerCutOff", _light.lock()->getOuterCutOff());
+										uploadValue(_uniformName + ".color", _light.lock()->getColor());
+										break;
+								}
+								case ecs::LightType::DIRECTIONAL:
+								{
+										uploadValue(_uniformName + ".direction", _light.lock()->getDirection());
+										uploadValue(_uniformName + ".ambient", _light.lock()->getAmbientIntensity());
+										uploadValue(_uniformName + ".diffuse", _light.lock()->getDiffuseIntensity());
+										uploadValue(_uniformName + ".specular", _light.lock()->getSpecularIntensity());
+										uploadValue(_uniformName + ".color", _light.lock()->getColor());
+										break;
+								}
+								default:
+										printf("Invalid Light");
+										break;
+						}
 				}
 
 				void GLSLProgram::uploadMaterial(std::weak_ptr<Material> _material)

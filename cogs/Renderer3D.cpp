@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "GLSLProgram.h"
 #include "MeshRenderer.h"
+#include "Light.h"
 
 namespace cogs
 {
@@ -19,7 +20,7 @@ namespace cogs
 				}
 				void Renderer3D::init()
 				{
-						
+
 				}
 				void Renderer3D::submit(std::weak_ptr<ecs::Entity> _entity)
 				{
@@ -32,15 +33,51 @@ namespace cogs
 
 						//begind using the shader this renderer uses
 						m_shader.lock()->use();
+
 						//upload the projection and view matrices as they are the same for every entity in this render queue
 						m_shader.lock()->uploadValue("projection", currentCam.lock()->getProjectionMatrix());
 						m_shader.lock()->uploadValue("view", currentCam.lock()->getViewMatrix());
+
+						//upload the lights as they are also the same for the whole scene
+						std::vector<std::weak_ptr<ecs::Light>> lights = ecs::Light::getAllLights();
+
+						int pointLightIndex{ 0 };
+						int spotLightIndex{ 0 };
+						int dirLightIndex{ 0 };
+
+						for (std::weak_ptr<ecs::Light> light : ecs::Light::getAllLights())
+						{
+								if (!light.expired())
+								{
+										switch (light.lock()->getLightType())
+										{
+												case ecs::LightType::POINT:
+												{
+														m_shader.lock()->uploadValue("pointLights[" + std::to_string(pointLightIndex++) + "]", light);
+														break;
+												}
+												case ecs::LightType::SPOT:
+												{
+														m_shader.lock()->uploadValue("spotLights[" + std::to_string(spotLightIndex++) + "]", light);
+														break;
+												}
+												case ecs::LightType::DIRECTIONAL:
+												{
+														m_shader.lock()->uploadValue("dirLights[" + std::to_string(dirLightIndex++) + "]", light);
+														break;
+												}
+												default:
+														printf("Invalid Light");
+														break;
+										}
+								}
+						}
 
 						for (std::weak_ptr<ecs::Entity> entity : m_entities)
 						{
 								//upload the model matrix as it's the same for 1 whole entity
 								m_shader.lock()->uploadValue("model", entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform());
-								
+
 								//get the model
 								std::weak_ptr<Model> model = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getModel();
 

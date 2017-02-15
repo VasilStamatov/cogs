@@ -1,12 +1,17 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "GLSLProgram.h"
+//#include "GLSLProgram.h"
+//#include "GLTexture2D.h"
+#include <memory>
+#include <string>
 
 namespace cogs
 {
 		namespace graphics
 		{
+				class GLTexture2D;
+
 				class Material
 				{
 				public:
