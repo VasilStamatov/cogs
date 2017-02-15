@@ -19,11 +19,6 @@ namespace cogs
 				}
 				void FPSCameraControl::update(float _deltaTime)
 				{
-						//const glm::vec3& orientation = m_transform.lock()->worldOrientation();
-
-						////keep the z axis locked
-						//m_transform.lock()->setWorldOrientation(glm::vec3(orientation.x, orientation.y, 0.0f));
-
 						// Handle movement
 
 						// Forward
@@ -56,11 +51,25 @@ namespace cogs
 						if (mouseMotion.x != 0.0f || mouseMotion.y != 0.0f)
 						{
 								//how much the mouse moves horizontally
-								float xRotation = (-mouseMotion.y * m_moveSpeed * _deltaTime);
+								float xAxisRotation = (-mouseMotion.y * m_moveSpeed * _deltaTime);
 								//how much the mouse moves vertically
-								float yRotation = (-mouseMotion.x * m_moveSpeed * _deltaTime);
+								float yAxisRotation = (-mouseMotion.x * m_moveSpeed * _deltaTime);
 
-								m_transform.lock()->rotate(glm::vec3(glm::radians(xRotation), glm::radians(yRotation), 0.0f));
+								//rotate around the x axis locally and around the y axis using the world up vector
+								//this locks rotating around z axis, but instroduces gimbal locking again
+								m_transform.lock()->rotate(m_transform.lock()->localRightAxis(), glm::radians(xAxisRotation));
+								m_transform.lock()->rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(yAxisRotation));
+								
+								/*const glm::vec3& orientation = m_transform.lock()->localOrientation();
+
+								printf("Orientation x: %f\n", orientation.x);
+								printf("Orientation x degree: %f\n\n", glm::degrees(orientation.x));
+
+								printf("Orientation y: %f\n", orientation.y);
+								printf("Orientation y degree: %f\n\n", glm::degrees(orientation.y));
+
+								printf("Orientation z: %f\n", orientation.z);
+								printf("Orientation z degree: %f\n\n", glm::degrees(orientation.z));*/
 
 								utils::Input::setMouseMotion(0.0f, 0.0f);
 						}
