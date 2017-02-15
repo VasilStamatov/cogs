@@ -23,7 +23,7 @@ void main()
     
 	//pass the world space coordinates
     vs_out.position = vec3(model * vec4(position, 1.0));;
-    vs_out.uv = vec2(uv.x, 1.0 - uv.y);
+    vs_out.uv = vec2(uv.x, uv.y);
     vs_out.color = color;
     
 }

@@ -11,6 +11,7 @@ out VS_OUT
 	vec2 uv;
 	vec3 normal;
 	vec3 tangent;
+	vec3 cameraPos;
 } vs_out;
 
 uniform mat4 projection;
@@ -31,4 +32,6 @@ void main()
 	vs_out.normal = mat3(transpose(inverse(model))) * normal;	
 	
     vs_out.tangent = tangent;
+	
+	vs_out.cameraPos = vec3(view[3][0], view[3][1], view[3][2]);
 }

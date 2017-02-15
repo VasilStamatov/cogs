@@ -1,6 +1,7 @@
 #include "GLTexture2D.h"
-#include "Utils.h"
+//#include "Utils.h"
 
+#include <SOIL2\SOIL2.h>
 #include <GL\glew.h>
 
 namespace cogs
@@ -26,10 +27,21 @@ namespace cogs
 						m_name = _name;
 						m_filePath = _filePath;
 
-						if (!utils::loadTexture(m_filePath.c_str(), _alpha, &m_width, &m_height, &m_id))
+						m_id = SOIL_load_OGL_texture(m_filePath.c_str(), SOIL_LOAD_AUTO, m_id, SOIL_FLAG_POWER_OF_TWO
+								| SOIL_FLAG_MIPMAPS 
+								//| SOIL_FLAG_TEXTURE_REPEATS
+								| SOIL_FLAG_MULTIPLY_ALPHA
+								| SOIL_FLAG_INVERT_Y);
+
+						if (m_id == 0)
+						{
+								printf("SOIL loading error: '%s'\n", SOIL_last_result());
+						}
+
+					/*	if (!utils::loadTexture(m_filePath.c_str(), _alpha, &m_width, &m_height, &m_id))
 						{
 								throw std::runtime_error("Texture failed to load");
-						}
+						}*/
 
 				}
 				void GLTexture2D::bind() const

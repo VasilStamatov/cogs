@@ -3,7 +3,7 @@
 #include "ResourceManager.h"
 
 #include <SDL\SDL_timer.h>
-#include <SOIL\SOIL.h>
+#include <SOIL2\SOIL2.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -93,7 +93,7 @@ namespace cogs
 						const aiScene* scene = importer.ReadFile(_filePath.c_str(),
 								aiProcess_Triangulate |
 								aiProcess_GenSmoothNormals |
-								aiProcess_FlipUVs |
+								//aiProcess_FlipUVs |
 								aiProcess_CalcTangentSpace);
 
 						if (!scene)

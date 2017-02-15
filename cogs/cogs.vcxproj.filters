@@ -135,6 +135,9 @@
     <ClInclude Include="Skybox.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -220,6 +223,9 @@
     </ClCompile>
     <ClCompile Include="Skybox.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>ECS</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
