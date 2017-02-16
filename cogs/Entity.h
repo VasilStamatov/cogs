@@ -38,7 +38,7 @@ namespace cogs
 								//give it a transform
 								newEntity->addComponent<Transform>();
 								//return the created entity
-								return newEntity;
+								return std::move(newEntity);
 						}
 
 						/** Updates this entity and all its children */
@@ -148,7 +148,7 @@ namespace cogs
 						*				after this the weak ptr handle should be used.
 						* \param[in] _child the entity to be added as a child
 						*/
-						std::weak_ptr<Entity> addChild(std::shared_ptr<Entity> _child)
+						std::weak_ptr<Entity> addChild(std::shared_ptr<Entity>&& _child)
 						{
 								/* move it to the children vector */
 								m_children.push_back(std::move(_child));
@@ -216,38 +216,29 @@ namespace cogs
 
 						inline std::weak_ptr<Entity> getChild(const std::string& _entityName)
 						{
-								std::weak_ptr<Entity> child;
-
 								for (size_t i = 0; i < m_children.size(); i++)
 								{
 										if (m_children.at(i)->getName() == _entityName)
 										{
-												child = m_children.at(i);
+												return m_children.at(i);
 										}
 								}
-
-								return child;
+								return std::weak_ptr<Entity>();
 						}
 
-						inline std::vector<std::weak_ptr<Entity>> getChildren(const std::string& _entityName)
+						inline std::weak_ptr<Entity> getChild(unsigned int _index)
 						{
-								std::vector<std::weak_ptr<Entity>> children;
-
-								for (size_t i = 0; i < m_children.size(); i++)
+								if (m_children.size() > _index)
 								{
-										if (m_children.at(i)->getName() == _entityName)
-										{
-												children.push_back(m_children.at(i));
-										}
+										return m_children.at(_index);
 								}
-
-								return children;
+								return std::weak_ptr<Entity>();
 						}
 
 						void setTag(const std::string& _tag) { m_tag = _tag; }
 						const std::string& getTag() const noexcept { return m_tag; }
 
-						void setActive(bool _active) 
+						void setActive(bool _active)
 						{
 								m_isActive = _active;
 								/*if (!m_isActive)
