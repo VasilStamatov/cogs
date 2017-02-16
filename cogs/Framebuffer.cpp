@@ -79,7 +79,7 @@ namespace cogs
 						glBindFramebuffer(GL_FRAMEBUFFER, 0);
 						glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-						return newFramebuffer;
+						return std::move(newFramebuffer);
 				}
 
 				void Framebuffer::setActive(std::weak_ptr<Framebuffer> _fb)
