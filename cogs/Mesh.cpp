@@ -7,22 +7,33 @@ namespace cogs
 {
 		namespace graphics
 		{
-				Mesh::Mesh()
+				Mesh::Mesh(const std::string& _name) : m_name(_name)
 				{
 				}
 
-				Mesh::Mesh(const std::vector<unsigned int>& _indices,
+				Mesh::Mesh(const std::string& _name,
+						const std::vector<unsigned int>& _indices,
 						const std::vector<glm::vec3>& _positions,
 						const std::vector<glm::vec2>& _uvs,
 						const std::vector<glm::vec3>& _normals,
-						const std::vector<glm::vec3>& _tangents,
-						std::weak_ptr<Material> _material) :
+						const std::vector<glm::vec3>& _tangents) :
+						m_name(_name),
 						m_indices(_indices),
 						m_positions(_positions),
 						m_uvs(_uvs),
 						m_normals(_normals),
-						m_tangents(_tangents),
-						m_material(_material)
+						m_tangents(_tangents)
+				{
+						createBuffers();
+				}
+
+				Mesh::Mesh(const Mesh & _other) :
+						m_name(_other.m_name),
+						m_indices(_other.m_indices),
+						m_positions(_other.m_positions),
+						m_uvs(_other.m_uvs),
+						m_normals(_other.m_normals),
+						m_tangents(_other.m_tangents)
 				{
 						createBuffers();
 				}
