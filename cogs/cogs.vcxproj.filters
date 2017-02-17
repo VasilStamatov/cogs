@@ -135,6 +135,21 @@
     <ClInclude Include="Light.h">
       <Filter>ECS</Filter>
     </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollider.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="CylinderCollider.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="CapsuleCollider.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="ConeCollider.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -178,9 +193,6 @@
     </ClCompile>
     <ClCompile Include="CMotionState.cpp">
       <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Collider.cpp">
-      <Filter>ECS</Filter>
     </ClCompile>
     <ClCompile Include="FPSCameraControl.cpp">
       <Filter>ECS</Filter>

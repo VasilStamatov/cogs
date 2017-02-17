@@ -1,7 +1,12 @@
 #include "RigidBody.h"
 
 #include "Entity.h"
-#include "Collider.h"
+
+#include "BoxCollider.h"
+#include "SphereCollider.h"
+#include "CapsuleCollider.h"
+#include "ConeCollider.h"
+#include "CylinderCollider.h"
 
 #include <glm\gtc\type_ptr.hpp>
 
@@ -26,7 +31,28 @@ namespace cogs
 
 						btVector3 intertia(0.0f, 0.0f, 0.0f);
 
-						std::weak_ptr<Collider> colliderShape = m_entity.lock()->getComponent<Collider>();
+						std::weak_ptr<Collider> colliderShape;
+
+						if (m_entity.lock()->hasComponent<BoxCollider>())
+						{
+								colliderShape = m_entity.lock()->getComponent<BoxCollider>();
+						}
+						else if (m_entity.lock()->hasComponent<SphereCollider>())
+						{
+								colliderShape = m_entity.lock()->getComponent<SphereCollider>();
+						}
+						else if (m_entity.lock()->hasComponent<CapsuleCollider>())
+						{
+								colliderShape = m_entity.lock()->getComponent<CapsuleCollider>();
+						}
+						else if (m_entity.lock()->hasComponent<ConeCollider>())
+						{
+								colliderShape = m_entity.lock()->getComponent<ConeCollider>();
+						}
+						else if (m_entity.lock()->hasComponent<CylinderCollider>())
+						{
+								colliderShape = m_entity.lock()->getComponent<CylinderCollider>();
+						}
 
 						if (m_mass != 0.0f)
 						{

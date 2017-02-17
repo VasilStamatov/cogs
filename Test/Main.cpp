@@ -6,7 +6,8 @@
 #include <cogs\Input.h>
 #include <cogs\Random.h>
 #include <cogs\Physics.h>
-#include <cogs\Collider.h>
+#include <cogs\BoxCollider.h>
+#include <cogs\SphereCollider.h>
 #include <cogs\RigidBody.h>
 #include <cogs\BulletDebugRenderer.h>
 #include <cogs\FPSCameraControl.h>
@@ -19,7 +20,7 @@
 #include "PaddleController.h"
 #include "BallBehavior.h"
 
-#define DEBUG_DRAW 0
+#define DEBUG_DRAW 1
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
@@ -107,7 +108,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<ce::Entity> pPaddle = root->addChild(std::move(paddle));
 		pPaddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
 		pPaddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
-		pPaddle.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(2.0f, 0.5f, 1.0f));
+		pPaddle.lock()->addComponent<ce::BoxCollider>(glm::vec3(2.0f, 0.5f, 1.0f));
 		pPaddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
 		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
 		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
@@ -117,24 +118,24 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
 		groundBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-2.5f, -5.0f, 0.0f));
-		groundBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(32.5f, 0.0f, 1.0f));
+		groundBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(32.5f, 0.0f, 1.0f));
 		groundBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 
 		std::weak_ptr<ce::Entity> ceilingBound = root->addChild("CeilingBoundary");
 		ceilingBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-2.5f, 30.0f, 0.0f));
-		ceilingBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(32.5f, 0.0f, 1.0f));
+		ceilingBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(32.5f, 0.0f, 1.0f));
 		ceilingBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		ceilingBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> leftBound = root->addChild("LeftBoundary");
 		leftBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-35.0f, 12.5f, 0.0f));
-		leftBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(0.0f, 17.0f, 1.0f));
+		leftBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(0.0f, 17.0f, 1.0f));
 		leftBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		leftBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> rightBound = root->addChild("RightBoundary");
 		rightBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(30, 12.5f, 0.0f));
-		rightBound.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(0.0f, 17.0f, 1.0f));
+		rightBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(0.0f, 17.0f, 1.0f));
 		rightBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		rightBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
@@ -142,7 +143,7 @@ int main(int argc, char** argv)
 		ball->setName("Ball");
 		std::weak_ptr<ce::Entity> bBall = root->addChild(std::move(ball));
 		bBall.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
-		bBall.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0);
+		bBall.lock()->addComponent<ce::SphereCollider>(1.0);
 		bBall.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
 		bBall.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
 		bBall.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 1.0f, 0.0f));
@@ -164,7 +165,7 @@ int main(int argc, char** argv)
 						brick->setName("Brick");
 						std::weak_ptr<ce::Entity> bBrick = root->addChild(std::move(brick));
 						bBrick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
-						bBrick.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+						bBrick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
 						bBrick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 						bBrick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
 						bBrick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);

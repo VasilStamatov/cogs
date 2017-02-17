@@ -155,12 +155,16 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="BulletDebugRenderer.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CapsuleCollider.h" />
     <ClInclude Include="CMotionState.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="ConeCollider.h" />
+    <ClInclude Include="CylinderCollider.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FPSCameraControl.h" />
     <ClInclude Include="Framebuffer.h" />
@@ -183,6 +187,7 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="Texture.h" />
@@ -195,7 +200,6 @@
     <ClCompile Include="BulletDebugRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMotionState.cpp" />
-    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="FPSCameraControl.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
