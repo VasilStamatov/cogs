@@ -14,11 +14,11 @@ namespace cogs
 				{
 						if (_isBox)
 						{
-								m_model = utils::ResourceManager::getModel("SkyBox", "Models/TestModels/cube.obj");
+								m_mesh = utils::ResourceManager::getPrimitive("Models/TestModels/cube.obj");
 						}
 						else
 						{
-								m_model = utils::ResourceManager::getModel("SkySphere", "Models/TestModels/sphere.obj");
+								m_mesh = utils::ResourceManager::getPrimitive("Models/TestModels/sphere.obj");
 						}
 				}
 
@@ -31,7 +31,7 @@ namespace cogs
 				{
 						std::shared_ptr<Skybox> newSkybox = std::make_shared<Skybox>(_shader, _cubemapTex, _isBox);
 
-						return newSkybox;
+						return std::move(newSkybox);
 				}
 
 				void Skybox::render()
@@ -48,13 +48,13 @@ namespace cogs
 
 						std::weak_ptr<ecs::Camera> currentCamera = ecs::Camera::getCurrent();
 
-						const glm::mat4& view = glm::mat4(glm::mat3(currentCamera.lock()->getViewMatrix())); // Remove any translation component of the view matrix
+					 const glm::mat4& view = glm::mat4(glm::mat3(currentCamera.lock()->getViewMatrix())); // Remove any translation component of the view matrix
 
 						m_skyboxShader.lock()->uploadValue("view", view);
 						m_skyboxShader.lock()->uploadValue("projection", currentCamera.lock()->getProjectionMatrix());
 						m_skyboxShader.lock()->uploadValue("skybox", 0, m_cubemapTex);
 
-						m_model.lock()->render();
+						m_mesh.lock()->render();
 
 						glCullFace(oldCullMode);
 						glDepthFunc(oldDepthFunc);

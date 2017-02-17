@@ -8,7 +8,7 @@ namespace cogs
 		namespace graphics
 		{
 				class GLCubemapTexture;
-				class Model;
+				class Mesh;
 				class GLSLProgram;
 
 				class Skybox
@@ -24,7 +24,7 @@ namespace cogs
 				private:
 						std::weak_ptr<GLSLProgram> m_skyboxShader;
 						std::weak_ptr<GLCubemapTexture> m_cubemapTex;
-						std::weak_ptr<Model> m_model;
+						std::weak_ptr<Mesh> m_mesh;
 				};
 		}
 }
