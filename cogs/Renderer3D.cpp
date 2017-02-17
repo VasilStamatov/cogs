@@ -9,7 +9,7 @@ namespace cogs
 {
 		namespace graphics
 		{
-				Renderer3D::Renderer3D(std::weak_ptr<GLSLProgram> _shader) : m_shader(_shader)
+				Renderer3D::Renderer3D(std::weak_ptr<GLSLProgram> _shader) : Renderer(_shader)
 				{
 				}
 				Renderer3D::Renderer3D()
@@ -78,18 +78,14 @@ namespace cogs
 								//upload the model matrix as it's the same for 1 whole entity
 								m_shader.lock()->uploadValue("model", entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform());
 
-								//get the model
-								std::weak_ptr<Model> model = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getModel();
+								//get the mesh
+								std::weak_ptr<Mesh> mesh = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
+								//get the Material
+								std::weak_ptr<Material> material = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMaterial();
 
-								//render all the meshes the model consists of
-								for (auto& mesh : model.lock()->getMeshes())
-								{
-										//upload the per-mesh material data
-										m_shader.lock()->uploadMaterial(mesh.getMaterial());
+						 	m_shader.lock()->uploadMaterial(material);
 
-										//draw the mesh
-										mesh.render();
-								}
+								mesh.lock()->render();
 						}
 
 						//finally unbind the current shader program
@@ -102,10 +98,6 @@ namespace cogs
 				void Renderer3D::end()
 				{
 						//TODO: possibly sorting and batching/preparing for instanced rendering ?
-				}
-				void Renderer3D::setShader(std::weak_ptr<GLSLProgram> _shader)
-				{
-						m_shader = _shader;
 				}
 		}
 }

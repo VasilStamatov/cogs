@@ -8,7 +8,7 @@ namespace cogs
 {
 		namespace graphics
 		{
-				Renderer2D::Renderer2D(std::weak_ptr<GLSLProgram> _shader) : m_shader(_shader)
+				Renderer2D::Renderer2D(std::weak_ptr<GLSLProgram> _shader) : Renderer(_shader)
 				{
 						init();
 				}
@@ -105,10 +105,8 @@ namespace cogs
 
 						m_shader.lock()->unUse();
 				}
-				void Renderer2D::begin(const SpriteSortType & _sortType)
+				void Renderer2D::begin()
 				{
-						//at the beggining stage clear the vectors and set the sort type
-						m_sortType = _sortType;
 						m_spriteBatches.clear();
 						m_entities.clear();
 				}
@@ -134,10 +132,7 @@ namespace cogs
 								m_VBOs[i] = 0;
 						}
 				}
-				void Renderer2D::setShader(std::weak_ptr<GLSLProgram> _shader)
-				{
-						m_shader = _shader;
-				}
+
 				void Renderer2D::sortSprites()
 				{
 						switch (m_sortType)
@@ -181,6 +176,11 @@ namespace cogs
 				}
 				void Renderer2D::createSpriteBatches()
 				{
+						if (m_entities.empty())
+						{
+								return;
+						}
+
 						// This will store all the vertices that we need to upload
 						std::vector<glm::vec3> positions;
 
@@ -197,11 +197,6 @@ namespace cogs
 
 						//1 sprite = 6 indices to connect the 4 verts (0, 1, 2 - 2, 3, 0)
 						indices.resize(m_entities.size() * 6);
-
-						if (m_entities.empty())
-						{
-								return;
-						}
 
 						int offset = 0;
 

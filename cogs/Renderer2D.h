@@ -7,8 +7,6 @@ namespace cogs
 {
 		namespace graphics
 		{
-				class GLSLProgram;
-
 				/**
 				* Determines how we should sort the sprites
 				*/
@@ -44,22 +42,19 @@ namespace cogs
 						/**
 								* Begin submission
 								*/
-						void begin(const SpriteSortType& _sortType = SpriteSortType::TEXTURE);
+						void begin() override;
 
 						/**
 						* End submission
 						*/
-						void end();
+						void end() override;
 
 						/**
 						* Disposes of the buffer objects
 						*/
 						void dispose();
 
-						/**
-						* sets the shader this renderer to use
-						*/
-						void setShader(std::weak_ptr<GLSLProgram> _shader);
+						void setSortType(const SpriteSortType& _sortType = SpriteSortType::TEXTURE) { m_sortType = _sortType; }
 
 				private:
 						void sortSprites();
@@ -77,11 +72,9 @@ namespace cogs
 						};
 
 				private:
-						std::weak_ptr<GLSLProgram> m_shader; // shader to render with
-						std::vector<std::weak_ptr<ecs::Entity>> m_entities; // set ot submitted entities to render
 						std::vector<SpriteBatch> m_spriteBatches; //set of batched sprites
 
-						SpriteSortType m_sortType;
+						SpriteSortType m_sortType{ SpriteSortType::TEXTURE };
 
 						VAO m_VAO{ 0 };
 						VBO m_VBOs[BufferObjects::NUM_BUFFERS] = { 0 };
