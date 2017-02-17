@@ -2,6 +2,16 @@
 #define UTILS_H
 
 #include "Mesh.h"
+#include "Material.h"
+#include "Entity.h"
+#include "Renderer3D.h"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+//class aiNode;
+//class aiScene;
+//class aiMesh;
+//class aiMaterial;
 
 namespace cogs
 {
@@ -44,11 +54,22 @@ namespace cogs
 				extern bool loadCubemap(const char** _fileNames, int* _width, int* _height, unsigned int* _id);
 
 				/**
-				* \brief Loads a model from a file using ASSIMP, 
+				* \brief Loads a single mesh file with no materials, just mesh data, 
 				* \param _filePath - the filepath of the model
-				* \return a vector of all the meshes the model is constructed from
+				* \return a single mesh with the loaded data
 				*/
-				extern std::vector<graphics::Mesh> loadModel(const std::string& _filePath);
+				extern graphics::Mesh loadPrimitive(const std::string& _filePath);
+
+				extern std::shared_ptr<ecs::Entity> loadMeshRenderers(const std::string& _filePath, std::weak_ptr<graphics::Renderer3D> _renderer);
+
+				namespace internal
+				{
+						extern void processNode(aiNode* _node, const aiScene* _scene, const std::string& _directory, std::weak_ptr<ecs::Entity> _parent,
+								std::weak_ptr<graphics::Renderer3D> _renderer);
+
+						extern void processMesh(aiMesh* _aiMesh, std::weak_ptr<graphics::Mesh> _cogsMesh);
+						extern void processMaterial(aiMaterial* _aiMaterial, std::weak_ptr<graphics::Material> _cogsMaterial, const std::string& _directory);
+				}
 		}
 }
 
