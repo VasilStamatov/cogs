@@ -5,9 +5,10 @@ namespace cogs
 {
 		namespace ecs
 		{
-				MeshRenderer::MeshRenderer(std::weak_ptr<graphics::Model> _model,
+				MeshRenderer::MeshRenderer(std::weak_ptr<graphics::Mesh> _mesh,
+						std::weak_ptr<graphics::Material> _material,
 						std::weak_ptr<graphics::Renderer3D> _renderer)
-						: m_model(_model), m_renderer(_renderer) { }
+						: m_mesh(_mesh), m_material(_material), m_renderer(_renderer) { }
 
 				MeshRenderer::~MeshRenderer()
 				{
