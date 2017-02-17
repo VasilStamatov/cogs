@@ -5,7 +5,7 @@
 #include "GLTexture2D.h"
 #include "GLCubemapTexture.h"
 #include "Material.h"
-#include "Model.h"
+#include "Mesh.h"
 #include "Sprite.h"
 
 #include <map>
@@ -35,10 +35,9 @@ namespace cogs
 						/* Material getters */
 						static std::weak_ptr<graphics::Material> getMaterial(const std::string& _name);
 
-						/* Model getters */
-						static std::weak_ptr<graphics::Model> getModel(const std::string& _filePath);
-						static std::weak_ptr<graphics::Model> getModel(const std::string& _name, const std::string& _filePath);
-						static std::weak_ptr<graphics::Model> getModel(const std::string& _name, const std::vector<graphics::Mesh>& _meshes);
+						/* Mesh getters */
+						static std::weak_ptr<graphics::Mesh> getMesh(const std::string& _name);
+						static std::weak_ptr<graphics::Mesh> getPrimitive(const std::string& _filePath);
 
 						/* Sprite getters */
 						static std::weak_ptr<graphics::Sprite> getSprite(const std::string& _name);
@@ -76,7 +75,7 @@ namespace cogs
 						static std::map<std::string, std::shared_ptr<graphics::GLTexture2D>> s_glTex2DMap;
 						static std::map<std::string, std::shared_ptr<graphics::GLCubemapTexture>> s_glTex3DMap;
 						static std::map<std::string, std::shared_ptr<graphics::Material>> s_materialMap;
-						static std::map<std::string, std::shared_ptr<graphics::Model>> s_modelMap;
+						static std::map<std::string, std::shared_ptr<graphics::Mesh>> s_meshMap;
 						static std::map<std::string, std::shared_ptr<graphics::Sprite>> s_spriteMap;
 				};
 		}

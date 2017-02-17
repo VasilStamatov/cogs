@@ -1,4 +1,5 @@
 #include "ResourceManager.h"
+#include "Utils.h"
 
 namespace cogs
 {
@@ -7,7 +8,7 @@ namespace cogs
 				std::map<std::string, std::shared_ptr<graphics::GLSLProgram>> ResourceManager::s_shaderMap = {};
 				std::map<std::string, std::shared_ptr<graphics::GLTexture2D>> ResourceManager::s_glTex2DMap = {};
 				std::map<std::string, std::shared_ptr<graphics::Material>> ResourceManager::s_materialMap = {};
-				std::map<std::string, std::shared_ptr<graphics::Model>> ResourceManager::s_modelMap = {};
+				std::map<std::string, std::shared_ptr<graphics::Mesh>> ResourceManager::s_meshMap = {};
 				std::map<std::string, std::shared_ptr<graphics::Sprite>> ResourceManager::s_spriteMap = {};
 				std::map<std::string, std::shared_ptr<graphics::GLCubemapTexture>> ResourceManager::s_glTex3DMap = {};
 
@@ -158,15 +159,21 @@ namespace cogs
 						}
 				}
 
-				std::weak_ptr<graphics::Model> ResourceManager::getModel(const std::string & _filePath)
+				std::weak_ptr<graphics::Mesh> ResourceManager::getMesh(const std::string & _name)
 				{
-						auto iter = s_modelMap.find(_filePath);
+						auto iter = s_meshMap.find(_name);
 
 						//check if it's not in the map
-						if (iter == s_modelMap.end())
+						if (iter == s_meshMap.end())
 						{
-								//return an empty/expired pointer
-								return std::weak_ptr<graphics::Model>();
+								// if the resource does not exist, create it
+								std::shared_ptr<graphics::Mesh> newMesh = std::make_shared<graphics::Mesh>(_name);
+
+								//insert it into the resource map
+								s_meshMap.insert(std::make_pair(_name, std::move(newMesh)));
+
+								//return it as it 100% exists
+								return s_meshMap.at(_name);
 						}
 						else
 						{
@@ -175,45 +182,21 @@ namespace cogs
 						}
 				}
 
-				std::weak_ptr<graphics::Model> ResourceManager::getModel(const std::string & _name, const std::string & _filePath)
+				std::weak_ptr<graphics::Mesh> ResourceManager::getPrimitive(const std::string& _filePath)
 				{
-						auto iter = s_modelMap.find(_filePath);
+						auto iter = s_meshMap.find(_filePath);
 
 						//check if it's not in the map
-						if (iter == s_modelMap.end())
+						if (iter == s_meshMap.end())
 						{
 								// if the resource does not exist, create it
-								std::shared_ptr<graphics::Model> newMaterial = std::make_shared<graphics::Model>(_name, _filePath);
+								std::shared_ptr<graphics::Mesh> newMesh = std::make_shared<graphics::Mesh>(loadPrimitive(_filePath));
 
 								//insert it into the resource map
-								s_modelMap.insert(std::make_pair(_filePath, std::move(newMaterial)));
+								s_meshMap.insert(std::make_pair(_filePath, std::move(newMesh)));
 
 								//return it as it 100% exists
-								return s_modelMap.at(_filePath);
-						}
-						else
-						{
-								//return the found resource
-								return iter->second;
-						}
-				}
-
-				std::weak_ptr<graphics::Model> ResourceManager::getModel(const std::string & _name,
-						const std::vector<graphics::Mesh>& _meshes)
-				{
-						auto iter = s_modelMap.find(_name);
-
-						//check if it's not in the map
-						if (iter == s_modelMap.end())
-						{
-								// if the resource does not exist, create it
-								std::shared_ptr<graphics::Model> newMaterial = std::make_shared<graphics::Model>(_name, _meshes);
-
-								//insert it into the resource map
-								s_modelMap.insert(std::make_pair(_name, std::move(newMaterial)));
-
-								//return it as it 100% exists
-								return s_modelMap.at(_name);
+								return s_meshMap.at(_filePath);
 						}
 						else
 						{
@@ -297,7 +280,7 @@ namespace cogs
 
 				void ResourceManager::clearModels()
 				{
-						s_modelMap.clear();
+						s_meshMap.clear();
 				}
 
 				void ResourceManager::clearSprites()
