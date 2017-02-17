@@ -72,16 +72,20 @@ namespace cogs
 						m_indices.push_back(i);
 						m_indices.push_back(i + 1);
 				}
+
 				void BulletDebugRenderer::drawContactPoint(const btVector3 & _PointOnB, const btVector3 & _normalOnB, btScalar _distance, int _lifeTime, const btVector3 & _color)
 				{
 				}
+			
 				void BulletDebugRenderer::reportErrorWarning(const char * _warningString)
 				{
 						printf(_warningString);
 				}
+
 				void BulletDebugRenderer::draw3dText(const btVector3 & _location, const char * _textString)
 				{
 				}
+				
 				void BulletDebugRenderer::setDebugMode(int _debugMode)
 				{
 						m_debugDrawMode = DebugDrawModes(_debugMode);

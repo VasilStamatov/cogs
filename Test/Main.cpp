@@ -13,6 +13,7 @@
 #include <cogs\Entity.h>
 #include <cogs\SpriteRenderer.h>
 #include <cogs\ResourceManager.h>
+#include <cogs\Utils.h>
 #include <iostream>
 
 #include "PaddleController.h"
@@ -28,7 +29,7 @@ namespace cp = cogs::physics;
 int main(int argc, char** argv)
 {
 		cg::Window window;
-		window.create("Test", 1024, 576, cg::WindowCreationFlags::RESIZABLE);
+		window.create("Test", 1024, 576, cg::WindowCreationFlags::NONE);
 		window.setRelativeMouseMode(true);
 		bool quit = false;
 
@@ -50,7 +51,7 @@ int main(int argc, char** argv)
 
 		std::shared_ptr<cg::Skybox> testSkybox = cg::Skybox::create(
 				cu::ResourceManager::getGLSLProgram("SkyboxShader", "Shaders/Skybox.vert", "Shaders/Skybox.frag"),
-				cu::ResourceManager::getGLCubemap("skyboxTexture", skyboxFilenames), false);
+				cu::ResourceManager::getGLCubemap("skyboxTexture", skyboxFilenames), true);
 
 		std::weak_ptr<ce::Entity> mainCamera = root->addChild("MainCamera");
 		mainCamera.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
@@ -81,11 +82,15 @@ int main(int argc, char** argv)
 		/*std::weak_ptr<ce::Entity> testSprite = root->addChild("testSprite");
 		testSprite.lock()->addComponent<ce::SpriteRenderer>(
 				cu::ResourceManager::getSprite("TestSprite",
-						cu::ResourceManager::getGLTexture2D("Textures/img_test.dds","texture_diffuse"),
+						cu::ResourceManager::getGLTexture2D("Textures/img_test.png","texture_diffuse"),
 						glm::vec2(10.0f, 10.0f), cg::Color::white), renderer2D);*/
 
 		/*std::weak_ptr<ce::Entity> nanosuit = root->addChild("nanosuit");
 		nanosuit.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("nanosuit", "Models/nanosuit/nanosuit.obj"), renderer3D);*/
+
+		/*std::shared_ptr<ce::Entity> nanosuit = cu::loadMeshRenderers("Models/nanosuit/nanosuit.obj", renderer3D);
+		nanosuit->setName("nanosuit");
+		std::weak_ptr<ce::Entity> pnanosuit = root->addChild(std::move(nanosuit));*/
 
 		std::weak_ptr<ce::Entity> directionalLight = root->addChild("PointLight");
 		directionalLight.lock()->addComponent<ce::Light>();
@@ -97,18 +102,18 @@ int main(int argc, char** argv)
 		directionalLight.lock()->getComponent<ce::Transform>().lock()->setLocalOrientation(glm::vec3(-0.2f, -1.0f, -0.3f));
 		//directionalLight.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
 
-
-		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
-		paddle.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("paddle", "Models/TestModels/cube.obj"), renderer3D);
-		paddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
-		paddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
-		paddle.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(2.0f, 0.5f, 1.0f));
-		paddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
-		paddle.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
-		paddle.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
-		paddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
-		paddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-		paddle.lock()->addComponent<PaddleController>(1.0f);
+		std::shared_ptr<ce::Entity> paddle = cu::loadMeshRenderers("Models/TestModels/cube.obj", renderer3D);
+		paddle->setName("PlayerPaddle");
+		std::weak_ptr<ce::Entity> pPaddle = root->addChild(std::move(paddle));
+		pPaddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
+		pPaddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
+		pPaddle.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(2.0f, 0.5f, 1.0f));
+		pPaddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
+		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
+		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
+		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
+		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+		pPaddle.lock()->addComponent<PaddleController>(1.0f);
 
 		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
 		groundBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-2.5f, -5.0f, 0.0f));
@@ -133,35 +138,36 @@ int main(int argc, char** argv)
 		rightBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		rightBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
-		std::weak_ptr<ce::Entity> ball = root->addChild("Ball");
-		ball.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("ball", "Models/TestModels/sphere.obj"), renderer3D);
-		ball.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
-		ball.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0);
-		ball.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
-		ball.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
-		ball.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 1.0f, 0.0f));
-		ball.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-		ball.lock()->addComponent<BallBehavior>();
-		ball.lock()->addComponent<ce::Light>();
-		ball.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::POINT);
-		ball.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-		ball.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.05f);
-		ball.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.8f);
-		ball.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);
-		ball.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
+		std::shared_ptr<ce::Entity> ball = cu::loadMeshRenderers("Models/TestModels/sphere.obj", renderer3D);
+		ball->setName("Ball");
+		std::weak_ptr<ce::Entity> bBall = root->addChild(std::move(ball));
+		bBall.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
+		bBall.lock()->addComponent<ce::Collider>(ce::ColliderShape::SPHERE, 1.0);
+		bBall.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
+		bBall.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
+		bBall.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 1.0f, 0.0f));
+		bBall.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+		bBall.lock()->addComponent<BallBehavior>();
+		bBall.lock()->addComponent<ce::Light>();
+		bBall.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::POINT);
+		bBall.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		bBall.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.05f);
+		bBall.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.8f);
+		bBall.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);
+		bBall.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
 
 		for (int i = -30; i < 30; i += 4)
 		{
 				for (int j = -10; j < 0; j += 4)
 				{
-						std::weak_ptr<ce::Entity> brick = root->addChild("Brick");
-						brick.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("brick", "Models/TestModels/cube.obj"), renderer3D);
-
-						brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
-						brick.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-						brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
-						brick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
-						brick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+						std::shared_ptr<ce::Entity> brick = cu::loadMeshRenderers("Models/TestModels/cube.obj", renderer3D);
+						brick->setName("Brick");
+						std::weak_ptr<ce::Entity> bBrick = root->addChild(std::move(brick));
+						bBrick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
+						bBrick.lock()->addComponent<ce::Collider>(ce::ColliderShape::BOX, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+						bBrick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+						bBrick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
+						bBrick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 				}
 		}
 
