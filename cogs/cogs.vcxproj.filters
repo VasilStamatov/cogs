@@ -150,6 +150,9 @@
     <ClInclude Include="ConeCollider.h">
       <Filter>ECS</Filter>
     </ClInclude>
+    <ClInclude Include="BillboardRenderer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -232,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="BillboardRenderer.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

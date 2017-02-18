@@ -32,11 +32,21 @@ namespace cogs
 						setLocalOrientation(toRotate * m_localOrientationRaw);
 				}
 
+				void Transform::rotate(float _x, float _y, float _z)
+				{
+						rotate(glm::vec3(_x, _y, _z));
+				}
+
 				void Transform::rotate(const glm::vec3 & _axis, float _angle)
 				{
 						glm::quat toRotate(glm::angleAxis((_angle), _axis));
 
 						setLocalOrientation(toRotate * m_localOrientationRaw);
+				}
+
+				void Transform::rotate(float _x, float _y, float _z, float _angle)
+				{
+						rotate(glm::vec3(_x, _y, _z), _angle);
 				}
 
 				void Transform::rotate(const glm::quat & _rotationQuat)
@@ -54,9 +64,23 @@ namespace cogs
 						m_localPosition += _offset;
 				}
 
+				void Transform::translate(float _x, float _y, float _z)
+				{
+						m_localPosition.x += _x;
+						m_localPosition.y += _y;
+						m_localPosition.z += _z;
+				}
+
 				void Transform::offsetScale(const glm::vec3 & _offset)
 				{
 						m_localScale += _offset;
+				}
+
+				void Transform::offsetScale(float _x, float _y, float _z)
+				{
+						m_localScale.x += _x;
+						m_localScale.y += _y;
+						m_localScale.z += _z;
 				}
 
 				glm::mat4 Transform::localTransform() const

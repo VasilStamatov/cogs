@@ -7,7 +7,7 @@ namespace cogs
 		namespace ecs
 		{
 				SpriteRenderer::SpriteRenderer(std::weak_ptr<graphics::Sprite> _sprite,
-						std::weak_ptr<graphics::Renderer2D> _renderer)
+						std::weak_ptr<graphics::Renderer> _renderer)
 						: m_sprite(_sprite), m_renderer(_renderer)
 				{
 				}

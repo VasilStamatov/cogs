@@ -4,7 +4,7 @@
 #include "Component.h"
 #include "Material.h"
 #include "Sprite.h"
-#include "Renderer2D.h"
+#include "Renderer.h"
 
 namespace cogs
 {
@@ -14,7 +14,7 @@ namespace cogs
 				{
 				public:
 						SpriteRenderer(std::weak_ptr<graphics::Sprite> _sprite,
-								std::weak_ptr<graphics::Renderer2D> _renderer);
+								std::weak_ptr<graphics::Renderer> _renderer);
 						SpriteRenderer() {}
 						~SpriteRenderer();
 
@@ -33,11 +33,11 @@ namespace cogs
 						* Setters
 						*/
 						void setModel(std::weak_ptr<graphics::Sprite> _sprite)							   { m_sprite		 = _sprite; }
-						void setRenderer(std::weak_ptr<graphics::Renderer2D> _renderer)	{ m_renderer = _renderer; }
+						void setRenderer(std::weak_ptr<graphics::Renderer> _renderer)	{ m_renderer = _renderer; }
 
 				private:
 						std::weak_ptr<graphics::Sprite> m_sprite;
-						std::weak_ptr<graphics::Renderer2D> m_renderer;
+						std::weak_ptr<graphics::Renderer> m_renderer;
 				};
 		}
 }

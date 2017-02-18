@@ -15,6 +15,7 @@
 #include <cogs\SpriteRenderer.h>
 #include <cogs\ResourceManager.h>
 #include <cogs\Utils.h>
+#include <cogs\BillboardRenderer.h>
 #include <iostream>
 
 #include "PaddleController.h"
@@ -83,12 +84,15 @@ int main(int argc, char** argv)
 		std::shared_ptr<cg::Renderer3D> renderer3D = std::make_shared<cg::Renderer3D>(
 				cu::ResourceManager::getGLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag"));
 
-		/*std::weak_ptr<ce::Entity> testSprite = root->addChild("testSprite");
+		std::shared_ptr<cg::BillboardRenderer> billboardRenderer = std::make_shared<cg::BillboardRenderer>(
+				cu::ResourceManager::getGLSLProgram("BillboardShader", "Shaders/Billboard.vert", "Shaders/Billboard.frag", "Shaders/Billboard.geo"));
+
+		std::weak_ptr<ce::Entity> testSprite = root->addChild("testSprite");
 		testSprite.lock()->addComponent<ce::SpriteRenderer>(
 				cu::ResourceManager::getSprite("TestSprite",
 						cu::ResourceManager::getGLTexture2D("Textures/img_test.png","texture_diffuse"),
-						glm::vec2(10.0f, 10.0f), cg::Color::white), renderer2D);*/
-
+						glm::vec2(10.0f, 10.0f), cg::Color::white), billboardRenderer);
+		testSprite.lock()->getComponent<ce::Transform>().lock()->translate(10.0f, 10.0f, 10.0f);
 		/*std::weak_ptr<ce::Entity> nanosuit = root->addChild("nanosuit");
 		nanosuit.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(10.0f, 20.0f, 10.0f));
 		cu::loadMeshesToEntity(nanosuit, "Models/nanosuit/nanosuit.obj", renderer3D);*/
@@ -284,13 +288,16 @@ int main(int argc, char** argv)
 
 						renderer2D->begin();
 						renderer3D->begin();
+						billboardRenderer->begin();
 
 						// call the render function of all entities (submits all entities with sprite and mesh renderers)
 						root->renderAll();
 
 						renderer2D->end();
 						renderer3D->end();
+						billboardRenderer->end();
 
+						billboardRenderer->flush();
 						renderer2D->flush();
 						renderer3D->flush();
 

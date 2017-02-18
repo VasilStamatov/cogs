@@ -32,12 +32,14 @@ namespace cogs
 				 	* \param _eulerAngles - vec3 euler angles in radians to be added
 				 	*/
 						void rotate(const glm::vec3& _eulerAngles);
-						
+						void rotate(float _x, float _y, float _z);
+
 						/**
 						*	\brief rotates the transform of the entity around an axis by angle in radians
 						* \param _angle - vec3 euler angles in radians to be added
 						*/
 						void rotate(const glm::vec3& _axis, float _angle);
+						void rotate(float _x, float _y, float _z, float _angle);
 
 						/**
 						*	\brief rotates the transform of the entity by quat concatenation
@@ -56,12 +58,14 @@ namespace cogs
 						* \param _offset - the vec3 offset to add
 						*/
 						void translate(const glm::vec3& _offset);
+						void translate(float _x, float _y, float _z);
 
 						/**
 						*	\brief scales the local scale of the transform by _offset
 						* \param _offset - the vec3 offset to add
 						*/
 						void offsetScale(const glm::vec3& _offset);
+						void offsetScale(float _x, float _y, float _z);
 
 						/**
 						*	\brief returns the local space position

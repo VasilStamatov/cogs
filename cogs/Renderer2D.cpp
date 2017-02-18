@@ -1,7 +1,9 @@
 #include "Renderer2D.h"
+
 #include "SpriteRenderer.h"
 #include "Camera.h"
 #include "GLSLProgram.h"
+
 #include <GL\glew.h>
 
 namespace cogs
@@ -19,7 +21,6 @@ namespace cogs
 				Renderer2D::~Renderer2D()
 				{
 						dispose();
-						m_shader.reset();
 				}
 				void Renderer2D::init()
 				{

@@ -24,8 +24,11 @@ void main()
 
 	//pass the world space coordinates
     vs_out.position = vec3(model * vec4(position, 1.0));
-
-	vs_out.cameraPos = vec3(view[3][0], view[3][1], view[3][2]);
+	
+	mat3 rotMat = mat3(view);
+	vec3 d = vec3(view[3][0], view[3][1], view[3][2]);
+ 
+	vs_out.cameraPos = -d * rotMat;
 	
     vs_out.uv = uv;
 	

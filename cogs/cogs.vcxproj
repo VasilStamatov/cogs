@@ -155,6 +155,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BillboardRenderer.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="BulletDebugRenderer.h" />
     <ClInclude Include="Camera.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BillboardRenderer.cpp" />
     <ClCompile Include="BulletDebugRenderer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMotionState.cpp" />
