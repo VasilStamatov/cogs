@@ -143,7 +143,7 @@ namespace cogs
 
 						return graphics::Mesh(mesh->mName.C_Str(), indices, positions, uvs, normals, tangents);
 				}
-				std::shared_ptr<ecs::Entity> loadMeshRenderers(const std::string & _filePath, std::weak_ptr<graphics::Renderer3D> _renderer)
+				std::shared_ptr<ecs::Entity> loadEntityWithMeshes(const std::string & _filePath, std::weak_ptr<graphics::Renderer3D> _renderer)
 				{
 						Assimp::Importer importer;
 
@@ -166,6 +166,29 @@ namespace cogs
 						internal::processNode(scene->mRootNode, scene, directory, mainHandle, _renderer);
 
 						return std::move(mainHandle);
+				}
+
+				void loadMeshesToEntity(std::weak_ptr<ecs::Entity> _mainHolder,
+						const std::string & _filePath, std::weak_ptr<graphics::Renderer3D> _renderer)
+				{
+						Assimp::Importer importer;
+
+						const aiScene* scene = importer.ReadFile(_filePath.c_str(),
+								aiProcess_Triangulate |
+								aiProcess_GenSmoothNormals |
+								//aiProcess_FlipUVs |
+								aiProcess_CalcTangentSpace);
+
+						//error check
+						if (!scene || !scene->mRootNode || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
+						{
+								printf("ERROR::ASSIMP:: %s \n", importer.GetErrorString());
+								assert(false);
+						}
+
+						const std::string directory = _filePath.substr(0, _filePath.find_last_of('/'));
+
+						internal::processNode(scene->mRootNode, scene, directory, _mainHolder, _renderer);
 				}
 
 				void internal::processNode(aiNode* _node, const aiScene* _scene, const std::string& _directory,

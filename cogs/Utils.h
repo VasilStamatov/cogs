@@ -8,10 +8,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-//class aiNode;
-//class aiScene;
-//class aiMesh;
-//class aiMaterial;
 
 namespace cogs
 {
@@ -60,7 +56,9 @@ namespace cogs
 				*/
 				extern graphics::Mesh loadPrimitive(const std::string& _filePath);
 
-				extern std::shared_ptr<ecs::Entity> loadMeshRenderers(const std::string& _filePath, std::weak_ptr<graphics::Renderer3D> _renderer);
+				extern std::shared_ptr<ecs::Entity> loadEntityWithMeshes(const std::string& _filePath, std::weak_ptr<graphics::Renderer3D> _renderer);
+				extern void loadMeshesToEntity(std::weak_ptr<ecs::Entity> _mainHolder, 
+						const std::string& _filePath, std::weak_ptr<graphics::Renderer3D> _renderer);
 
 				namespace internal
 				{
