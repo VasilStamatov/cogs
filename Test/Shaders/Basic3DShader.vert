@@ -9,9 +9,8 @@ out VS_OUT
 {
 	vec3 position;
 	vec2 uv;
-	vec3 normal;
-	vec3 tangent;
 	vec3 cameraPos;
+	mat3 TBN;
 } vs_out;
 
 uniform mat4 projection;
@@ -26,12 +25,23 @@ void main()
 	//pass the world space coordinates
     vs_out.position = vec3(model * vec4(position, 1.0));
 
+	vs_out.cameraPos = vec3(view[3][0], view[3][1], view[3][2]);
+	
     vs_out.uv = uv;
 	
-	//pass the world space normals
-	vs_out.normal = mat3(transpose(inverse(model))) * normal;	
+	mat3 normalMatrix = transpose(inverse(mat3(model)));	
 	
-    vs_out.tangent = tangent;
+	//the tangent vector
+	vec3 T = normalize(normalMatrix * tangent);
 	
-	vs_out.cameraPos = vec3(view[3][0], view[3][1], view[3][2]);
+	vec3 N = normalize(normalMatrix * normal);
+	
+	// re-orthogonalize T with respect to N
+	T = normalize(T - dot(T, N) * N);
+	
+	//The bitangent vector
+	vec3 B = cross(T, N);
+
+	//Send the TBN matrix in order to revert tangent space normal to world space
+	vs_out.TBN = mat3(T, B, N);	
 }

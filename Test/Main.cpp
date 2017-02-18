@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 		mainCamera.lock()->getComponent<ce::Camera>().lock()->setSkybox(testSkybox);
 		mainCamera.lock()->addComponent<ce::Light>();
 		mainCamera.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::SPOT);
-		mainCamera.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 0.0f, 1.0f));
+		mainCamera.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
 		mainCamera.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.0f);
 		mainCamera.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(1.0f);
 		mainCamera.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);

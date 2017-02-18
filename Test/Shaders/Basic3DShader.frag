@@ -6,9 +6,8 @@ in VS_OUT
 {
 	vec3 position;
 	vec2 uv;
-	vec3 normal;
-	vec3 tangent;
 	vec3 cameraPos;
+	mat3 TBN;
 } fs_in;
 
 struct Material
@@ -91,7 +90,13 @@ vec3 CalcSpotLight(SpotLight _light, vec3 _normal, vec3 _fragPos, vec3 _viewDir)
 
 void main() 
 {	
-	vec3 normal = normalize(fs_in.normal);
+	// Obtain normal from normal map in range [0;1]
+	vec3 normal = texture(material.texture_normal, fs_in.uv).rgb;
+	//Transform the normal vector to range [-1;1].
+	normal = normalize(normal * 2.0 - 1.0); //< the normal in tangent space
+	//Use the TBN matrix to transform the tangent space normal to world space
+	normal = normalize(fs_in.TBN * normal);
+	
 	vec3 viewDir = normalize(fs_in.cameraPos - fs_in.position);
 	vec3 textureColor = texture(material.texture_diffuse, fs_in.uv).rgb;
 
