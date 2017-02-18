@@ -51,7 +51,8 @@ namespace cogs
 
 						virtual void postProcess() {}
 
-						virtual void setEntity(std::weak_ptr<Entity> _entity) { m_entity = _entity; }
+					 void setEntity(std::weak_ptr<Entity> _entity) { m_entity = _entity; }
+						std::weak_ptr<Entity> getEntity()													{ return m_entity; }
 				protected:
 						/* Store the parent entity containing this component in a pointer due to forward declaration */
 						std::weak_ptr<Entity> m_entity;
