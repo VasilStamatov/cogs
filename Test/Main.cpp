@@ -19,8 +19,9 @@
 
 #include "PaddleController.h"
 #include "BallBehavior.h"
+#include "PostProcessTest.h"
 
-#define DEBUG_DRAW 1
+#define DEBUG_DRAW 0
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
@@ -40,7 +41,7 @@ int main(int argc, char** argv)
 
 		std::shared_ptr<ce::Entity> root = ce::Entity::create("Root");
 
-		//std::shared_ptr<cg::Framebuffer> testFramebuffer = cg::Framebuffer::create(window.getWidth(), window.getHeight());
+		std::shared_ptr<cg::Framebuffer> testFramebuffer = cg::Framebuffer::create(window.getWidth(), window.getHeight());
 
 		std::vector<std::string> skyboxFilenames(6);
 		skyboxFilenames.at(0) = "Textures/skybox/right.png";
@@ -68,7 +69,9 @@ int main(int argc, char** argv)
 		mainCamera.lock()->getComponent<ce::Light>().lock()->setCutOff(glm::cos(glm::radians(12.5f)));
 		mainCamera.lock()->getComponent<ce::Light>().lock()->setOuterCutOff(glm::cos(glm::radians(15.0f)));
 		mainCamera.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
-		//mainCamera.lock()->getComponent<ce::Camera>().lock()->setRenderTarget(test);
+		mainCamera.lock()->getComponent<ce::Camera>().lock()->setRenderTarget(testFramebuffer);
+		mainCamera.lock()->addComponent<PostProcessTest>(cu::ResourceManager::getGLSLProgram(
+				"PostProcessShader", "Shaders/PostProcess.vert", "Shaders/PostProcess.frag"));
 
 		/*std::weak_ptr<ce::Entity> camera2 = root->addChild("Camera2");
 		camera2.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
@@ -76,7 +79,7 @@ int main(int argc, char** argv)
 
 		std::shared_ptr<cg::Renderer2D> renderer2D = std::make_shared<cg::Renderer2D>(
 				cu::ResourceManager::getGLSLProgram("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag"));
-		
+
 		std::shared_ptr<cg::Renderer3D> renderer3D = std::make_shared<cg::Renderer3D>(
 				cu::ResourceManager::getGLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag"));
 
@@ -87,11 +90,15 @@ int main(int argc, char** argv)
 						glm::vec2(10.0f, 10.0f), cg::Color::white), renderer2D);*/
 
 		/*std::weak_ptr<ce::Entity> nanosuit = root->addChild("nanosuit");
-		nanosuit.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getModel("nanosuit", "Models/nanosuit/nanosuit.obj"), renderer3D);*/
-
-		/*std::shared_ptr<ce::Entity> nanosuit = cu::loadMeshRenderers("Models/nanosuit/nanosuit.obj", renderer3D);
-		nanosuit->setName("nanosuit");
-		std::weak_ptr<ce::Entity> pnanosuit = root->addChild(std::move(nanosuit));*/
+		nanosuit.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(10.0f, 20.0f, 10.0f));
+		cu::loadMeshesToEntity(nanosuit, "Models/nanosuit/nanosuit.obj", renderer3D);*/
+		/*nanosuit.lock()->addComponent<ce::SphereCollider>(3.0f);
+		nanosuit.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
+		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
+		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
+		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
+		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+		nanosuit.lock()->addComponent<PaddleController>(1.0f);*/
 
 		std::weak_ptr<ce::Entity> directionalLight = root->addChild("PointLight");
 		directionalLight.lock()->addComponent<ce::Light>();
@@ -101,9 +108,8 @@ int main(int argc, char** argv)
 		directionalLight.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.4f);
 		directionalLight.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(0.5f);
 		directionalLight.lock()->getComponent<ce::Transform>().lock()->setLocalOrientation(glm::vec3(-0.2f, -1.0f, -0.3f));
-		//directionalLight.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
 
-		std::shared_ptr<ce::Entity> paddle = cu::loadMeshRenderers("Models/TestModels/cube.obj", renderer3D);
+		std::shared_ptr<ce::Entity> paddle = cu::loadEntityWithMeshes("Models/TestModels/cube.obj", renderer3D);
 		paddle->setName("PlayerPaddle");
 		std::weak_ptr<ce::Entity> pPaddle = root->addChild(std::move(paddle));
 		pPaddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
@@ -139,7 +145,7 @@ int main(int argc, char** argv)
 		rightBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		rightBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
-		std::shared_ptr<ce::Entity> ball = cu::loadMeshRenderers("Models/TestModels/sphere.obj", renderer3D);
+		std::shared_ptr<ce::Entity> ball = cu::loadEntityWithMeshes("Models/TestModels/sphere.obj", renderer3D);
 		ball->setName("Ball");
 		std::weak_ptr<ce::Entity> bBall = root->addChild(std::move(ball));
 		bBall.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
@@ -161,7 +167,7 @@ int main(int argc, char** argv)
 		{
 				for (int j = -10; j < 0; j += 4)
 				{
-						std::shared_ptr<ce::Entity> brick = cu::loadMeshRenderers("Models/TestModels/cube.obj", renderer3D);
+						std::shared_ptr<ce::Entity> brick = cu::loadEntityWithMeshes("Models/TestModels/cube.obj", renderer3D);
 						brick->setName("Brick");
 						std::weak_ptr<ce::Entity> bBrick = root->addChild(std::move(brick));
 						bBrick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
@@ -262,6 +268,10 @@ int main(int argc, char** argv)
 				//other cameras
 				for (std::weak_ptr<ce::Camera> camera : ce::Camera::getAllCameras())
 				{
+						if (!camera.lock()->getEntity().lock()->isActive() || camera.expired())
+						{
+								continue;
+						}
 						// set the current camera
 						ce::Camera::setCurrent(camera);
 
@@ -297,6 +307,8 @@ int main(int argc, char** argv)
 						//set the render target to the default window
 						cg::Framebuffer::setActive(std::weak_ptr<cg::Framebuffer>());
 				}
+
+				root->postProcessAll();
 
 				window.swapBuffer();
 

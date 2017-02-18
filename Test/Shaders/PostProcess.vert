@@ -1,0 +1,16 @@
+#version 330 core
+
+layout (location = 0) in vec2 position;
+layout (location = 1) in vec2 uv;
+
+out VS_OUT
+{
+	vec2 uv;
+} vs_out;
+
+void main()
+{
+	// set the normalized device coordinates of the screen quad
+	gl_Position = vec4(position.x, position.y, 0.0f, 1.0f);
+	vs_out.uv = uv;
+}

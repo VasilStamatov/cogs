@@ -1,4 +1,3 @@
-#pragma once
 #ifndef COLLISION_TEST_H
 #define COLLISION_TEST_H
 

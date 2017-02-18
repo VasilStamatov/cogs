@@ -83,7 +83,7 @@ namespace cogs
 
 						m_deltaTime = m_timer.milli() / m_desiredMillis; //keep it close to 1 
 						m_fps = 1.0f / m_timer.seconds();
-						
+
 						return m_fps;
 				}
 		}

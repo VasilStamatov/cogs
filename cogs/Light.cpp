@@ -24,7 +24,7 @@ namespace cogs
 				void Light::update(float _deltaTime)
 				{
 				}
-				const glm::vec3 & Light::getPosition()
+			 glm::vec3 Light::getPosition()
 				{
 						return m_transform.lock()->worldPosition();
 				}

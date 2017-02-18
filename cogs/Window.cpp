@@ -255,6 +255,7 @@ namespace cogs
 
 				void Window::setWindowTitle(const std::string & _title)
 				{
+						m_title = _title;
 						SDL_SetWindowTitle(m_sdlWindow, _title.c_str());
 				}
 

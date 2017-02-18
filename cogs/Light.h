@@ -55,7 +55,7 @@ namespace cogs
 						float getSpecularIntensity() const noexcept { return m_specularIntensity; }
 						float getCutOff()											 const noexcept { return m_cutOff; }
 						float getOuterCutOff()							const noexcept { return m_outerCutOff; }
-						const glm::vec3& getPosition();
+					 glm::vec3 getPosition();
 					 glm::vec3 getDirection();
 
 						static std::vector<std::weak_ptr<Light>> getAllLights() { return s_allLights; }

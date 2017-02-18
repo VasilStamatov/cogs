@@ -36,7 +36,7 @@ namespace cogs
 						{
 								setMain(m_entity.lock()->getComponent<Camera>());
 						}
-								addCamera(m_entity.lock()->getComponent<Camera>());
+						addCamera(m_entity.lock()->getComponent<Camera>());
 				}
 
 				void Camera::update(float _deltaTime)
@@ -46,7 +46,6 @@ namespace cogs
 								m_viewMatrix = glm::lookAt(m_transform.lock()->worldPosition(),
 										m_transform.lock()->worldPosition() + m_transform.lock()->worldForwardAxis(),
 										m_transform.lock()->worldUpAxis());
-
 								m_oldTransform = *m_transform.lock();
 						}
 				}
