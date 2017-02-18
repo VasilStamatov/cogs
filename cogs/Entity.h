@@ -158,6 +158,42 @@ namespace cogs
 								return m_children.back();
 						}
 
+						std::shared_ptr<Entity> detachChild(std::weak_ptr<Entity> _childRef)
+						{
+								if (_childRef.expired())
+								{
+										return nullptr;
+								}
+								for (size_t i = 0; i < m_children.size(); i++)
+								{
+										if (m_children.at(i) == _childRef.lock())
+										{
+												//set the parent to null
+												m_children.at(i)->getComponent<Transform>().lock()->setParent(std::weak_ptr<Transform>());
+												//get the now independent child
+												std::shared_ptr<Entity> independentChild = std::move(m_children.at(i));
+												//erase the empty slot from the vector
+												m_children.erase(m_children.begin() + i);
+												//return the independent child as a main handle
+												return std::move(independentChild);
+										}
+								}
+								return nullptr;
+						}
+
+						std::shared_ptr<Entity> detachFromParent()
+						{
+								std::weak_ptr<Transform> parent = getComponent<Transform>().lock()->getParent();
+								if (parent.expired())
+								{
+										//nothing to detach from
+								}
+								else
+								{
+										return parent.lock()->getEntity().lock()->detachChild(getComponent<Transform>().lock()->getEntity());
+								}
+						}
+
 						/**
 						* Checks if a specific component exists in the current entity
 						*/
