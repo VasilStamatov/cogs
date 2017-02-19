@@ -22,7 +22,7 @@
 #include "BallBehavior.h"
 #include "PostProcessTest.h"
 
-#define DEBUG_DRAW 1
+#define DEBUG_DRAW 0
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<ce::Entity> mainCamera = root->addChild("MainCamera");
 		mainCamera.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
-		mainCamera.lock()->addComponent<ce::FPSCameraControl>(100.0f);
+		mainCamera.lock()->addComponent<ce::FPSCameraControl>(50.0f);
 		mainCamera.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 0.0f, 55.0f));
 		mainCamera.lock()->getComponent<ce::Camera>().lock()->setSkybox(testSkybox);
 		mainCamera.lock()->addComponent<ce::Light>();
