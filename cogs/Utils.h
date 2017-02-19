@@ -47,7 +47,7 @@ namespace cogs
 				* \param _height		 - address of an integer to write to for the texture's height
 				* \param _id						 - address of an integer to write to for the texture's opengl texture ID
 				*/
-				extern bool loadCubemap(const char** _fileNames, int* _width, int* _height, unsigned int* _id);
+				extern bool loadCubemap(const std::vector<std::string>& _fileNames, int* _width, int* _height, unsigned int* _id);
 
 				/**
 				* \brief Loads a single mesh file with no materials, just mesh data, 

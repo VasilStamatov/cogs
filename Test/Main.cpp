@@ -115,6 +115,7 @@ int main(int argc, char** argv)
 		directionalLight.lock()->getComponent<ce::Transform>().lock()->setLocalOrientation(glm::vec3(-0.2f, -1.0f, -0.3f));
 
 		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
+		paddle.lock()->setTag("Paddle");
 		cu::loadMeshesToEntity(paddle, "Models/TestModels/cube.obj", renderer3D);
 		paddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
 		paddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
@@ -127,6 +128,7 @@ int main(int argc, char** argv)
 		paddle.lock()->addComponent<PaddleController>(2500.0f);
 
 		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
+		groundBound.lock()->setTag("ground");
 		groundBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-2.5f, -5.0f, 0.0f));
 		groundBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(32.5f, 0.0f, 1.0f));
 		groundBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
@@ -150,6 +152,7 @@ int main(int argc, char** argv)
 		rightBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> ball = root->addChild("Ball");
+		ball.lock()->setTag("ball");
 		cu::loadMeshesToEntity(ball, "Models/TestModels/sphere.obj", renderer3D);
 		ball.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
 		ball.lock()->addComponent<ce::SphereCollider>(1.0f);
@@ -170,7 +173,8 @@ int main(int argc, char** argv)
 		{
 				for (int j = -10; j < 0; j += 4)
 				{
-						std::weak_ptr<ce::Entity> brick = root->addChild("Brick");
+						std::weak_ptr<ce::Entity> brick = root->addChild("Brick" + std::to_string(i) + std::to_string(j));
+						brick.lock()->setTag("brick");
 						cu::loadMeshesToEntity(brick, "Models/TestModels/cube.obj", renderer3D);
 						brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
 						brick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));

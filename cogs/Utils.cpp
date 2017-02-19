@@ -56,7 +56,7 @@ namespace cogs
 						return true;
 				}
 
-				bool loadCubemap(const char ** _fileNames, int * _width, int * _height, unsigned int * _id)
+				bool loadCubemap(const std::vector<std::string>& _fileNames, int * _width, int * _height, unsigned int * _id)
 				{
 						//Generate the openGL handle for the cubemap
 						glGenTextures(1, _id);
@@ -66,7 +66,7 @@ namespace cogs
 
 						for (GLuint i = 0; i < 6; i++)
 						{
-								unsigned char* image = SOIL_load_image(_fileNames[i], _width, _height, 0, SOIL_LOAD_RGB);
+								unsigned char* image = SOIL_load_image(_fileNames.at(i).c_str(), _width, _height, 0, SOIL_LOAD_RGB);
 								if (image == nullptr)
 								{
 										return false;

@@ -44,17 +44,14 @@ void BallBehavior::update(float _deltaTime)
 
 void BallBehavior::onCollision(const glm::vec3 & _pointA, const glm::vec3 & _pointB, const glm::vec3 & _normalOnB, ce::Entity * _other)
 {
-		const std::string& otherEntityName = _other->getName();
+		const std::string& otherTag = _other->getTag();
 
-		if (otherEntityName == "Brick")
+		if (otherTag == "brick")
 		{
 				_other->destroy();
 		}
-		else if (otherEntityName == "GroundBoundary")
+		else if (otherTag == "ground")
 		{
 				m_entity.lock()->destroy();
-		}
-		else if (otherEntityName == "PlayerPaddle")
-		{
 		}
 }
