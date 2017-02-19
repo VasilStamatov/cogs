@@ -22,7 +22,7 @@
 #include "BallBehavior.h"
 #include "PostProcessTest.h"
 
-#define DEBUG_DRAW 0
+#define DEBUG_DRAW 1
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<ce::Entity> mainCamera = root->addChild("MainCamera");
 		mainCamera.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
-		mainCamera.lock()->addComponent<ce::FPSCameraControl>(1.0f);
+		mainCamera.lock()->addComponent<ce::FPSCameraControl>(100.0f);
 		mainCamera.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 0.0f, 55.0f));
 		mainCamera.lock()->getComponent<ce::Camera>().lock()->setSkybox(testSkybox);
 		mainCamera.lock()->addComponent<ce::Light>();
@@ -84,15 +84,16 @@ int main(int argc, char** argv)
 		std::shared_ptr<cg::Renderer3D> renderer3D = std::make_shared<cg::Renderer3D>(
 				cu::ResourceManager::getGLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag"));
 
-		std::shared_ptr<cg::BillboardRenderer> billboardRenderer = std::make_shared<cg::BillboardRenderer>(
-				cu::ResourceManager::getGLSLProgram("BillboardShader", "Shaders/Billboard.vert", "Shaders/Billboard.frag", "Shaders/Billboard.geo"));
+		/*std::shared_ptr<cg::BillboardRenderer> billboardRenderer = std::make_shared<cg::BillboardRenderer>(
+				cu::ResourceManager::getGLSLProgram("BillboardShader", "Shaders/Billboard.vert", "Shaders/Billboard.frag", "Shaders/Billboard.geo"));*/
 
-		std::weak_ptr<ce::Entity> testSprite = root->addChild("testSprite");
+		/*std::weak_ptr<ce::Entity> testSprite = root->addChild("testSprite");
 		testSprite.lock()->addComponent<ce::SpriteRenderer>(
 				cu::ResourceManager::getSprite("TestSprite",
 						cu::ResourceManager::getGLTexture2D("Textures/img_test.png","texture_diffuse"),
 						glm::vec2(10.0f, 10.0f), cg::Color::white), billboardRenderer);
-		testSprite.lock()->getComponent<ce::Transform>().lock()->translate(10.0f, 10.0f, 10.0f);
+		testSprite.lock()->getComponent<ce::Transform>().lock()->translate(10.0f, 10.0f, 10.0f);*/
+
 		/*std::weak_ptr<ce::Entity> nanosuit = root->addChild("nanosuit");
 		nanosuit.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(10.0f, 20.0f, 10.0f));
 		cu::loadMeshesToEntity(nanosuit, "Models/nanosuit/nanosuit.obj", renderer3D);*/
@@ -113,18 +114,17 @@ int main(int argc, char** argv)
 		directionalLight.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(0.5f);
 		directionalLight.lock()->getComponent<ce::Transform>().lock()->setLocalOrientation(glm::vec3(-0.2f, -1.0f, -0.3f));
 
-		std::shared_ptr<ce::Entity> paddle = cu::loadEntityWithMeshes("Models/TestModels/cube.obj", renderer3D);
-		paddle->setName("PlayerPaddle");
-		std::weak_ptr<ce::Entity> pPaddle = root->addChild(std::move(paddle));
-		pPaddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
-		pPaddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
-		pPaddle.lock()->addComponent<ce::BoxCollider>(glm::vec3(2.0f, 0.5f, 1.0f));
-		pPaddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
-		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
-		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
-		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
-		pPaddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-		pPaddle.lock()->addComponent<PaddleController>(1.0f);
+		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
+		cu::loadMeshesToEntity(paddle, "Models/TestModels/cube.obj", renderer3D);
+		paddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
+		paddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
+		paddle.lock()->addComponent<ce::BoxCollider>(glm::vec3(2.0f, 0.5f, 1.0f));
+		paddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
+		paddle.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
+		paddle.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
+		paddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
+		paddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+		paddle.lock()->addComponent<PaddleController>(2500.0f);
 
 		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
 		groundBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-2.5f, -5.0f, 0.0f));
@@ -138,47 +138,45 @@ int main(int argc, char** argv)
 		ceilingBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> leftBound = root->addChild("LeftBoundary");
-		leftBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-35.0f, 12.5f, 0.0f));
-		leftBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(0.0f, 17.0f, 1.0f));
+		leftBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-36.0f, 12.5f, 0.0f));
+		leftBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 17.0f, 1.0f));
 		leftBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		leftBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> rightBound = root->addChild("RightBoundary");
-		rightBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(30, 12.5f, 0.0f));
-		rightBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(0.0f, 17.0f, 1.0f));
+		rightBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(31, 12.5f, 0.0f));
+		rightBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 17.0f, 1.0f));
 		rightBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		rightBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
-		std::shared_ptr<ce::Entity> ball = cu::loadEntityWithMeshes("Models/TestModels/sphere.obj", renderer3D);
-		ball->setName("Ball");
-		std::weak_ptr<ce::Entity> bBall = root->addChild(std::move(ball));
-		bBall.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
-		bBall.lock()->addComponent<ce::SphereCollider>(1.0);
-		bBall.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
-		bBall.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
-		bBall.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 1.0f, 0.0f));
-		bBall.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-		bBall.lock()->addComponent<BallBehavior>();
-		bBall.lock()->addComponent<ce::Light>();
-		bBall.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::POINT);
-		bBall.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-		bBall.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.05f);
-		bBall.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.8f);
-		bBall.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);
-		bBall.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
+		std::weak_ptr<ce::Entity> ball = root->addChild("Ball");
+		cu::loadMeshesToEntity(ball, "Models/TestModels/sphere.obj", renderer3D);
+		ball.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
+		ball.lock()->addComponent<ce::SphereCollider>(1.0f);
+		ball.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
+		ball.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
+		ball.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 1.0f, 0.0f));
+		ball.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+		ball.lock()->addComponent<BallBehavior>();
+		ball.lock()->addComponent<ce::Light>();
+		ball.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::POINT);
+		ball.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		ball.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.05f);
+		ball.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.8f);
+		ball.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);
+		ball.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
 
 		for (int i = -30; i < 30; i += 4)
 		{
 				for (int j = -10; j < 0; j += 4)
 				{
-						std::shared_ptr<ce::Entity> brick = cu::loadEntityWithMeshes("Models/TestModels/cube.obj", renderer3D);
-						brick->setName("Brick");
-						std::weak_ptr<ce::Entity> bBrick = root->addChild(std::move(brick));
-						bBrick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
-						bBrick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
-						bBrick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
-						bBrick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
-						bBrick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+						std::weak_ptr<ce::Entity> brick = root->addChild("Brick");
+						cu::loadMeshesToEntity(brick, "Models/TestModels/cube.obj", renderer3D);
+						brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
+						brick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+						brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+						brick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
+						brick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 				}
 		}
 
@@ -237,11 +235,11 @@ int main(int argc, char** argv)
 						case SDL_WINDOWEVENT:
 						{
 								window.handleEvent(evnt);
-								if (window.wasResized())
-								{
-										//camera.lock()->getComponent<ce::Camera>()->resize(window.getWidth(), window.getHeight());
-										window.resizeHandled();
-								}
+								//if (window.wasResized())
+								//{
+								//		//camera.lock()->getComponent<ce::Camera>()->resize(window.getWidth(), window.getHeight());
+								//		window.resizeHandled();
+								//}
 						}
 						}
 				}
@@ -254,7 +252,7 @@ int main(int argc, char** argv)
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
 
-				physicsWorld->stepSimulation();
+				physicsWorld->stepSimulation(fpsLimiter.deltaTime());
 
 				//Render
 
@@ -286,18 +284,18 @@ int main(int argc, char** argv)
 						window.setClearColor(camera.lock()->getBackgroundColor());
 						window.clear(true, true);
 
+						//billboardRenderer->begin();
 						renderer2D->begin();
 						renderer3D->begin();
-						billboardRenderer->begin();
 
 						// call the render function of all entities (submits all entities with sprite and mesh renderers)
 						root->renderAll();
 
+						//billboardRenderer->end();
 						renderer2D->end();
 						renderer3D->end();
-						billboardRenderer->end();
 
-						billboardRenderer->flush();
+						//billboardRenderer->flush();
 						renderer2D->flush();
 						renderer3D->flush();
 

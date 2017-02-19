@@ -41,7 +41,7 @@ namespace cogs
 						/**
 						* Steps the simulation for the physics world (called every frame)
 						*/
-						void stepSimulation();
+						void stepSimulation(float _deltaTime);
 
 						/**
 						* Sets the debug renderer

@@ -20,15 +20,17 @@ void PaddleController::init()
 
 void PaddleController::update(float _deltaTime)
 {
+		//don't let the paddle accelerate over time from the force applied to it
+		//as the force should apply for only 1 frame to keep it well-controlled
 		m_rb.lock()->setLinearVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
 
 		if (cu::Input::isKeyDown(cu::KeyCode::LEFT))
 		{
-				m_rb.lock()->translate(glm::vec3(-m_moveSpeed * _deltaTime, 0.0f, 0.0f));
+				m_rb.lock()->setLinearVelocity(glm::vec3(-m_moveSpeed * _deltaTime, 0.0f, 0.0f));
 		}
 		if (cu::Input::isKeyDown(cu::KeyCode::RIGHT))
 		{
-				m_rb.lock()->translate(glm::vec3(m_moveSpeed * _deltaTime, 0.0f, 0.0f));
+				m_rb.lock()->setLinearVelocity(glm::vec3(m_moveSpeed * _deltaTime, 0.0f, 0.0f));
 		}
 }
 
