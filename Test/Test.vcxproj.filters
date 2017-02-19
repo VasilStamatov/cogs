@@ -26,9 +26,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CollisionTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PaddleController.h">
       <Filter>Header Files</Filter>
     </ClInclude>

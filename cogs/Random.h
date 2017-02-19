@@ -31,8 +31,8 @@ namespace cogs
 						~Random() {}
 
 				private:
-						static std::mt19937 m_generator;
-						static bool m_seeded;
+						static std::mt19937 m_generator; ///< the mersene twister engine for generation
+						static bool m_seeded; ///< flag if it's been seeded
 				};
 		}
 

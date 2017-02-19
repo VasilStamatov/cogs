@@ -13,6 +13,9 @@ namespace cogs
 
 				class GLSLProgram;
 
+				/**
+				* \brief Renderer base class
+				*/
 				class Renderer
 				{
 				public:
@@ -34,8 +37,8 @@ namespace cogs
 						void setShader(std::weak_ptr<GLSLProgram> _shader) { m_shader = _shader; }
 
 				protected:
-						std::weak_ptr<GLSLProgram> m_shader; // shader to render with
-						std::vector<std::weak_ptr<ecs::Entity>> m_entities; // set ot submitted entities to render
+						std::weak_ptr<GLSLProgram> m_shader; ///< shader to render with
+						std::vector<std::weak_ptr<ecs::Entity>> m_entities; ///< set ot submitted entities to render
 				};
 		}
 }

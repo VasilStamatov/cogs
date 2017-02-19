@@ -7,9 +7,15 @@ namespace cogs
 {
 		namespace graphics
 		{
+				/**
+				* \brief Handles rendering points (world position coordinates) used for billboarding
+				*/
 				class BillboardRenderer : public Renderer
 				{
 				public:
+						/**
+						* \brief intialize the renderer and set the shader it will use
+						*/
 						BillboardRenderer(std::weak_ptr<GLSLProgram> _shader);
 						~BillboardRenderer();
 
@@ -29,21 +35,21 @@ namespace cogs
 						*/
 						void dispose();
 
+						//set the sort type
 						void setSortType(const SpriteSortType& _sortType = SpriteSortType::TEXTURE) { m_sortType = _sortType; }
 
 				private:
-						void sortSprites();
-						void createSpriteBatches();
+						void sortSprites(); ///< sort the sprites
+						void createSpriteBatches(); ///< fill the spritebatches vector with the batches
 
 				private:
-						std::vector<SpriteBatch> m_spriteBatches; //set of batched sprites
+						std::vector<SpriteBatch> m_spriteBatches; ///<set of batched sprites
 
-						SpriteSortType m_sortType{ SpriteSortType::TEXTURE };
+						SpriteSortType m_sortType{ SpriteSortType::TEXTURE }; ///< current sort type
 
-						VAO m_VAO{ 0 };
+						VAO m_VAO{ 0 }; ///< the VAO
 
-						//only 1 vbo for positions
-						VBO m_VBO{ 0 };
+						VBO m_VBO{ 0 }; ///< single vbo for world poisiton of the points
 				};
 		}
 }

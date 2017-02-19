@@ -27,8 +27,8 @@ namespace cogs
 						void update(float _deltaTime) override;
 
 				private:
-						std::weak_ptr<Transform> m_transform;
-						float m_moveSpeed{ 1.0f };
+						std::weak_ptr<Transform> m_transform; ///< transform reference of the entity
+						float m_moveSpeed{ 1.0f }; ///< the speed/sensitivity
 				};
 		}
 }

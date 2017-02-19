@@ -13,8 +13,8 @@ namespace cogs
 		namespace ecs
 		{
 				/**
-				  * Projection types for the camera
-				  */
+				* Projection types for the camera
+				*/
 				enum class ProjectionType
 				{
 						ORTHOGRAPHIC,
@@ -22,8 +22,8 @@ namespace cogs
 				};
 
 				/**
-						* The camera component
-						*/
+				* The camera component
+				*/
 				class Camera : public Component
 				{
 				public:
@@ -36,13 +36,20 @@ namespace cogs
 						Camera(int _screenWidth, int _screenHeight, const ProjectionType& _projType);
 						~Camera();
 
+						/*
+						* \brief the first function called after the constructor
+						*/
 						void init() override;
+
+						/*
+						* \brief function called once per frame
+						*/
 						void update(float _deltaTime) override;
 
 						/**
-								* \brief Changes the FoV of the perspective matrix and updates it
-								* \param _value - the new FoV value
-								*/
+						* \brief Changes the FoV of the perspective matrix and updates it
+						* \param _value - the new FoV value
+						*/
 						void setFoV(int _value);
 
 						/**
@@ -52,15 +59,15 @@ namespace cogs
 						void offsetFoV(int _value);
 
 						/**
-								* \brief Changes the size of the orthographic matrix and updates it
-								* \param _value - the new size value
-								*/
+						* \brief Changes the size of the orthographic matrix and updates it
+						* \param _value - the new size value
+						*/
 						void setSize(float _value);
 
 						/**
-								* \brief Offsets the size of the orthographic matrix and updates it
-								* \param _value - the value to be added to the current size
-								*/
+						* \brief Offsets the size of the orthographic matrix and updates it
+						* \param _value - the value to be added to the current size
+						*/
 						void offsetSize(float _value);
 
 						/**
@@ -81,28 +88,28 @@ namespace cogs
 						void setProjectionType(const ProjectionType& _projType) { m_projType = _projType; }
 
 						/**
-								* \brief Sets the screen width and height for the camera and updates the proj matrix
-								* \param _screenWidth - the new width
-								* \param _screenHeight - the new height
-								*/
+						* \brief Sets the screen width and height for the camera and updates the proj matrix
+						* \param _screenWidth - the new width
+						* \param _screenHeight - the new height
+						*/
 						void resize(int _screenWidth, int _screenHeight);
 
 						/**
-								* \brief Gets the aspect ratio of the screen
-								* \return the division of SW / SH
-								*/
+						* \brief Gets the aspect ratio of the screen
+						* \return the division of SW / SH
+						*/
 						float getAspectRatio() const noexcept { return (float)m_cameraWidth / (float)m_cameraHeight; }
 
 						/**
-								* \brief Gets the projection matrix of the camera
-								* \return the projection matrix
-								*/
+						* \brief Gets the projection matrix of the camera
+						* \return the projection matrix
+						*/
 						const glm::mat4& getProjectionMatrix() const noexcept;
 
 						/**
-								* \brief Gets the view matrix of the camera
-								* \return the view matrix
-								*/
+						* \brief Gets the view matrix of the camera
+						* \return the view matrix
+						*/
 						const glm::mat4& getViewMatrix() const noexcept { return m_viewMatrix; }
 
 						/**
@@ -125,8 +132,8 @@ namespace cogs
 						const graphics::Color& getBackgroundColor() const noexcept { return m_backgroundColor; }
 
 						/**
-								* Some basic getters
-								*/
+						* Some basic getters
+						*/
 						float getSize() const noexcept { return m_size; }
 						float getNear()	const noexcept { return m_nearPlane; }
 						float getFar()		const noexcept { return m_farPlane;; }
@@ -134,17 +141,39 @@ namespace cogs
 						int getWidth()		const noexcept { return m_cameraWidth; }
 						int getHeight() const noexcept { return m_cameraHeight; }
 
+						/*
+						* \brief set the main camera
+						*/
 						static void setMain(std::weak_ptr<Camera> _camera)    { s_mainCamera = _camera; }
+
+						/*
+						* \brief set the current active camera
+						*/
 						static void setCurrent(std::weak_ptr<Camera> _camera) { s_currentCamera = _camera; }
+
+						/*
+						* \brief add a camera to the camera vector
+						*/
 						static void addCamera(std::weak_ptr<Camera> _camera)  { s_allCameras.push_back(_camera); }
 
+						/*
+						* \brief get the main camera
+						*/
 						static std::weak_ptr<Camera> getMain()                    { return s_mainCamera; }
+
+						/*
+						* \brief get the current active camera
+						*/
 						static std::weak_ptr<Camera> getCurrent()                 { return s_currentCamera; }
+
+						/*
+						* \brief get all the existing cameras
+						*/
 						static std::vector<std::weak_ptr<Camera>> getAllCameras() { return s_allCameras; }
 				private:
-						static std::weak_ptr<Camera> s_mainCamera;
-						static std::weak_ptr<Camera> s_currentCamera;
-						static std::vector<std::weak_ptr<Camera>> s_allCameras;
+						static std::weak_ptr<Camera> s_mainCamera; ///< the main camera
+						static std::weak_ptr<Camera> s_currentCamera; ///< current active camera
+						static std::vector<std::weak_ptr<Camera>> s_allCameras; ///< all cameras created
 
 						ProjectionType m_projType{ ProjectionType::ORTHOGRAPHIC }; ///< the projection type of the camera
 
@@ -164,10 +193,10 @@ namespace cogs
 						float m_nearPlane{ 0.1f };  ///< the near clipping plane
 						float m_farPlane{ 100.0f }; ///< the far clipping plane
 
-						std::weak_ptr<graphics::Framebuffer> m_renderTarget;
-						std::weak_ptr<graphics::Skybox> m_skybox;
+						std::weak_ptr<graphics::Framebuffer> m_renderTarget; ///< the target framebuffer this camera renders to
+						std::weak_ptr<graphics::Skybox> m_skybox; ///< skybox the camera renders to fill up the background colors
 
-						graphics::Color m_backgroundColor{ graphics::Color::white };
+						graphics::Color m_backgroundColor{ graphics::Color::white }; ///< background color to clear to 
 				};
 		}
 }

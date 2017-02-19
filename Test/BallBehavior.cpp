@@ -16,7 +16,6 @@ BallBehavior::~BallBehavior()
 void BallBehavior::init()
 {
 		m_rb = m_entity.lock()->getComponent<ce::RigidBody>();
-		m_transform = m_entity.lock()->getComponent<ce::Transform>();
 }
 
 void BallBehavior::update(float _deltaTime)
@@ -25,7 +24,6 @@ void BallBehavior::update(float _deltaTime)
 		{
 				if (cu::Input::isKeyPressed(cu::KeyCode::SPACE))
 				{
-						m_transform.lock()->setParent(m_transform.lock()->getParent().lock()->getParent());
 						m_rb.lock()->setActivationState(1);
 						m_rb.lock()->setLinearVelocity(glm::vec3(20.0f, 20.0f, 0.0f));
 						const btVector3& desiredVelocity = m_rb.lock()->getRigidBody().lock()->getLinearVelocity();

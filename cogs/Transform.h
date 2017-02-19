@@ -9,6 +9,9 @@ namespace cogs
 {
 		namespace ecs
 		{
+				/**
+				* \brief The transform component
+				*/
 				class Transform : public Component
 				{
 				public:
@@ -145,36 +148,37 @@ namespace cogs
 						glm::vec3 worldForwardAxis() const noexcept { return worldOrientationRaw() * glm::vec3(0.0f, 0.0f, -1.0f); }
 
 						/**
-								*	\brief setters for local transform
-								*/
+						*	\brief setters for local transform
+						*/
 						void setLocalOrientation(const glm::quat& _value);
 						void setLocalOrientation(const glm::vec3& _value);
 						void setLocalPosition		 (const glm::vec3& _value);
 						void setLocalScale					 (const glm::vec3& _value);
 
 						/**
-								*	\brief setters for world transform
-								*/
+						*	\brief setters for world transform
+						*/
 						void setWorldOrientation(const glm::quat& _value);
 						void setWorldOrientation(const glm::vec3& _value);
 						void setWorldPosition		 (const glm::vec3& _value);
 						void setWorldScale					 (const glm::vec3& _value);
 
 						/**
-						 	*	\brief Getter and setter for the parent
-						 	*/
+						*	\brief Getter and setter for the parent
+						*/
 					 void setParent(std::weak_ptr<Transform> _parent);
 						inline std::weak_ptr<Transform> getParent()		const noexcept	{ return m_parent; }
 
+						//operator overload to check if 2 transforms are equal
 						bool operator== (const Transform& _rhs) const;
 
 				private:
-						std::weak_ptr<Transform> m_parent;
+						std::weak_ptr<Transform> m_parent; ///< the parent transform of this transform
 
-						glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f };
-						glm::vec3 m_localScale{ 1.0f, 1.0f, 1.0f };
-						glm::vec3 m_localOrientation{ 0.0f, 0.0f, 0.0f };
-						glm::quat m_localOrientationRaw{ glm::vec3(0.0f, 0.0f, 0.0f) };
+						glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f }; ///< local position
+						glm::vec3 m_localScale{ 1.0f, 1.0f, 1.0f }; ///< local scale
+						glm::vec3 m_localOrientation{ 0.0f, 0.0f, 0.0f }; ///< local orientation in euler angles in radians
+						glm::quat m_localOrientationRaw{ glm::vec3(0.0f, 0.0f, 0.0f) }; ///< local orientation as a quaternion
 				};
 		}
 }

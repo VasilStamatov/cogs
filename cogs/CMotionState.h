@@ -28,7 +28,7 @@ namespace cogs
 						virtual void setWorldTransform(const btTransform & _worldTrans) override;
 
 				private:
-						std::weak_ptr<ecs::Transform> m_transform;
+						std::weak_ptr<ecs::Transform> m_transform; ///< reference to the transform of the entity
 				};
 		}
 }

@@ -7,6 +7,9 @@ namespace cogs
 		{
 				using byte = unsigned char;
 
+				/**
+				* Color struct
+				*/
 				struct Color
 				{
 						/**

@@ -12,9 +12,16 @@ namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
 namespace cu = cogs::utils;
 
+/**
+* \brief Primitive postprocessing component
+* quite hardcoded at the moment but will be changed in the future
+*/
 class PostProcessTest : public ce::Component
 {
 public:
+		/**
+		* \brief PConstruct the component and set the shader
+		*/
 		PostProcessTest(std::weak_ptr<cg::GLSLProgram> _postProcessShader)
 				: m_postProcessShader(_postProcessShader)
 		{
@@ -34,6 +41,11 @@ public:
 		*/
 		void update(float _deltaTime) override {}
 
+		/**
+		* \brief called after rendering has passed 
+		* at the moment takes the final camera's render target
+		* and uses its texture to draw a quad on the screen with it
+		*/
 		void postProcess() override
 		{
 				std::weak_ptr<ce::Camera> finalCam = ce::Camera::getCurrent();
@@ -52,8 +64,8 @@ public:
 				m_postProcessShader.lock()->unUse();
 		}
 private:
-		std::weak_ptr<cg::Mesh> m_quad;
-		std::weak_ptr<cg::GLSLProgram> m_postProcessShader;
+		std::weak_ptr<cg::Mesh> m_quad; ///< the screen quad 
+		std::weak_ptr<cg::GLSLProgram> m_postProcessShader; ///< the postprocess shader
 };
 
 #endif // !POSTPROCESS_H

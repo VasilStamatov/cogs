@@ -15,6 +15,9 @@ namespace cogs
 		{
 				constexpr std::size_t MAX_COMPONENTS{ 32 };
 
+				/**
+				* \brief The Entity class, which is a collection of components
+				*/
 				class Entity : public Object, public std::enable_shared_from_this<Entity>
 				{
 				public:
@@ -31,6 +34,10 @@ namespace cogs
 						{
 						}
 
+						/**
+						* \brief Creates an entity and adds a transform component to it,
+						* as every entity will have at least a transform
+						*/
 						static std::shared_ptr<Entity> create(const std::string& _name)
 						{
 								//create a new entity shared ptr
@@ -67,6 +74,7 @@ namespace cogs
 								}
 						}
 
+						/** Renders calls the postprocess function of this entity and all its children */
 						inline void postProcessAll()
 						{
 								if (m_isActive)
@@ -79,8 +87,10 @@ namespace cogs
 								}
 						}
 
-						/** Refreshes all the children (the root entity should always be alive and will delete all the dead children).
-										Refreshing means to check if it's dead, and if it is, delete it. */
+						/**
+						* \brief refreshes the children vector, deleting all children set with destroyed flag to true
+						* Then it calls the refresh function of all alive children, so that they can delete their destroyed children
+						*/
 						inline void refreshAll()
 						{
 								refresh();
@@ -90,7 +100,10 @@ namespace cogs
 								}
 						}
 
-						/** Calls the collision function of all components on this entity */
+						/**
+						* \brief This is called by the physics engine when the entity collides with something
+						* it calls the onCollision function of all of its components for collision handling
+						*/
 						inline void collide(const glm::vec3& _pointA,
 								const glm::vec3& _pointB,
 								const glm::vec3& _normalOnB,
@@ -102,10 +115,11 @@ namespace cogs
 								}
 						}
 
-						/** \brief Add components to this element of any type
-								* \param[in] T is the component type
-								* \param[in] TArgs is a parameter pack of types used to construct the component
-								*/
+						/** 
+						* \brief Add components to this element of any type
+						* \param[in] T is the component type
+						* \param[in] TArgs is a parameter pack of types used to construct the component
+						*/
 						template<typename T, typename... TArgs>
 						inline void addComponent(TArgs&&... _args)
 						{
@@ -127,10 +141,11 @@ namespace cogs
 								m_components.back()->init();
 						}
 
-						/** \brief Adds a child to the vector of children
-								* \param[in] _name The name of the child
-								* \param[out] std::weak_ptr<Entity> return a weak pointer to the new entity
-								*/
+						/** 
+						* \brief Adds a child to the vector of children
+						* \param[in] _name The name of the child
+						* \param[out] std::weak_ptr<Entity> return a weak pointer to the new entity
+						*/
 						std::weak_ptr<Entity> addChild(const std::string& _name)
 						{
 								/* create the new entity shared pointer */
@@ -143,10 +158,12 @@ namespace cogs
 								return m_children.back();
 						}
 
-						/** \brief Adds an existing entity to the children vector of this entity
-						*				move semantics are used internally so the main child pointer is moved to the vector (making the main one empty)
-						*				after this the weak ptr handle should be used.
-						* \param[in] _child the entity to be added as a child
+						/**
+						* \brief Adds an existing entity to the children vector of this entity
+						*	move semantics are used internally so the main child pointer is moved to the vector (making the main one empty)
+						*	after this the weak ptr handle should be used.
+						* \param[in] _child the entity to be added as a child.
+						* The && makes it so that std::move must be used when passing the entity
 						*/
 						std::weak_ptr<Entity> addChild(std::shared_ptr<Entity>&& _child)
 						{
@@ -158,6 +175,11 @@ namespace cogs
 								return m_children.back();
 						}
 
+						/**
+						* \brief detaches a child from this entity and returns the independant child
+						* \param[in] _childRef - weak pointer to the child to be detached
+						* param[out] std::shared_ptr<Entity> - the independent children with std::move
+						*/
 						std::shared_ptr<Entity> detachChild(std::weak_ptr<Entity> _childRef)
 						{
 								if (_childRef.expired())
@@ -181,6 +203,10 @@ namespace cogs
 								return nullptr;
 						}
 
+						/**
+						* \brief detatches this child from its parent
+						* param[out] std::shared_ptr<Entity> - the independent children with std::move
+						*/
 						std::shared_ptr<Entity> detachFromParent()
 						{
 								std::weak_ptr<Transform> parent = getComponent<Transform>().lock()->getParent();
@@ -190,12 +216,12 @@ namespace cogs
 								}
 								else
 								{
-										return parent.lock()->getEntity().lock()->detachChild(getComponent<Transform>().lock()->getEntity());
+										return std::move(parent.lock()->getEntity().lock()->detachChild(getComponent<Transform>().lock()->getEntity()));
 								}
 						}
 
 						/**
-						* Checks if a specific component exists in the current entity
+						* \brief Checks if a specific component exists in the current entity
 						*/
 						template<typename T>
 						inline bool hasComponent() const
@@ -204,9 +230,10 @@ namespace cogs
 								return m_componentBitset[getComponentTypeID<T>()];
 						}
 
-						/** \brief get a specific component from the m_componentArray
-								* \param[out] T* return a pointer to the component requested
-								*/
+						/** 
+						* \brief get a specific component from the m_componentArray
+						* \param[out] std::weak_ptr<T> return a reference to the component requested
+						*/
 						template<typename T>
 						inline std::weak_ptr<T> getComponent() const
 						{
@@ -218,7 +245,8 @@ namespace cogs
 						}
 
 						/**
-						* checks if any child of this entity has T component, and returns the first one found
+						* \brief Checks if any child of this entity has T component, and returns the first one found
+						* if it doesn't exist, return null
 						*/
 						template<typename T>
 						inline std::weak_ptr<T> getComponentInChildren() const
@@ -234,7 +262,7 @@ namespace cogs
 						}
 
 						/**
-						* checks if any child of this entity has T components, and returns a vector of all the components found
+						* \brief checks if any child of this entity has T components, and returns a vector of all the components found
 						*/
 						template<typename T>
 						inline std::vector<std::weak_ptr<T>> getComponentsInChildren() const
@@ -250,6 +278,9 @@ namespace cogs
 								return components;
 						}
 
+						/**
+						* \brief Searches for the first child in the children vector with name _entityName and returns a reference to it
+						*/
 						inline std::weak_ptr<Entity> getChild(const std::string& _entityName)
 						{
 								for (size_t i = 0; i < m_children.size(); i++)
@@ -262,6 +293,9 @@ namespace cogs
 								return std::weak_ptr<Entity>();
 						}
 
+						/**
+						* \brief returns the child at index _index if there is one, returns null otherwise
+						*/
 						inline std::weak_ptr<Entity> getChild(unsigned int _index)
 						{
 								if (m_children.size() > _index)
@@ -271,9 +305,12 @@ namespace cogs
 								return std::weak_ptr<Entity>();
 						}
 
+						//tag setter
 						void setTag(const std::string& _tag) { m_tag = _tag; }
+						//tag getter
 						const std::string& getTag() const noexcept { return m_tag; }
 
+						//sets the active state of the entity
 						void setActive(bool _active)
 						{
 								m_isActive = _active;
@@ -285,6 +322,8 @@ namespace cogs
 										}
 								}*/
 						}
+
+						//gets the active state of the entity
 						bool isActive() const noexcept { return m_isActive; }
 
 				private:
@@ -294,9 +333,10 @@ namespace cogs
 						/* Render this entity (all its components) */
 						inline void render() { for (auto& component : m_components) { component->render(); } }
 
+						/* call the postprocess functions of this entity (all its components) */
 						inline void postProcess() { for (auto& component : m_components) { component->postProcess(); } }
 
-						/* Refresh this entity */
+						/* Refresh this entity by deleting all children set to be destroyed */
 						inline void refresh()
 						{
 								m_children.erase

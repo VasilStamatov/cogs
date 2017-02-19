@@ -35,27 +35,48 @@ namespace cogs
 						//since this is going to be used polymorphically the destructor needs to have the virtual keyword
 						virtual ~Component() {  }
 
-						/* Let the component have an init function so it can be used as a constructor
-						 * init is called after the parent entity has been assigned, while the constructor doesn't have it */
+						/**
+						* \brief init is called after the parent entity has been assigned, while the constructor doesn't have it
+						* it's the first function called after the constructor
+						*/
 						virtual void init() = 0;
 
-						/* Usually game components will have an Update and Draw function */
+						/**
+						* \brief the update function of each component, called once per frame
+						*/
 						virtual void update(float _deltaTime) = 0;
 
+						/**
+						* \brief the render function of a component, should be implemented if a component is expected to render stuff
+						*/
 						virtual void render() {};
 
+						/**
+						* \brief the collision handling function, should be implemented on components which handle collisions of entities
+						*/
 						virtual void onCollision(const glm::vec3& _pointA,
 								const glm::vec3& _pointB,
 								const glm::vec3& _normalOnB,
 								Entity* _other) {}
 
+						/**
+						* \brief the postProcess function of components, called after the engine has finished rendering
+						* should be used to handle postprocessing
+						*/
 						virtual void postProcess() {}
 
+						/**
+						* \brief sets the reference to the entity which hold this component
+						*/
 					 void setEntity(std::weak_ptr<Entity> _entity) { m_entity = _entity; }
+
+						/**
+						* \brief gets the reference to the entity which hold this component
+						*/
 						std::weak_ptr<Entity> getEntity()													{ return m_entity; }
+
 				protected:
-						/* Store the parent entity containing this component in a pointer due to forward declaration */
-						std::weak_ptr<Entity> m_entity;
+						std::weak_ptr<Entity> m_entity; ///< reference to the entity which holds this component
 				};
 
 				/* Get the unique ID of every component type (same component types have same IDs) */

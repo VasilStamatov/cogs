@@ -131,7 +131,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BallBehavior.h" />
-    <ClInclude Include="CollisionTest.h" />
     <ClInclude Include="PaddleController.h" />
     <ClInclude Include="PostProcessTest.h" />
   </ItemGroup>

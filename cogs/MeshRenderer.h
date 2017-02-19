@@ -11,14 +11,14 @@ namespace cogs
 		namespace ecs
 		{
 				/**
-				* This component, given to an entity should submit it to a 3D renderer
+				* \brief This component, given to an entity should submit it to a 3D renderer
 				*/
 				class MeshRenderer : public Component
 				{
 				public:
 						/**
-						* Pass the model (collection of meshes) that will be rendered
-						* and the renderer that it will be submitted to
+						* \brief Construct the mesh renderer by giving if a reference to the mesh it will submit,
+						* the material of the mesh, and the renderer the mesh will be submitted to
 						*/
 						MeshRenderer(std::weak_ptr<graphics::Mesh> _mesh,
 								std::weak_ptr<graphics::Material> _material,
@@ -54,9 +54,9 @@ namespace cogs
 						void setRenderer(std::weak_ptr<graphics::Renderer3D> _renderer) { m_renderer = _renderer; }
 
 				private:
-						std::weak_ptr<graphics::Mesh> m_mesh;
-						std::weak_ptr<graphics::Material> m_material;
-						std::weak_ptr<graphics::Renderer3D> m_renderer;
+						std::weak_ptr<graphics::Mesh> m_mesh; ///< reference to the mesh rendererd
+						std::weak_ptr<graphics::Material> m_material; ///< reference to the material the mesh is rendered with
+						std::weak_ptr<graphics::Renderer3D> m_renderer; ///< reference to the renderer the mesh is submitted to
 				};
 		}
 }

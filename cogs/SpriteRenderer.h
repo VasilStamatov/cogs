@@ -10,18 +10,28 @@ namespace cogs
 {
 		namespace ecs
 		{
+				/**
+				* \brief This component, given to an entity should submit it to a 2D renderer
+				*/
 				class SpriteRenderer : public Component
 				{
 				public:
+						/**
+						* \brief Construct the sprite renderer by giving if a reference to the sprite it will submit,
+						* and the renderer the sprite will be submitted to
+						*/
 						SpriteRenderer(std::weak_ptr<graphics::Sprite> _sprite,
 								std::weak_ptr<graphics::Renderer> _renderer);
 						SpriteRenderer() {}
 						~SpriteRenderer();
 
+						//Called after contructor
 						void init() override;
 
+						//called every frame
 						void update(float _deltaTime) override;
 
+						//submits the sprite to the 2d renderer
 						void render() override;
 
 						/**
@@ -36,8 +46,8 @@ namespace cogs
 						void setRenderer(std::weak_ptr<graphics::Renderer> _renderer)	{ m_renderer = _renderer; }
 
 				private:
-						std::weak_ptr<graphics::Sprite> m_sprite;
-						std::weak_ptr<graphics::Renderer> m_renderer;
+						std::weak_ptr<graphics::Sprite> m_sprite; ///< reference to the sprite to be submitted
+						std::weak_ptr<graphics::Renderer> m_renderer; ///< reference to the renderer
 				};
 		}
 }

@@ -70,10 +70,10 @@ namespace cogs
 						static bool wasKeyDown(const KeyCode& _keyID);
 
 				private:
-						static std::unordered_map<KeyCode, bool> m_keyMap;
-						static std::unordered_map<KeyCode, bool> m_previousKeyMap;
-						static glm::vec2 m_mouseCoords;
-						static glm::vec2 m_mouseMotion;
+						static std::unordered_map<KeyCode, bool> m_keyMap; ///< the map of the keys pressed this frame
+						static std::unordered_map<KeyCode, bool> m_previousKeyMap; ///< the map of the keys pressed last frame
+						static glm::vec2 m_mouseCoords; ///< mouse coordinates in screen space
+						static glm::vec2 m_mouseMotion; ///< mouse motion
 				};
 		}
 }

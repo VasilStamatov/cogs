@@ -12,8 +12,9 @@ namespace cogs
 {
 		namespace graphics
 		{
-				struct Color;
-
+				/**
+				* \brief Flags with which the window can be created
+				*/
 				enum WindowCreationFlags : unsigned int
 				{
 						NONE = 0,
@@ -27,26 +28,47 @@ namespace cogs
 						INPUT_GRABBED = 128,				//window has grabbed input focus
 				};
 
+				/**
+				* \brief Window class which handles the creation of the window,
+				* and all other window-related functions
+				*/
 				class Window
 				{
 				public:
 						Window() {}
 						~Window() {}
 						//Initialize SDL -> Create the window -> Initialize OGL
+
+						/**
+						* \brief Creates the Window
+						* \param[in] _windowName - the name of the window
+						* \param[in] _screenWidth -  the width of the window
+						* \param[in] _screenHeight - the height of the window
+						* \param[in] _windowFlags - the window creation flags
+						*/
 						int create(const std::string& _windowName,
 																	int _screenWidth,
 																	int _screenHeight,
 																	const WindowCreationFlags& _windowFlags);
 
-						//Close the window, destroy OGL context and quit SDL
+						/**
+						* \brief Close the window, destroy OGL context and quit SDL
+						*/
 						void close();
 
-						//Handle window specific events
+						/**
+						* \brief Handle window specific events
+						*/
 						void handleEvent(SDL_Event& _event);
 
-						//swap the buffer
+						/**
+						* \brief Swaps the buffer
+						*/
 						void swapBuffer();
 
+						/**
+						* \brief Clear the current active framebuffer
+						*/
 						void clear(bool _color, bool _depth, bool _stencil = false);
 
 						//Setters
@@ -67,6 +89,10 @@ namespace cogs
 						inline bool isMinimized()															const noexcept { return m_minimized; }
 						inline bool wasResized()									 						const noexcept { return m_wasResized; }
 
+						/**
+						* \brief static getters for width and height,
+						* so that the screen size can be gotten from other places that need it
+						*/
 						inline static int getWidth()																		noexcept { return m_width; }
 						inline static int getHeight()																	noexcept { return m_height; }
 
@@ -77,18 +103,18 @@ namespace cogs
 						void initGL();
 
 				private:
-						SDL_Window* m_sdlWindow = nullptr;
-						SDL_GLContext m_glContext;
+						SDL_Window* m_sdlWindow = nullptr; ///< the sdl handle of the window
+						SDL_GLContext m_glContext; ///< the sdl GL context
 
-						static int m_width;
-						static int m_height;
+						static int m_width; ///< window width
+						static int m_height; ///< window height
 
-						std::string m_title{ "default" };
-						bool m_mouseFocus{ false };
-						bool m_keyboardFocus{ false };
-						bool m_fullscreen{ false };
-						bool m_minimized{ false };
-						bool m_wasResized{ false };
+						std::string m_title{ "default" }; ///< window title
+						bool m_mouseFocus{ false };						 ///< has mouse focus flag
+						bool m_keyboardFocus{ false };				///< has keyboard focus flag
+						bool m_fullscreen{ false };					  ///< is fullscreen flag
+						bool m_minimized{ false };								///< is minimized flag
+						bool m_wasResized{ false };							///< was resized flag
 				};
 		}
 }

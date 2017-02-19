@@ -11,7 +11,7 @@ namespace cogs
 		namespace ecs
 		{
 				/**
-				* Collider component which needs to be added before a rigidbody, as the rigidbody uses it for its contruction
+				* \brief Collider component which needs to be added before a rigidbody, as the rigidbody uses it for its contruction
 				*/
 				class Collider : public Component
 				{
@@ -29,13 +29,16 @@ namespace cogs
 						*/
 						void update(float _deltaTime) override {}
 
+						/**
+						* \brief scaled the collider on each axis
+						*/
 						void setLocalScaling(const glm::vec3& _scale) 
 						{
 								m_collisionShape->setLocalScaling(btVector3(_scale.x, _scale.y, _scale.z));
 						}
 
 						/**
-						* Gets the btCollisionShape instance (usually for rigidbody construction)
+						* \brief Gets the btCollisionShape instance (usually for rigidbody construction)
 						*/
 						std::weak_ptr<btCollisionShape> getShape() { return m_collisionShape; }
 

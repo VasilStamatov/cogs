@@ -6,6 +6,9 @@
 
 namespace ce = cogs::ecs;
 
+/**
+* Component for the ball to handle its behavior
+*/
 class BallBehavior : public ce::Component
 {
 public:
@@ -13,24 +16,26 @@ public:
 		~BallBehavior();
 
 		/**
-		* The initialize component function
+		* \brief The initialize component function
 		*/
 		void init() override;
 
 		/**
-		* The update component function
+		* \brief The update component function
 		*/
 		void update(float _deltaTime) override;
 
+		/**
+		* \brief handle collisions of the ball
+		*/
 		void onCollision(const glm::vec3& _pointA,
 				const glm::vec3& _pointB,
 				const glm::vec3& _normalOnB,
 				ce::Entity* _other) override;
 
 private:
-		std::weak_ptr<ce::RigidBody> m_rb							;
-		std::weak_ptr<ce::Transform> m_transform;
-		float m_desiredVelocity{ 0.0f };
+		std::weak_ptr<ce::RigidBody> m_rb; ///< the rigidbody of the ball
+		float m_desiredVelocity{ 0.0f }; ///< the desired velocity of the ball
 };
 
 

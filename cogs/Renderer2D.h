@@ -29,37 +29,59 @@ namespace cogs
 						uint m_texture{ 0 };
 				};
 
+				/**
+				* \brief derived class from Base Renderer to handle rendering sprites
+				*/
 				class Renderer2D : public Renderer
 				{
 				public:
+						/**
+						* \brief Construct the renderer and set the shader to render with
+						*/
 						Renderer2D(std::weak_ptr<GLSLProgram> _shader);
 						Renderer2D();
 						virtual ~Renderer2D();
 
-						void init() override;
-						void submit(std::weak_ptr<ecs::Entity> _entity) override;
-						void flush() override;
 						/**
-								* Begin submission
-								*/
+						* \brief init the renderer
+						*/
+						void init() override;
+
+						/**
+						* Begin submission
+						*/
 						void begin() override;
 
 						/**
-						* End submission
+						* \brief submit an entity to the renderer
+						*/
+						void submit(std::weak_ptr<ecs::Entity> _entity) override;
+
+						/**
+						* End submission and sort the sprites and put them in batches
 						*/
 						void end() override;
 
 						/**
-						* Disposes of the buffer objects
+						* \brief flush the renderer
+						*/
+						void flush() override;
+						
+						/**
+						* \brief Disposes of the buffer objects
 						*/
 						void dispose();
 
+						/**
+						* \brief sets the sorting type
+						*/
 						void setSortType(const SpriteSortType& _sortType = SpriteSortType::TEXTURE) { m_sortType = _sortType; }
 
 				private:
-						void sortSprites();
-						void createSpriteBatches();
+						void sortSprites(); ///< sorts the sprites
+						void createSpriteBatches(); ///< creates the sprite batches
 
+						/** Enum for the buffer objects */
 						enum BufferObjects : unsigned int
 						{
 								POSITION = 0,
@@ -72,12 +94,12 @@ namespace cogs
 						};
 
 				private:
-						std::vector<SpriteBatch> m_spriteBatches; //set of batched sprites
+						std::vector<SpriteBatch> m_spriteBatches; ///< set of batched sprites
 
-						SpriteSortType m_sortType{ SpriteSortType::TEXTURE };
+						SpriteSortType m_sortType{ SpriteSortType::TEXTURE }; ///< the current sort type
 
-						VAO m_VAO{ 0 };
-						VBO m_VBOs[BufferObjects::NUM_BUFFERS] = { 0 };
+						VAO m_VAO{ 0 }; ///< the vao to be used
+						VBO m_VBOs[BufferObjects::NUM_BUFFERS] = { 0 }; ///< the vbos
 				};
 		}
 }

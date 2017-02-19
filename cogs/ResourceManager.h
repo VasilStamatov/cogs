@@ -14,6 +14,10 @@ namespace cogs
 {
 		namespace utils
 		{
+				/**
+				* \brief Static Resource Manager class which contains a map of resources
+				* of the engine as shared pointers and gives out weak pointer references when requested
+				*/
 				class ResourceManager
 				{
 				public:

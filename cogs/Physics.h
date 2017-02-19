@@ -9,47 +9,56 @@ namespace cogs
 		namespace physics
 		{
 				/**
-				* A  class for the physics world, as only a single world is ever needed
+				* The physics world class
 				*/
 				class Physics
 				{
 				public:
+						/**
+						* \brief Construct the physics world with gravity
+						* \param[in] _xGravity - gravity to the x axis
+						* \param[in] _yGravity - gravity to the y axis
+						* \param[in] _zGravity - gravity to the z axis
+						*/
 						Physics(float _xGravity, float _yGravity, float _zGravity);
 						Physics() {}
 						~Physics() {}
 
 						/**
-						* Initializes the physics world with the passed parameters being gravity on each axis
+						* \brief Init the physics world with gravity
+						* \param[in] _xGravity - gravity to the x axis
+						* \param[in] _yGravity - gravity to the y axis
+						* \param[in] _zGravity - gravity to the z axis
 						*/
 						void init(float _xGravity, float _yGravity, float _zGravity);
 
 						/**
-						* Sets the gravity of the physics world
+						* \brief Sets the gravity of the physics world
 						*/
 						void setGravity(float _xGravity, float _yGravity, float _zGravity);
 
 						/**
-						* Adds a rigid body to the physics world
+						* \brief Adds a rigid body to the physics world
 						*/
 						void addRigidBody(btRigidBody* _rb);
 
 						/**
-						* Removes a rigid body from the physics world
+						* \brief Removes a rigid body from the physics world
 						*/
 						void removeRigidBody(btRigidBody* _rb);
 
 						/**
-						* Steps the simulation for the physics world (called every frame)
+						* \brief Steps the simulation for the physics world (called every frame)
 						*/
 						void stepSimulation(float _deltaTime);
 
 						/**
-						* Sets the debug renderer
+						* \brief Sets the debug renderer
 						*/
 						void setDebugDrawer(btIDebugDraw* _debugDrawer);
 
 						/**
-						* Uses the debug renderer to draw the debug world
+						* \brief Uses the debug renderer to draw the debug world
 						*/
 						void debugDrawWorld();
 
