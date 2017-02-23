@@ -80,7 +80,8 @@ namespace cogs
 						inline const std::vector<glm::vec2>& getTexCoords()   const noexcept { return m_uvs; }
 						inline const std::vector<glm::vec3>& getNormals()     const noexcept { return m_normals; }
 						inline const std::vector<glm::vec3>& getTangents()    const noexcept { return m_tangents; }
-
+						inline const glm::vec3& getCenter() const noexcept { return m_center; }
+						inline const float& getRadius() const noexcept				 { return m_radius; }
 						/** \brief mesh setters */
 						inline void setIndices(std::vector<unsigned int>& _indices)  { m_indices = _indices; }
 						inline void setPositions(std::vector<glm::vec3>& _positions) { m_positions = _positions; }
@@ -104,6 +105,7 @@ namespace cogs
 						};
 
 						/* internal utility functions */
+						void calcBoundingSphere();
 						void calcNormals();
 						void calcTangents();
 						void finalize();
@@ -117,6 +119,9 @@ namespace cogs
 						std::vector<glm::vec3> m_normals; ///< normal data
 						std::vector<glm::vec3> m_tangents; ///< tangent data
 						std::vector<unsigned int> m_indices; ///< indices
+
+						glm::vec3 m_center;
+						float m_radius;
 
 						unsigned int m_VAO{ 0 }; ///< the vao of this mesh
 						unsigned int m_VBOs[BufferObject::NUM_BUFFERS] = {0}; ///< the vbo's of this mesh

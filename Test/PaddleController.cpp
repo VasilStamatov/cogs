@@ -26,11 +26,11 @@ void PaddleController::update(float _deltaTime)
 
 		if (cu::Input::isKeyDown(cu::KeyCode::LEFT))
 		{
-				m_rb.lock()->setLinearVelocity(glm::vec3(-m_moveSpeed * _deltaTime, 0.0f, 0.0f));
+				m_rb.lock()->applyCentralForce(glm::vec3(-m_moveSpeed * _deltaTime, 0.0f, 0.0f));
 		}
 		if (cu::Input::isKeyDown(cu::KeyCode::RIGHT))
 		{
-				m_rb.lock()->setLinearVelocity(glm::vec3(m_moveSpeed * _deltaTime, 0.0f, 0.0f));
+				m_rb.lock()->applyCentralForce(glm::vec3(m_moveSpeed * _deltaTime, 0.0f, 0.0f));
 		}
 }
 

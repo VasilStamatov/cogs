@@ -2,7 +2,6 @@
 #define TRANSFORM_H
 
 #include "Component.h"
-#include <glm\vec3.hpp>
 #include <glm\gtc\quaternion.hpp>
 
 namespace cogs

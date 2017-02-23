@@ -1,6 +1,13 @@
 #include "BulletDebugRenderer.h"
 #include "ResourceManager.h"
 
+#include "Entity.h"
+#include "Transform.h"
+#include "MeshRenderer.h"
+
+#include <glm\gtc\type_ptr.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+
 #include <GL\glew.h>
 
 namespace cogs
@@ -56,6 +63,27 @@ namespace cogs
 								glDeleteBuffers(1, &m_ibo);
 								m_ibo = 0;
 						}
+				}
+
+				void BulletDebugRenderer::drawMeshDebug(std::weak_ptr<ecs::Entity> _entity)
+				{
+						std::weak_ptr<Mesh> mesh = _entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
+
+						//get the center vertex position in model space
+						const glm::vec4& center = glm::vec4(mesh.lock()->getCenter(), 1.0f);
+
+						//get the transformation matrix to world space
+						const glm::mat4& toWorldMat = _entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform();
+
+						//calculate the center vertex from model to world space
+						glm::vec3 point = glm::vec3(toWorldMat * center);
+
+						const glm::vec3& scale = _entity.lock()->getComponent<ecs::Transform>().lock()->worldScale();
+						float radius = mesh.lock()->getRadius() * glm::max(scale.x, glm::max(scale.y, scale.z));
+
+						//const glm::vec3& worldPos = _entity.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
+
+						drawSphere(btVector3(point.x, point.y, point.z), radius, btVector3(1.0f, 1.0f, 1.0f));
 				}
 
 				void BulletDebugRenderer::drawLine(const btVector3 & _from, const btVector3 & _to, const btVector3 & _color)

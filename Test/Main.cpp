@@ -22,8 +22,6 @@
 #include "BallBehavior.h"
 #include "PostProcessTest.h"
 
-#define DEBUG_DRAW 0
-
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
 namespace cu = cogs::utils;
@@ -34,9 +32,9 @@ int main(int argc, char** argv)
 		cg::Window window;
 		window.create("Test", 1024, 576, cg::WindowCreationFlags::NONE);
 		window.setRelativeMouseMode(true);
-		bool quit = false;
-
-		cu::FpsLimiter fpsLimiter(60.0f);
+		bool quit{ false };
+		bool debugMode{ false };
+		cu::FpsLimiter fpsLimiter(600.0f);
 
 		std::shared_ptr<cp::Physics> physicsWorld = std::make_shared<cp::Physics>(0.0f, -9.81f, 0.0f);
 
@@ -45,18 +43,18 @@ int main(int argc, char** argv)
 		std::shared_ptr<cg::Framebuffer> testFramebuffer = cg::Framebuffer::create(window.getWidth(), window.getHeight());
 
 		std::vector<std::string> skyboxFilenames(6);
-		skyboxFilenames.at(0) = "Textures/skybox/right.png";
-		skyboxFilenames.at(1) = "Textures/skybox/left.png";
-		skyboxFilenames.at(2) = "Textures/skybox/top.png";
-		skyboxFilenames.at(3) = "Textures/skybox/bottom.png";
-		skyboxFilenames.at(4) = "Textures/skybox/back.png";
-		skyboxFilenames.at(5) = "Textures/skybox/front.png";
+		skyboxFilenames.at(0) = "Textures/space/cwd_rt.jpg";
+		skyboxFilenames.at(1) = "Textures/space/cwd_lf.jpg";
+		skyboxFilenames.at(2) = "Textures/space/cwd_up.jpg";
+		skyboxFilenames.at(3) = "Textures/space/cwd_dn.jpg";
+		skyboxFilenames.at(4) = "Textures/space/cwd_bk.jpg";
+		skyboxFilenames.at(5) = "Textures/space/cwd_ft.jpg";
 
 		std::shared_ptr<cg::Skybox> testSkybox = cg::Skybox::create(
 				cu::ResourceManager::getGLSLProgram("SkyboxShader", "Shaders/Skybox.vert", "Shaders/Skybox.frag"),
 				cu::ResourceManager::getGLCubemap("skyboxTexture", skyboxFilenames), true);
 
-		std::weak_ptr<ce::Entity> mainCamera = root->addChild("MainCamera");
+		std::weak_ptr<ce::Entity> mainCamera = root->addChild("Camera");
 		mainCamera.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
 		mainCamera.lock()->addComponent<ce::FPSCameraControl>(50.0f);
 		mainCamera.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 0.0f, 55.0f));
@@ -74,9 +72,9 @@ int main(int argc, char** argv)
 		mainCamera.lock()->addComponent<PostProcessTest>(cu::ResourceManager::getGLSLProgram(
 				"PostProcessShader", "Shaders/PostProcess.vert", "Shaders/PostProcess.frag"));
 
-		/*std::weak_ptr<ce::Entity> camera2 = root->addChild("Camera2");
+		std::weak_ptr<ce::Entity> camera2 = root->addChild("MainCamera");
 		camera2.lock()->addComponent<ce::Camera>(window.getWidth(), window.getHeight(), ce::ProjectionType::PERSPECTIVE);
-		camera2.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 0.0f, 25.0f));*/
+		camera2.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 0.0f, 55.0f));
 
 		std::shared_ptr<cg::Renderer2D> renderer2D = std::make_shared<cg::Renderer2D>(
 				cu::ResourceManager::getGLSLProgram("BasicShader", "Shaders/BasicShader.vert", "Shaders/BasicShader.frag"));
@@ -109,45 +107,45 @@ int main(int argc, char** argv)
 		directionalLight.lock()->addComponent<ce::Light>();
 		directionalLight.lock()->getComponent<ce::Light>().lock()->setLightType(ce::LightType::DIRECTIONAL);
 		directionalLight.lock()->getComponent<ce::Light>().lock()->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
-		directionalLight.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.05f);
-		directionalLight.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.4f);
-		directionalLight.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(0.5f);
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setAmbientIntensity(0.5f);
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.8f);
+		directionalLight.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(0.8f);
 		directionalLight.lock()->getComponent<ce::Transform>().lock()->setLocalOrientation(glm::vec3(-0.2f, -1.0f, -0.3f));
 
 		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
 		paddle.lock()->setTag("Paddle");
 		cu::loadMeshesToEntity(paddle, "Models/TestModels/cube.obj", renderer3D);
 		paddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
-		paddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -4.0f, 0.0f));
+		paddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -3.0f, 0.0f));
 		paddle.lock()->addComponent<ce::BoxCollider>(glm::vec3(2.0f, 0.5f, 1.0f));
 		paddle.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-		paddle.lock()->addComponent<PaddleController>(2500.0f);
+		paddle.lock()->addComponent<PaddleController>(150000.0f);
 
 		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
 		groundBound.lock()->setTag("ground");
 		groundBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-2.5f, -5.0f, 0.0f));
-		groundBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(32.5f, 0.0f, 1.0f));
+		groundBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(32.5f, 1.0f, 1.0f));
 		groundBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 
 		std::weak_ptr<ce::Entity> ceilingBound = root->addChild("CeilingBoundary");
 		ceilingBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-2.5f, 30.0f, 0.0f));
-		ceilingBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(32.5f, 0.0f, 1.0f));
+		ceilingBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(32.5f, 1.0f, 1.0f));
 		ceilingBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		ceilingBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> leftBound = root->addChild("LeftBoundary");
 		leftBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(-36.0f, 12.5f, 0.0f));
-		leftBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 17.0f, 1.0f));
+		leftBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 16.0f, 1.0f));
 		leftBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		leftBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
 		std::weak_ptr<ce::Entity> rightBound = root->addChild("RightBoundary");
 		rightBound.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(31, 12.5f, 0.0f));
-		rightBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 17.0f, 1.0f));
+		rightBound.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 16.0f, 1.0f));
 		rightBound.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 		rightBound.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 
@@ -173,14 +171,28 @@ int main(int argc, char** argv)
 		{
 				for (int j = -10; j < 0; j += 4)
 				{
-						std::weak_ptr<ce::Entity> brick = root->addChild("Brick" + std::to_string(i) + std::to_string(j));
-						brick.lock()->setTag("brick");
-						cu::loadMeshesToEntity(brick, "Models/TestModels/cube.obj", renderer3D);
-						brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
-						brick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
-						brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
-						brick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
-						brick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+						if (cu::Random::getRandInt(0, 10) > 2)
+						{
+								std::weak_ptr<ce::Entity> brick = root->addChild("Brick");
+								brick.lock()->setTag("brick");
+								cu::loadMeshesToEntity(brick, "Models/TestModels/cube.obj", renderer3D);
+								brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
+								brick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+								brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+								brick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
+								brick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+						}
+						else
+						{
+								std::weak_ptr<ce::Entity> brick = root->addChild("HardBrick" + std::to_string(i) + std::to_string(j));
+								brick.lock()->setTag("indestructible");
+								cu::loadMeshesToEntity(brick, "Models/TestModels/cube2.obj", renderer3D);
+								brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
+								brick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+								brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
+								brick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
+								brick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
+						}
 				}
 		}
 
@@ -252,6 +264,16 @@ int main(int argc, char** argv)
 				{
 						quit = true;
 				}
+				if (cu::Input::isKeyPressed(cu::KeyCode::TAB))
+				{
+						debugMode = !debugMode;
+				}
+				if (cu::Input::isKeyPressed(cu::KeyCode::ALPHA9))
+				{
+						camera2.lock()->getComponent<ce::Transform>().lock()->setWorldPosition(mainCamera.lock()->getComponent<ce::Transform>().lock()->worldPosition());
+						camera2.lock()->getComponent<ce::Transform>().lock()->setWorldOrientation(mainCamera.lock()->getComponent<ce::Transform>().lock()->worldOrientationRaw());
+				}
+
 				//Update
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
@@ -303,13 +325,17 @@ int main(int argc, char** argv)
 						renderer2D->flush();
 						renderer3D->flush();
 
-#if  DEBUG_DRAW
-						//use the debug renderer to draw the debug physics world
-						physicsWorld->debugDrawWorld();
-						debugRenderer.end();
-						debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 5.0f);
-#endif //  DEBUG_DRAW
-
+						if (debugMode)
+						{
+								//use the debug renderer to draw the debug physics world
+								//physicsWorld->debugDrawWorld();
+								debugRenderer.drawMeshDebug(paddle.lock()->getChild("Cube"));
+								//camera.lock()->renderDebug(&debugRenderer);
+								camera2.lock()->getComponent<ce::Camera>().lock()->renderFrustum(&debugRenderer);
+								debugRenderer.end();
+								debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 5.0f);
+						}
+						
 						//render the camera's skybox if it has one
 						camera.lock()->renderSkybox();
 

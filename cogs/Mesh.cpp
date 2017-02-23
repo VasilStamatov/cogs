@@ -105,6 +105,48 @@ namespace cogs
 						m_indices.push_back(_vertIndex2);
 				}
 
+				void Mesh::calcBoundingSphere()
+				{
+						float maxX{ 0.0f }, maxY{ 0.0f }, maxZ{ 0.0f };
+						float minX{ 0.0f }, minY{ 0.0f }, minZ{ 0.0f };
+
+						for (size_t i = 0; i < m_positions.size(); i++)
+						{
+								if (m_positions.at(i).x > maxX)
+								{
+										maxX = m_positions.at(i).x;
+								}
+								if (m_positions.at(i).x < minX)
+								{
+										minX = m_positions.at(i).x;
+								}
+
+								if (m_positions.at(i).y > maxY)
+								{
+										maxY = m_positions.at(i).y;
+								}
+								if (m_positions.at(i).y < minY)
+								{
+										minY = m_positions.at(i).y;
+								}
+
+								if (m_positions.at(i).z > maxZ)
+								{
+										maxZ = m_positions.at(i).z;
+								}
+								if (m_positions.at(i).z < minZ)
+								{
+										minZ = m_positions.at(i).z;
+								}
+						}
+
+						m_center = glm::vec3(
+								minX + (maxX - minX) * 0.5f,
+								minY + (maxY - minY) * 0.5f,
+								minZ + (maxZ - minZ) * 0.5f);
+						m_radius = fmaxf((maxX - minX) * 0.5f, fmaxf((maxY - minY) * 0.5f, (maxZ - minZ) * 0.5f));
+				}
+
 				void Mesh::calcNormals()
 				{
 						m_normals.clear();
@@ -183,6 +225,8 @@ namespace cogs
 
 				void Mesh::finalize()
 				{
+						calcBoundingSphere();
+
 						if (isValid())
 						{
 								//already valid

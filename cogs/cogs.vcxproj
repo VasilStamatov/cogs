@@ -169,6 +169,7 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FPSCameraControl.h" />
     <ClInclude Include="Framebuffer.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="GLCubemapTexture.h" />
     <ClInclude Include="GLSLProgram.h" />
     <ClInclude Include="GLTexture2D.h" />
@@ -206,6 +207,7 @@
     <ClCompile Include="Color.cpp" />
     <ClCompile Include="FPSCameraControl.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GLCubemapTexture.cpp" />
     <ClCompile Include="GLSLProgram.cpp" />
     <ClCompile Include="GLTexture2D.cpp" />

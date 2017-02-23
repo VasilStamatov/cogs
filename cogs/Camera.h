@@ -5,7 +5,8 @@
 #include "Framebuffer.h"
 #include "Color.h"
 #include "Skybox.h"
-
+#include "Frustum.h"
+#include "BulletDebugRenderer.h"
 #include <vector>
 
 namespace cogs
@@ -83,9 +84,16 @@ namespace cogs
 						void setFarPlane(float _value);
 
 						/**
+						* \brief Changes both clipping planes
+						* \param _zNear - the new near value
+						* \param _zFar - the new far value
+						*/
+						void setClippingPlanes(float _zNear, float _zFar);
+
+						/**
 						* \brief Sets the projection type of the matrix
 						*/
-						void setProjectionType(const ProjectionType& _projType) { m_projType = _projType; }
+						void setProjectionType(const ProjectionType& _projType);
 
 						/**
 						* \brief Sets the screen width and height for the camera and updates the proj matrix
@@ -112,6 +120,11 @@ namespace cogs
 						*/
 						const glm::mat4& getViewMatrix() const noexcept { return m_viewMatrix; }
 
+						bool pointInFrustum(const glm::vec3& _pos) { return m_frustum.pointInFrustum(_pos); }
+
+						bool sphereInFrustum(const glm::vec3& _pos, float _radius) { return m_frustum.sphereInFrustum(_pos, _radius); }
+
+						void renderFrustum(graphics::BulletDebugRenderer* _renderer);
 						/**
 						* \brief get and set the target framebuffer this camera renders to
 						*/
@@ -144,7 +157,7 @@ namespace cogs
 						/*
 						* \brief set the main camera
 						*/
-						static void setMain(std::weak_ptr<Camera> _camera)    { s_mainCamera = _camera; }
+						static void setMain(std::weak_ptr<Camera> _camera) { s_mainCamera = _camera; }
 
 						/*
 						* \brief set the current active camera
@@ -154,22 +167,27 @@ namespace cogs
 						/*
 						* \brief add a camera to the camera vector
 						*/
-						static void addCamera(std::weak_ptr<Camera> _camera)  { s_allCameras.push_back(_camera); }
+						static void addCamera(std::weak_ptr<Camera> _camera) { s_allCameras.push_back(_camera); }
 
 						/*
 						* \brief get the main camera
 						*/
-						static std::weak_ptr<Camera> getMain()                    { return s_mainCamera; }
+						static std::weak_ptr<Camera> getMain() { return s_mainCamera; }
 
 						/*
 						* \brief get the current active camera
 						*/
-						static std::weak_ptr<Camera> getCurrent()                 { return s_currentCamera; }
+						static std::weak_ptr<Camera> getCurrent() { return s_currentCamera; }
 
 						/*
 						* \brief get all the existing cameras
 						*/
 						static std::vector<std::weak_ptr<Camera>> getAllCameras() { return s_allCameras; }
+
+				private:
+						void updateView();
+						void updateProjection();
+
 				private:
 						static std::weak_ptr<Camera> s_mainCamera; ///< the main camera
 						static std::weak_ptr<Camera> s_currentCamera; ///< current active camera
@@ -179,7 +197,7 @@ namespace cogs
 
 						glm::mat4 m_orthoMatrix{ 1.0f }; ///< orthographic matrix for ortho camera
 						glm::mat4 m_perspMatrix{ 1.0f }; ///< perspective matrix for perspective camera
-						glm::mat4 m_viewMatrix	{ 1.0f }; ///< Camera view matrix
+						glm::mat4 m_viewMatrix{ 1.0f }; ///< Camera view matrix
 
 						std::weak_ptr<Transform> m_transform; ///< the transform of the camera
 						Transform m_oldTransform;										///< the old transform (to be compared for view changes
@@ -197,6 +215,8 @@ namespace cogs
 						std::weak_ptr<graphics::Skybox> m_skybox; ///< skybox the camera renders to fill up the background colors
 
 						graphics::Color m_backgroundColor{ graphics::Color::white }; ///< background color to clear to 
+
+						graphics::Frustum m_frustum;
 				};
 		}
 }
