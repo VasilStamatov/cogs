@@ -2,7 +2,7 @@
 #include "Utils.h"
 
 #include <GL\glew.h>
-//#include <SOIL2\SOIL2.h>
+#include <SOIL2\SOIL2.h>
 
 namespace cogs
 {
@@ -36,7 +36,7 @@ namespace cogs
 						m_name = _name;
 						m_fileNames = _fileNames;
 
-						/*m_id = SOIL_load_OGL_cubemap
+						m_id = SOIL_load_OGL_cubemap
 						(
 								_fileNames.at(0).c_str(),
 								_fileNames.at(1).c_str(),
@@ -51,12 +51,12 @@ namespace cogs
 						if (m_id == 0)
 						{
 								printf("SOIL loading error: '%s'\n", SOIL_last_result());
-						}*/
+						}
 
-						if (!utils::loadCubemap(m_fileNames, &m_width, &m_height, &m_id))
+						/*if (!utils::loadCubemap(m_fileNames, &m_width, &m_height, &m_id))
 						{
 								throw std::runtime_error("Texture failed to load");
-						}
+						}*/
 				}
 		}
 }
