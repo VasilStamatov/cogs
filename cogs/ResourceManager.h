@@ -30,7 +30,8 @@ namespace cogs
 
 						/* GLTexture2D getters */
 						static std::weak_ptr<graphics::GLTexture2D> getGLTexture2D(const std::string& _filePath);
-						static std::weak_ptr<graphics::GLTexture2D> getGLTexture2D(const std::string& _filePath, const std::string& _name, bool _alpha = true);
+						static std::weak_ptr<graphics::GLTexture2D> getGLTexture2D(const std::string& _filePath,
+								const std::string& _name);
 
 						/* GLCubemapTexture getters */
 						static std::weak_ptr<graphics::GLCubemapTexture> getGLCubemap(const std::string& _name);

@@ -70,35 +70,36 @@ namespace cogs
 						/**
 						* \brief Disposes of the buffer objects
 						*/
-						void dispose();
+						void dispose() override;
 
 						/**
 						* \brief sets the sorting type
 						*/
 						void setSortType(const SpriteSortType& _sortType = SpriteSortType::TEXTURE) { m_sortType = _sortType; }
 
-				private:
-						void sortSprites(); ///< sorts the sprites
-						void createSpriteBatches(); ///< creates the sprite batches
+				protected:
+						virtual void sortSprites(); ///< sorts the sprites
+						virtual void createSpriteBatches(); ///< creates the sprite batches
 
-						/** Enum for the buffer objects */
-						enum BufferObjects : unsigned int
-						{
-								POSITION = 0,
-								TEXCOORD = 1,
-								COLOR    = 2,
-
-								INDEX    = 3,
-
-								NUM_BUFFERS = 4
-						};
-
-				private:
 						std::vector<SpriteBatch> m_spriteBatches; ///< set of batched sprites
 
 						SpriteSortType m_sortType{ SpriteSortType::TEXTURE }; ///< the current sort type
 
 						VAO m_VAO{ 0 }; ///< the vao to be used
+
+				private:
+						/** Enum for the buffer objects */
+						enum BufferObjects : unsigned int
+						{
+								POSITION = 0,
+								TEXCOORD = 1,
+								COLOR = 2,
+
+								INDEX = 3,
+
+								NUM_BUFFERS = 4
+						};
+
 						VBO m_VBOs[BufferObjects::NUM_BUFFERS] = { 0 }; ///< the vbos
 				};
 		}

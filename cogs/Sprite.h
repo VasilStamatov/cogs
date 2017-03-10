@@ -39,12 +39,15 @@ namespace cogs
 						const glm::vec2& getSize() { return m_size; }
 						const Color& getColor() { return m_color; }
 				  std::weak_ptr<GLTexture2D> getTexture() { return m_texture; }
-
+						int getSpritesheetIndex() { return m_spriteSheetIndex; }
 				private:
 						std::string m_name{ "" }; ///< the name of the sprite
 						glm::vec2 m_size{ 0.0f, 0.0f }; ///< the width and height of the sprite
 						Color m_color{ Color::white }; ///< the tint of the sprite
 						std::weak_ptr<GLTexture2D> m_texture; ///< the texture of the sprite
+						/* if the sprite is using a spriteSheed as texture,
+						this index defines which index of the spritesheet texture the sprite is using */
+						int m_spriteSheetIndex{ 0 };
 				};
 		}
 }

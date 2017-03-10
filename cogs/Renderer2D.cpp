@@ -222,15 +222,16 @@ namespace cogs
 						for (size_t currentSprite = 0; currentSprite < m_entities.size(); currentSprite++)
 						{
 								std::weak_ptr<Sprite> sprite = m_entities.at(currentSprite).lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite();
+								std::weak_ptr<GLTexture2D> texture = sprite.lock()->getTexture();
 
 								//The transform values of the sprite
 								std::weak_ptr<ecs::Transform> transform = m_entities.at(currentSprite).lock()->getComponent<ecs::Transform>();
 
 								if (currentSprite == 0)
 								{
-										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().lock()->getTextureID());
+										m_spriteBatches.emplace_back(offset, 6, texture.lock()->getTextureID());
 								}
-								else if (sprite.lock()->getTexture().lock() !=
+								else if (texture.lock() !=
 										m_entities.at(currentSprite - 1).lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite().lock()->getTexture().lock())
 								{
 										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().lock()->getTextureID());
@@ -259,20 +260,22 @@ namespace cogs
 								topRight = worldTrans * glm::vec4(topRight, 1.0f);
 								bottomRight = worldTrans * glm::vec4(bottomRight, 1.0f);
 
+								glm::vec4 uvs = texture.lock()->getTexCoords(sprite.lock()->getSpritesheetIndex());
+
 								positions.at(currentVertex) = topLeft;
-								texCoords.at(currentVertex) = glm::vec2(0.0f, 1.0f);
+								texCoords.at(currentVertex) = glm::vec2(uvs.x, uvs.y + uvs.w);
 								colors.at(currentVertex++)  = color;
 
 								positions.at(currentVertex) = bottomLeft;
-								texCoords.at(currentVertex) = glm::vec2(0.0f, 0.0f);
+								texCoords.at(currentVertex) = glm::vec2(uvs.x, uvs.y);
 								colors.at(currentVertex++)  = color;
 
 								positions.at(currentVertex) = bottomRight;
-								texCoords.at(currentVertex) = glm::vec2(1.0f, 0.0f);
+								texCoords.at(currentVertex) = glm::vec2(uvs.x + uvs.z, uvs.y);
 								colors.at(currentVertex++) = color;
 
 								positions.at(currentVertex) = topRight;
-								texCoords.at(currentVertex) = glm::vec2(1.0f, 1.0f);
+								texCoords.at(currentVertex) = glm::vec2(uvs.x + uvs.z, uvs.y + uvs.w);
 								colors.at(currentVertex++) = color;
 
 								offset += 6;

@@ -58,9 +58,11 @@ public:
 
 				m_postProcessShader.lock()->use();
 				glDisable(GL_DEPTH_TEST);
+				glDisable(GL_BLEND);
 				glBindTexture(GL_TEXTURE_2D, finalCam.lock()->getRenderTarget().lock()->getTextureID());
 				m_quad.lock()->render();
 				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_BLEND);
 				m_postProcessShader.lock()->unUse();
 		}
 private:

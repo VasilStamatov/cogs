@@ -44,6 +44,11 @@ namespace cogs
 						* \brief flush the renderer
 						*/
 						void flush() override;
+
+						/**
+						* \brief disposes
+						*/
+						void dispose() override;
 				};
 		}
 }

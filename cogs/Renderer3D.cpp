@@ -111,10 +111,16 @@ namespace cogs
 						//finally unbind the current shader program
 						m_shader.lock()->unUse();
 				}
+
+				void Renderer3D::dispose()
+				{
+				}
+
 				void Renderer3D::begin()
 				{
 						m_entities.clear();
 				}
+
 				void Renderer3D::end()
 				{
 						//TODO: possibly sorting and batching/preparing for instanced rendering ?

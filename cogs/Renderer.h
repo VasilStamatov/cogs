@@ -33,6 +33,8 @@ namespace cogs
 						virtual void end() = 0;
 						//Flushes the renderer, rendering everything in the buffer
 						virtual void flush() = 0;
+						//disposes of buffer objects and data
+						virtual void dispose() = 0;
 						//Set the shader to render with
 						void setShader(std::weak_ptr<GLSLProgram> _shader) { m_shader = _shader; }
 

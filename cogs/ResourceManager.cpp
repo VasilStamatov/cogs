@@ -72,7 +72,7 @@ namespace cogs
 				}
 
 				std::weak_ptr<graphics::GLTexture2D> ResourceManager::getGLTexture2D(const std::string & _filePath,
-						const std::string & _name, bool _alpha)
+						const std::string & _name)
 				{
 						auto iter = s_glTex2DMap.find(_filePath);
 
@@ -81,7 +81,7 @@ namespace cogs
 						{
 								// if the resource does not exist, create it
 								std::shared_ptr<graphics::GLTexture2D> newTexture = 
-										std::make_shared<graphics::GLTexture2D>(_name, _filePath, _alpha);
+										std::make_shared<graphics::GLTexture2D>(_name, _filePath);
 
 								//insert it into the resource map
 								s_glTex2DMap.insert(std::make_pair(_filePath, std::move(newTexture)));
