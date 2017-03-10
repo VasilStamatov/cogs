@@ -65,7 +65,7 @@ namespace cogs
 						}
 				}
 
-				void BulletDebugRenderer::drawMeshDebug(std::weak_ptr<ecs::Entity> _entity)
+				void BulletDebugRenderer::drawMeshSphereBounds(std::weak_ptr<ecs::Entity> _entity)
 				{
 						std::weak_ptr<Mesh> mesh = _entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
 

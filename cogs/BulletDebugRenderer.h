@@ -33,7 +33,7 @@ namespace cogs
 						BulletDebugRenderer();
 						virtual ~BulletDebugRenderer();
 
-						void drawMeshDebug(std::weak_ptr<ecs::Entity> _entity);
+						void drawMeshSphereBounds(std::weak_ptr<ecs::Entity> _entity);
 						/**
 						* \brief overriden function to submit line data
 						*/
