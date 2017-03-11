@@ -119,7 +119,7 @@ namespace cogs
 								//upload the data
 								glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * instances.worldmats.size(), instances.worldmats.data(), GL_DYNAMIC_DRAW);
 
-								glBindVertexArray(instances.mesh.lock()->m_VAO);
+								glBindVertexArray(it.first);
 
 								for (unsigned int i = 0; i < subMeshes.size(); i++)
 								{

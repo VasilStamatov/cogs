@@ -46,7 +46,8 @@ namespace cogs
 
 				void ParticleSystem::update(float _deltaTime)
 				{
-						generateParticles(_deltaTime);
+						//generateParticles(_deltaTime);
+						spawnParticle();
 						for (int i = 0; i < m_maxParticles; ++i)
 						{
 								// check if it is active
@@ -59,15 +60,10 @@ namespace cogs
 										m_particles[i].m_life -= (m_decayRate * _deltaTime);
 								}
 						}
-						/*if (utils::Input::isKeyDown(utils::KeyCode::G))
-						{
-								spawnParticle();
-						}*/
 				}
 
 				void ParticleSystem::render()
 				{
-						sortParticles();
 						m_renderer.lock()->submit(m_entity);
 				}
 
@@ -126,24 +122,6 @@ namespace cogs
 						return 0;
 				}
 
-				void ParticleSystem::sortParticles()
-				{
-						std::weak_ptr<ecs::Camera> currentCam = ecs::Camera::getCurrent();
-						const glm::vec3& cameraPos = currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-						const glm::vec3& psWorldPos = m_entity.lock()->getComponent<Transform>().lock()->worldPosition();
-
-						std::sort(&m_particles[0], &m_particles[m_maxParticles],
-								[&psWorldPos, &cameraPos](const Particle& _p1, const Particle& _p2)
-						{
-								glm::vec3 p1WorldPos = _p1.m_position + psWorldPos;
-								glm::vec3 p2WorldPos = _p2.m_position + psWorldPos;
-
-								float distanceFromCamera1 = glm::length2(p1WorldPos - cameraPos);
-								float distanceFromCamera2 = glm::length2(p2WorldPos - cameraPos);
-
-								return (distanceFromCamera1 > distanceFromCamera2);
-						});
-				}
 				void ParticleSystem::generateParticles(float _deltaTime)
 				{
 						float particlesToCreate = m_particlesPerSec * _deltaTime;

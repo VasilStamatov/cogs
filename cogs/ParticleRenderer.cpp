@@ -11,13 +11,13 @@ namespace cogs
 {
 		namespace graphics
 		{
-				ParticleRenderer::ParticleRenderer(std::weak_ptr<GLSLProgram> _shader) : Renderer2D(_shader)
+				ParticleRenderer::ParticleRenderer(std::weak_ptr<GLSLProgram> _shader) : Renderer(_shader)
 				{
 						init();
-						setSortType(SpriteSortType::BACK_TO_FRONT);
 				}
 				ParticleRenderer::~ParticleRenderer()
 				{
+						dispose();
 				}
 				void ParticleRenderer::init()
 				{
@@ -33,46 +33,74 @@ namespace cogs
 						//bind the position buffer
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::POSITION]);
 
-						//tell opengl how to read it
+						float vertices[] =
+						{ -0.5f,  0.5f, 0.0f,	 // top left corner
+								-0.5f, -0.5f, 0.0f,		// bottom left corner
+								0.5f, -0.5f, 0.0f,	 	// bottom right corner
+								0.5f,  0.5f, 0.0f }; // top right corner
 
-						glEnableVertexAttribArray(BufferObjects::POSITION); // on channel 0
+						glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-						glVertexAttribPointer(BufferObjects::POSITION, // index/channel 0
-								4,								// size = 4 (3 for the xyz position coordinates, 1 for the width/size)
-								GL_FLOAT, // GL_FLOAT = tell it that the numbers will be floats
-								GL_FALSE, // don't normalize them
-								0,								// 0 stride as it's tightly packed data (1 buffer per data rather than 1 buffer with a vertex struct)
-								nullptr);  // no offset as it's tightly packed
+						glEnableVertexAttribArray(BufferObjects::POSITION);
+						glVertexAttribPointer(BufferObjects::POSITION, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-																		// bind the color buffer
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDPOS_AND_SIZE]);
+
+						glEnableVertexAttribArray(BufferObjects::WORLDPOS_AND_SIZE);
+						glVertexAttribPointer(BufferObjects::WORLDPOS_AND_SIZE, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
+						glVertexAttribDivisor(BufferObjects::WORLDPOS_AND_SIZE, 1);
+
+						// bind the color buffer
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
 
-						glEnableVertexAttribArray(BufferObjects::COLOR); //channel 2
+						glEnableVertexAttribArray(BufferObjects::COLOR);
+						glVertexAttribPointer(BufferObjects::COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Color), 0);
+						glVertexAttribDivisor(BufferObjects::COLOR, 1);
 
-						glVertexAttribPointer(BufferObjects::COLOR, // index 2
-								4,																// size = 4 ( 4 numbers for r,g,b and a )
-								GL_UNSIGNED_BYTE, // the 4 numbers will be bytes (0-255)
-								GL_TRUE,										// normalize them (divided by 255)
-								0,																// tightly packed
-								nullptr);									// no offset
+						unsigned int indices[] = { 0,1,2,			// first triangle (bottom left - top left - top right)
+																																	0,2,3 }; // second triangle (bottom left - top right - bottom right)
+
+						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBOs[BufferObjects::INDEX]);
+						glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 						// unbind the vao after the setup is done
 						glBindVertexArray(0);
 				}
 				void ParticleRenderer::begin()
 				{
-						m_spriteBatches.clear();
-						m_entities.clear();
+						m_entitiesMap.clear();
 				}
 				void ParticleRenderer::submit(std::weak_ptr<ecs::Entity> _entity)
 				{
-						m_entities.push_back(_entity);
+						std::weak_ptr<ecs::ParticleSystem> particleSystem = _entity.lock()->getComponent<ecs::ParticleSystem>();
+						std::weak_ptr<GLTexture2D> texture = particleSystem.lock()->getTexture();
+
+						glm::vec3 particleSystemWorldPos = _entity.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
+
+						ecs::Particle* particles = particleSystem.lock()->getParticles();
+
+						auto iter = m_entitiesMap.find(texture.lock()->getTextureID());
+
+						//check if it's not in the map
+						if (iter == m_entitiesMap.end())
+						{
+								InstanceData instance;
+								m_entitiesMap.insert(std::make_pair(texture.lock()->getTextureID(), instance));
+						}
+
+						for (int i = 0; i < particleSystem.lock()->getMaxParticles(); i++)
+						{
+								if (particles[i].m_life > 0.0f)
+								{
+										glm::vec3 particleWorldPos = particleSystemWorldPos + particles[i].m_position;
+										m_entitiesMap[texture.lock()->getTextureID()].worldPosAndSize.push_back(glm::vec4(particleWorldPos, particles[i].m_width));
+										m_entitiesMap[texture.lock()->getTextureID()].colors.push_back(particles[i].m_color);
+								}
+						}
 				}
 				void ParticleRenderer::end()
 				{
-						//after everything has been submitted, sort it and create the batches
-						sortSprites();
-						createSpriteBatches();
+						sortParticles();
 				}
 
 				void ParticleRenderer::flush()
@@ -82,35 +110,44 @@ namespace cogs
 						m_shader.lock()->use();
 						m_shader.lock()->uploadValue("projection", currentCam.lock()->getProjectionMatrix());
 						m_shader.lock()->uploadValue("view", currentCam.lock()->getViewMatrix());
-						//m_shader.lock()->uploadValue("cameraPos", currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldPosition());
+						m_shader.lock()->uploadValue("cameraRight_worldSpace",
+								currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldRightAxis());
+						m_shader.lock()->uploadValue("cameraUp_worldSpace",
+								currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldUpAxis());
 
 						/* Bind the VAO. This sets up the opengl state we need, including the
 						vertex attribute pointers and it binds the VBO */
 						glBindVertexArray(m_VAO);
+
 						glDepthMask(GL_FALSE);
-						//set the blend func to a nice one for particles
-						//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-						for (size_t i = 0; i < m_spriteBatches.size(); i++)
+						for (auto& it : m_entitiesMap)
 						{
-								glBindTexture(GL_TEXTURE_2D, m_spriteBatches[i].m_texture);
+								InstanceData instances = it.second;
+								GLuint texID = it.first;
+								//bind the per-instance buffers
+								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDPOS_AND_SIZE]);
+								//upload the data
+								glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * instances.worldPosAndSize.size(), instances.worldPosAndSize.data(), GL_DYNAMIC_DRAW);
 
-								//first index is offset, numindices = num vertices (just reuising the spritebatch struct)
-								glDrawArrays(GL_POINTS, m_spriteBatches[i].m_firstIndex, m_spriteBatches[i].m_numIndices);
+								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
+								glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * instances.colors.size(), instances.colors.data(), GL_DYNAMIC_DRAW);
+
+								glBindTexture(GL_TEXTURE_2D, texID);
+
+								glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.worldPosAndSize.size());
 						}
-						//unbind the vao
-						glBindVertexArray(0);
+
 						glDepthMask(GL_TRUE);
 
-						//restore the usual blending
-						//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+						//unbind the vao
+						glBindVertexArray(0);
 
 						m_shader.lock()->unUse();
 				}
-
 				void ParticleRenderer::dispose()
 				{
-						// Dispose of all the buffest if they have't been disposed already
+						//Dispose of all the buffest if they have't been disposed already
 
 						if (m_VAO != 0)
 						{
@@ -118,126 +155,36 @@ namespace cogs
 								m_VAO = 0;
 						}
 
-						glDeleteBuffers(BufferObjects::NUM_BUFFERS, m_VBOs);
-						for (size_t i = 0; i < BufferObjects::NUM_BUFFERS; i++)
+						if (m_VBOs[0] != 0)
 						{
-								m_VBOs[i] = 0;
+								glDeleteBuffers(BufferObjects::NUM_BUFFERS, m_VBOs);
+
+								for (size_t i = 0; i < BufferObjects::NUM_BUFFERS; i++)
+								{
+										m_VBOs[i] = 0;
+								}
 						}
 				}
-				void ParticleRenderer::createSpriteBatches()
+				void ParticleRenderer::sortParticles()
 				{
-						if (m_entities.empty())
+						for (auto& it : m_entitiesMap)
 						{
-								return;
-						}
+								InstanceData instances = it.second;
 
-						// This will store all the vertices that we need to upload
-						std::vector<glm::vec4> positions;
-						std::vector<Color> colors;
+								std::weak_ptr<ecs::Camera> currentCam = ecs::Camera::getCurrent();
+								const glm::vec3& cameraPos = currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldPosition();
 
-						int offset = 0;
-
-						for (size_t currentPSystem = 0; currentPSystem < m_entities.size(); currentPSystem++)
-						{
-								std::weak_ptr<ecs::ParticleSystem> particleSystem = m_entities.at(currentPSystem).lock()->getComponent<ecs::ParticleSystem>();
-								std::weak_ptr<GLTexture2D> texture = particleSystem.lock()->getTexture();
-								std::weak_ptr<ecs::Transform> transform = m_entities.at(currentPSystem).lock()->getComponent<ecs::Transform>();
-
-								ecs::Particle* particles = particleSystem.lock()->getParticles();
-
-								if (currentPSystem == 0)
+								std::sort(instances.worldPosAndSize.begin(), instances.worldPosAndSize.end(),
+										[&cameraPos](const glm::vec4& _p1, const glm::vec4& _p2)
 								{
-										m_spriteBatches.emplace_back(offset, 0, texture.lock()->getTextureID());
-								}
-								else if (texture.lock() !=
-										m_entities.at(currentPSystem - 1).lock()->getComponent<ecs::ParticleSystem>().lock()->getTexture().lock())
-								{
-										m_spriteBatches.emplace_back(offset, 0, texture.lock()->getTextureID());
-								}
+										glm::vec3 p1WorldPos(_p1);
+										glm::vec3 p2WorldPos(_p2);
 
-								for (int i = 0; i < particleSystem.lock()->getMaxParticles(); ++i)
-								{
-										if (particles[i].m_life > 0.0f)
-										{
-												m_spriteBatches.back().m_numIndices += 1;
-												glm::vec3 position = transform.lock()->worldPosition() + particles[i].m_position;
-												positions.push_back(glm::vec4(position, particles[i].m_width));
-												colors.push_back(particles[i].m_color);
-												offset += 1;
-										}
-								}
-						}
-
-						//bind the position buffer
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::POSITION]);
-						// Orphan the buffer (for speed)
-						glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
-						//upload the data
-						glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * sizeof(glm::vec4), positions.data());
-						// Unbind the VBO
-						glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-						//bind the color buffer
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
-						// Orphan the buffer (for speed)
-						glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(Color), nullptr, GL_DYNAMIC_DRAW);
-						//upload the data
-						glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(Color), colors.data());
-						// Unbind the VBO
-						glBindBuffer(GL_ARRAY_BUFFER, 0);
-				}
-				void ParticleRenderer::sortSprites()
-				{
-						std::weak_ptr<ecs::Camera> currentCam = ecs::Camera::getCurrent();
-						const glm::vec3& cameraPos = currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-
-						switch (m_sortType)
-						{
-						case SpriteSortType::FRONT_TO_BACK:
-						{
-								//use the z value (which is unused in 2D) to imitate layers
-								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[&cameraPos](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
-								{
-										glm::vec3 entity1WorldPos = _a.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-										glm::vec3 entity2WorldPos = _b.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-
-										float distanceFromCamera1 = glm::length2(entity1WorldPos - cameraPos);
-										float distanceFromCamera2 = glm::length2(entity2WorldPos - cameraPos);
-
-										return (distanceFromCamera1 < distanceFromCamera2);
-								});
-								break;
-						}
-						case SpriteSortType::BACK_TO_FRONT:
-						{
-								//use the z value (which is unused in 2D) to imitate layers
-								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[&cameraPos](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
-								{
-										glm::vec3 entity1WorldPos = _a.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-										glm::vec3 entity2WorldPos = _b.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-
-										float distanceFromCamera1 = glm::length2(entity1WorldPos - cameraPos);
-										float distanceFromCamera2 = glm::length2(entity2WorldPos - cameraPos);
+										float distanceFromCamera1 = glm::length2(p1WorldPos - cameraPos);
+										float distanceFromCamera2 = glm::length2(p2WorldPos - cameraPos);
 
 										return (distanceFromCamera1 > distanceFromCamera2);
 								});
-								break;
-						}
-						case SpriteSortType::TEXTURE:
-						{
-								// sort based on textures (best for optimization as all sprites with the same texture will be rendered with 1 call)
-								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
-								{
-										return (_a.lock()->getComponent<ecs::ParticleSystem>().lock()->getTexture().lock() >
-												_b.lock()->getComponent<ecs::ParticleSystem>().lock()->getTexture().lock());
-								});
-								break;
-						}
-						default:
-								break;
 						}
 				}
 		}

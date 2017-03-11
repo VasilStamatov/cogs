@@ -23,6 +23,7 @@
 #include "PaddleController.h"
 #include "BallBehavior.h"
 #include "PostProcessTest.h"
+#include "SpriteController.h"
 
 namespace ce = cogs::ecs;
 namespace cg = cogs::graphics;
@@ -36,7 +37,7 @@ int main(int argc, char** argv)
 		window.setRelativeMouseMode(true);
 		bool quit{ false };
 		bool debugMode{ false };
-		cu::FpsLimiter fpsLimiter(600.0f);
+		cu::FpsLimiter fpsLimiter(60.0f);
 
 		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
 
@@ -87,18 +88,21 @@ int main(int argc, char** argv)
 		std::shared_ptr<cg::Renderer3D> renderer3D = std::make_shared<cg::Renderer3D>(
 				cu::ResourceManager::getGLSLProgram("Basic3DShader", "Shaders/Basic3DShader.vert", "Shaders/Basic3DShader.frag"));
 
-		/*std::shared_ptr<cg::BillboardRenderer> billboardRenderer = std::make_shared<cg::BillboardRenderer>(
-				cu::ResourceManager::getGLSLProgram("BillboardShader", "Shaders/Billboard.vert", "Shaders/Billboard.frag", "Shaders/Billboard.geo"));
-*/
 		std::shared_ptr<cg::ParticleRenderer> particleRenderer = std::make_shared<cg::ParticleRenderer>(
-				cu::ResourceManager::getGLSLProgram("ParticleShader", "Shaders/ParticleShader.vert", "Shaders/ParticleShader.frag", "Shaders/ParticleShader.geo"));
+				cu::ResourceManager::getGLSLProgram("ParticleShader", "Shaders/ParticleShader.vert", "Shaders/ParticleShader.frag"));
+		
+		/*for (int i = 0; i < 20; i++)
+		{
+				std::weak_ptr<ce::Entity> sprite = root->addChild("testSprite" + std::to_string(i));
+				sprite.lock()->addComponent<ce::SpriteRenderer>(
+						cu::ResourceManager::getSprite("TestSprite",
+								cu::ResourceManager::getGLTexture2D("Textures/img_test.png", "texture_diffuse"),
+								glm::vec2(5.0f, 5.0f), cg::Color::white), renderer2D);
 
-		/*std::weak_ptr<ce::Entity> testSprite = root->addChild("testSprite");
-		testSprite.lock()->addComponent<ce::SpriteRenderer>(
-				cu::ResourceManager::getSprite("TestSprite",
-						cu::ResourceManager::getGLTexture2D("Textures/img_test.png","texture_diffuse"),
-						glm::vec2(10.0f, 10.0f), cg::Color::white), billboardRenderer);
-		testSprite.lock()->getComponent<ce::Transform>().lock()->translate(10.0f, 10.0f, 10.0f);*/
+				sprite.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i * 6, 10.0f, 10.0f));
+
+				sprite.lock()->addComponent<SpriteController>();
+		}*/
 
 		//std::weak_ptr<ce::Entity> particleSystem = root->addChild("PSTEST");
 		/*particleSystem.lock()->addComponent<ce::ParticleSystem>(particleRenderer, gravity, cg::Color::red,
@@ -140,15 +144,15 @@ int main(int argc, char** argv)
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 		paddle.lock()->addComponent<PaddleController>(150000.0f);
-		//paddle.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 1.0f, 10.0f, 1.0f,
-		//		gravity, cg::Color::white, 0.1f,
-		//		cu::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
-		//		[](ce::Particle& _particle, float _gravity, float _deltaTime)
-		//{
-		//		//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
-		//		_particle.m_velocity.y += _gravity * _deltaTime;
-		//		_particle.m_position += _particle.m_velocity * _deltaTime;
-		//});
+		paddle.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 1.0f, 5.0f, 1.0f,
+				gravity, cg::Color::green, 0.08f,
+				cu::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
+				[](ce::Particle& _particle, float _gravity, float _deltaTime)
+		{
+				//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
+				_particle.m_velocity.y += _gravity * _deltaTime;
+				_particle.m_position += _particle.m_velocity * _deltaTime;
+		});
 
 		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
 		groundBound.lock()->setTag("ground");
@@ -330,21 +334,17 @@ int main(int argc, char** argv)
 						window.setClearColor(camera.lock()->getBackgroundColor());
 						window.clear(true, true);
 
-						particleRenderer->begin();
-						//billboardRenderer->begin();
-						renderer2D->begin();
 						renderer3D->begin();
+						renderer2D->begin();
+						particleRenderer->begin();
 
 						// call the render function of all entities (submits all entities with sprite and mesh renderers)
 						root->renderAll();
 
-						particleRenderer->end();
-						//billboardRenderer->end();
-						renderer2D->end();
 						renderer3D->end();
+						renderer2D->end();
+						particleRenderer->end();
 
-						//billboardRenderer->flush();
-						renderer2D->flush();
 						renderer3D->flush();
 
 						if (debugMode)
@@ -361,6 +361,7 @@ int main(int argc, char** argv)
 						camera.lock()->renderSkybox();
 
 						particleRenderer->flush();
+						renderer2D->flush();
 						//set the render target to the default window
 						cg::Framebuffer::setActive(std::weak_ptr<cg::Framebuffer>());
 				}

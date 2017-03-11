@@ -40,7 +40,6 @@ namespace cogs
 
 				protected:
 						std::weak_ptr<GLSLProgram> m_shader; ///< shader to render with
-						std::vector<std::weak_ptr<ecs::Entity>> m_entities; ///< set ot submitted entities to render
 				};
 		}
 }

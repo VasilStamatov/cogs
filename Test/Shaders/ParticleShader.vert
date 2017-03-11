@@ -1,36 +1,31 @@
 #version 330 core
 
-layout (location = 0) in vec4 position;
-// layout (location = 1) in vec2 uv;
-layout (location = 1) in vec4 color;
+layout (location = 0) in vec3 position_modelSpace;
+layout (location = 1) in vec4 position_worldSpace_size;
+layout (location = 2) in vec4 color;
 
 out VS_OUT
 {
 	vec4 color;
-	float width;
+	vec2 uv;
 } vs_out;
 
-// uniform mat4 projection;
-// uniform mat4 view;
+uniform mat4 projection;
+uniform mat4 view;
+
+uniform vec3 cameraRight_worldSpace;
+uniform vec3 cameraUp_worldSpace;
 // uniform mat4 model;
 
 void main() 
 {
-	// gl_Position = projection * view * vec4(position, 1.0f);
-    gl_Position = vec4(position.xyz, 1.0f);
-    vs_out.width = position.w;
-    vs_out.color = color;
+	float particleSize = position_worldSpace_size.w;
+	vec3 particleCenter_worldSpace = position_worldSpace_size.xyz;
 	
-	//make the model matrix rotation and scale component be the transpose of the view matrix's component
-	//this makes it so that the ModelView result matrix has 0 rotation so it always faces the camera
-	// model[0][0] = view[0][0];
-	// model[0][1] = view[1][0];
-	// model[0][2] = view[2][0];
-	// model[1][0] = view[0][1];
-	// model[1][1] = view[1][1];
-	// model[1][2] = view[2][1];
-	// model[2][0] = view[0][2];
-	// model[2][1] = view[1][2];
-	// model[2][2] = view[2][2];
-
+	vec3 vertexPosition_worldspace = particleCenter_worldSpace + cameraRight_worldSpace * position_modelSpace.x * particleSize + cameraUp_worldSpace * position_modelSpace.y * particleSize;
+	
+	gl_Position = projection * view * vec4(vertexPosition_worldspace, 1.0f);
+	
+	vs_out.uv = position_modelSpace.xy + vec2(0.5f, 0.5f);
+	vs_out.color = color;
 }

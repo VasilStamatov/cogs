@@ -36,51 +36,81 @@ namespace cogs
 						//bind the position buffer
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::POSITION]);
 
-						//tell opengl how to read it
+						float vertices[] =
+						{ -0.5f,  0.5f, 0.0f,	 // top left corner
+						 -0.5f, -0.5f, 0.0f,		// bottom left corner
+								0.5f, -0.5f, 0.0f, // bottom right corner
+								0.5f,  0.5f, 0.0f };			// top right corner
 
-						glEnableVertexAttribArray(BufferObjects::POSITION); // on channel 0
+						glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-						glVertexAttribPointer(BufferObjects::POSITION, // index/channel 0
-								3,								// size = 3 (vec3 = 3 floats)
-								GL_FLOAT, // GL_FLOAT = tell it that the numbers will be floats
-								GL_FALSE, // don't normalize them
-								0,								// 0 stride as it's tightly packed data (1 buffer per data rather than 1 buffer with a vertex struct)
-								nullptr);  // no offset as it's tightly packed
+						glEnableVertexAttribArray(BufferObjects::POSITION);
+						glVertexAttribPointer(BufferObjects::POSITION,3,GL_FLOAT,GL_FALSE,0,nullptr);
 
-																			// bind the texcoord/uv buffer
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::TEXCOORD]);
-
-						glEnableVertexAttribArray(BufferObjects::TEXCOORD); //channel 1
-
-						glVertexAttribPointer(BufferObjects::TEXCOORD, // index 1
-								2,								// size = 2 ( 2 numbers for the u and v )
-								GL_FLOAT, // the 2 numbers will be floats
-								GL_FALSE, // don't normalize them
-								0,								// tightly packed
-								nullptr); // no offset
-
-																		// bind the color buffer
+						// bind the color buffer
 						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
 
-						glEnableVertexAttribArray(BufferObjects::COLOR); //channel 2
+						glEnableVertexAttribArray(BufferObjects::COLOR);
+						glVertexAttribPointer(BufferObjects::COLOR,4,GL_UNSIGNED_BYTE,GL_TRUE,sizeof(Color),0);
+						glVertexAttribDivisor(BufferObjects::COLOR, 1);
 
-						glVertexAttribPointer(BufferObjects::COLOR, // index 2
-								4,																// size = 4 ( 4 numbers for r,g,b and a )
-								GL_UNSIGNED_BYTE, // the 4 numbers will be bytes (0-255)
-								GL_TRUE,										// normalize them (divided by 255)
-								0,																// tightly packed
-								nullptr);									// no offset
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::SIZE]);
 
-																										// bind the index buffer for rendering with indices
+						glEnableVertexAttribArray(BufferObjects::SIZE);
+						glVertexAttribPointer(BufferObjects::SIZE, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2),0);
+						glVertexAttribDivisor(BufferObjects::SIZE, 1);
+
+						unsigned int indices[] = { 0,1,2,			// first triangle (bottom left - top left - top right)
+																																 0,2,3 }; // second triangle (bottom left - top right - bottom right)
+
 						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBOs[BufferObjects::INDEX]);
+						glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+						// bind the buffer for world matrices
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDMAT]);
+						// cannot upload mat4's all at once, so upload them as 4 vec4's
+						for (size_t i = 0; i < 4; i++)
+						{
+								//enable the channel of the current matrix row (4,5,6,7)
+								glEnableVertexAttribArray(BufferObjects::WORLDMAT + i);
+								//tell opengl how to read it
+								glVertexAttribPointer(BufferObjects::WORLDMAT + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+										(const void*)(sizeof(float) * i * 4));
+
+								/** This function is what makes it per-instance data rather than per vertex
+								* The first parameter is the attribute channel as above (4,5,6,7)
+								* The second parameter tells the rate at which the attribute advanced during the rendering
+								* 1 means that this data is updated after 1 instance has been rendered
+								* by default it's 0 which makes it per-vertex and if it's over 1 than more than 1 instances will use this data
+								*/
+								glVertexAttribDivisor(BufferObjects::WORLDMAT + i, 1);
+						}
 						// unbind the vao after the setup is done
 						glBindVertexArray(0);
 				}
+
 				void Renderer2D::submit(std::weak_ptr<ecs::Entity> _entity)
 				{
-						m_entities.push_back(_entity);
+						std::weak_ptr<Sprite> sprite = _entity.lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite();
+						std::weak_ptr<GLTexture2D> texture = sprite.lock()->getTexture();
+
+						//The transform values of the sprite
+						std::weak_ptr<ecs::Transform> transform = _entity.lock()->getComponent<ecs::Transform>();
+
+						auto iter = m_entitiesMap.find(texture.lock()->getTextureID());
+
+						//check if it's not in the map
+						if (iter == m_entitiesMap.end())
+						{
+								InstanceData instance;
+								m_entitiesMap.insert(std::make_pair(texture.lock()->getTextureID(), instance));
+						}
+
+						m_entitiesMap[texture.lock()->getTextureID()].worldmats.push_back(transform.lock()->worldTransform());
+						m_entitiesMap[texture.lock()->getTextureID()].colors.push_back(sprite.lock()->getColor());
+						m_entitiesMap[texture.lock()->getTextureID()].sizes.push_back(sprite.lock()->getSize());
 				}
+
 				void Renderer2D::flush()
 				{
 						std::weak_ptr<ecs::Camera> currentCam = ecs::Camera::getCurrent();
@@ -92,31 +122,46 @@ namespace cogs
 						vertex attribute pointers and it binds the VBO */
 						glBindVertexArray(m_VAO);
 
-						for (size_t i = 0; i < m_spriteBatches.size(); i++)
-						{
-								glBindTexture(GL_TEXTURE_2D, m_spriteBatches.at(i).m_texture);
+						//glDepthMask(GL_FALSE);
 
-								glDrawElements(GL_TRIANGLES,
-										m_spriteBatches.at(i).m_numIndices,
-										GL_UNSIGNED_INT,
-										(const GLvoid*)(m_spriteBatches.at(i).m_firstIndex * sizeof(unsigned int)));
+						for (auto& it : m_entitiesMap)
+						{
+								InstanceData instances = it.second;
+								GLuint texID = it.first;
+								//bind the per-instance buffers
+								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDMAT]);
+								//upload the data
+								glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * instances.worldmats.size(), instances.worldmats.data(), GL_DYNAMIC_DRAW);
+
+								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
+								glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * instances.colors.size(), instances.colors.data(), GL_DYNAMIC_DRAW);
+
+								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::SIZE]);
+								glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * instances.sizes.size(), instances.sizes.data(), GL_DYNAMIC_DRAW);
+
+								glBindTexture(GL_TEXTURE_2D, texID);
+
+								glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.worldmats.size());
 						}
+
+						//glDepthMask(GL_TRUE);
+
 						//unbind the vao
 						glBindVertexArray(0);
 
 						m_shader.lock()->unUse();
 				}
+
 				void Renderer2D::begin()
 				{
-						m_spriteBatches.clear();
-						m_entities.clear();
+						m_entitiesMap.clear();
 				}
+
 				void Renderer2D::end()
 				{
-						//after everything has been submitted, sort it and create the batches
 						sortSprites();
-						createSpriteBatches();
 				}
+
 				void Renderer2D::dispose()
 				{
 						//Dispose of all the buffest if they have't been disposed already
@@ -127,195 +172,20 @@ namespace cogs
 								m_VAO = 0;
 						}
 
-						glDeleteBuffers(BufferObjects::NUM_BUFFERS, m_VBOs);
-						for (size_t i = 0; i < BufferObjects::NUM_BUFFERS; i++)
+						if (m_VBOs[0] != 0)
 						{
-								m_VBOs[i] = 0;
+								glDeleteBuffers(BufferObjects::NUM_BUFFERS, m_VBOs);
+
+								for (size_t i = 0; i < BufferObjects::NUM_BUFFERS; i++)
+								{
+										m_VBOs[i] = 0;
+								}
 						}
 				}
 
 				void Renderer2D::sortSprites()
 				{
-						switch (m_sortType)
-						{
-						case SpriteSortType::FRONT_TO_BACK:
-						{
-								//use the z value (which is unused in 2D) to imitate layers
-								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
-								{
-										return (_a.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z <
-												_b.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z);
-								});
-								break;
-						}
-						case SpriteSortType::BACK_TO_FRONT:
-						{
-								//use the z value (which is unused in 2D) to imitate layers
-								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
-								{
-										return (_a.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z >
-												_b.lock()->getComponent<ecs::Transform>().lock()->worldPosition().z);
-								});
-								break;
-						}
-						case SpriteSortType::TEXTURE:
-						{
-								// sort based on textures (best for optimization as all sprites with the same texture will be rendered with 1 call)
-								std::stable_sort(m_entities.begin(), m_entities.end(),
-										[](std::weak_ptr<ecs::Entity> _a, std::weak_ptr<ecs::Entity> _b)
-								{
-										return (_a.lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite().lock()->getTexture().lock() >
-												_b.lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite().lock()->getTexture().lock());
-								});
-								break;
-						}
-						default:
-								break;
-						}
-				}
-				void Renderer2D::createSpriteBatches()
-				{
-						if (m_entities.empty())
-						{
-								return;
-						}
-
-						// This will store all the vertices that we need to upload
-						std::vector<glm::vec3> positions;
-
-						std::vector<glm::vec2> texCoords;
-
-						std::vector<Color> colors;
-
-						std::vector<GLuint> indices;
-
-						//1 entity = 1 sprite = 4 vertices
-						positions.resize(m_entities.size() * 4);
-						texCoords.resize(m_entities.size() * 4);
-						colors.resize(m_entities.size() * 4);
-
-						//1 sprite = 6 indices to connect the 4 verts (0, 1, 2 - 2, 3, 0)
-						indices.resize(m_entities.size() * 6);
-
-						int offset = 0;
-
-						//set all the indices
-						for (size_t i = 0; i < indices.size(); i += 6)
-						{
-								indices.at(i) = offset + 0;
-								indices.at(i + 1) = offset + 1;
-								indices.at(i + 2) = offset + 2;
-
-								indices.at(i + 3) = offset + 2;
-								indices.at(i + 4) = offset + 3;
-								indices.at(i + 5) = offset + 0;
-
-								offset += 4;
-						}
-
-						int currentVertex = 0;
-						offset = 0;
-
-						//set all the vertices
-						for (size_t currentSprite = 0; currentSprite < m_entities.size(); currentSprite++)
-						{
-								std::weak_ptr<Sprite> sprite = m_entities.at(currentSprite).lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite();
-								std::weak_ptr<GLTexture2D> texture = sprite.lock()->getTexture();
-
-								//The transform values of the sprite
-								std::weak_ptr<ecs::Transform> transform = m_entities.at(currentSprite).lock()->getComponent<ecs::Transform>();
-
-								if (currentSprite == 0)
-								{
-										m_spriteBatches.emplace_back(offset, 6, texture.lock()->getTextureID());
-								}
-								else if (texture.lock() !=
-										m_entities.at(currentSprite - 1).lock()->getComponent<ecs::SpriteRenderer>().lock()->getSprite().lock()->getTexture().lock())
-								{
-										m_spriteBatches.emplace_back(offset, 6, sprite.lock()->getTexture().lock()->getTextureID());
-								}
-								else
-								{
-										// If its part of the current batch, just increase numVertices
-										m_spriteBatches.back().m_numIndices += 6;
-								}
-
-								//the components needed for the 4 vertices
-								const graphics::Color& color = sprite.lock()->getColor();
-								const glm::vec2& size = sprite.lock()->getSize();
-
-								glm::mat4 worldTrans = transform.lock()->worldTransform();
-
-								//get the 4 vertices around the center 
-								glm::vec3 bottomLeft = glm::vec3(-size.x * 0.5f, -size.y * 0.5f, 0.0f);
-								glm::vec3 topLeft = glm::vec3(-size.x * 0.5f, size.y * 0.5f, 0.0f);
-								glm::vec3 topRight = glm::vec3(size.x * 0.5f, size.y * 0.5f, 0.0f);
-								glm::vec3 bottomRight = glm::vec3(size.x * 0.5f, -size.y * 0.5f, 0.0f);
-
-								//transform the 4 vertices by the world matrix
-								bottomLeft = worldTrans * glm::vec4(bottomLeft, 1.0f);
-								topLeft = worldTrans * glm::vec4(topLeft, 1.0f);
-								topRight = worldTrans * glm::vec4(topRight, 1.0f);
-								bottomRight = worldTrans * glm::vec4(bottomRight, 1.0f);
-
-								glm::vec4 uvs = texture.lock()->getTexCoords(sprite.lock()->getSpritesheetIndex());
-
-								positions.at(currentVertex) = topLeft;
-								texCoords.at(currentVertex) = glm::vec2(uvs.x, uvs.y + uvs.w);
-								colors.at(currentVertex++)  = color;
-
-								positions.at(currentVertex) = bottomLeft;
-								texCoords.at(currentVertex) = glm::vec2(uvs.x, uvs.y);
-								colors.at(currentVertex++)  = color;
-
-								positions.at(currentVertex) = bottomRight;
-								texCoords.at(currentVertex) = glm::vec2(uvs.x + uvs.z, uvs.y);
-								colors.at(currentVertex++) = color;
-
-								positions.at(currentVertex) = topRight;
-								texCoords.at(currentVertex) = glm::vec2(uvs.x + uvs.z, uvs.y + uvs.w);
-								colors.at(currentVertex++) = color;
-
-								offset += 6;
-						}
-
-						//bind the position buffer
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::POSITION]);
-						// Orphan the buffer (for speed)
-						glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(positions.at(0)), nullptr, GL_DYNAMIC_DRAW);
-						//upload the data
-						glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * sizeof(positions.at(0)), positions.data());
-						// Unbind the VBO
-						glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-						//bind the uv buffer
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::TEXCOORD]);
-						// Orphan the buffer (for speed)
-						glBufferData(GL_ARRAY_BUFFER, texCoords.size() * sizeof(texCoords.at(0)), nullptr, GL_DYNAMIC_DRAW);
-						//upload the data
-						glBufferSubData(GL_ARRAY_BUFFER, 0, texCoords.size() * sizeof(texCoords.at(0)), texCoords.data());
-						// Unbind the VBO
-						glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-						//bind the color buffer
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
-						// Orphan the buffer (for speed)
-						glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(colors.at(0)), nullptr, GL_DYNAMIC_DRAW);
-						//upload the data
-						glBufferSubData(GL_ARRAY_BUFFER, 0, colors.size() * sizeof(colors.at(0)), colors.data());
-						// Unbind the VBO
-						glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-						//bind the index buffer
-						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBOs[BufferObjects::INDEX]);
-						// Orphan the buffer
-						glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices.at(0)), nullptr, GL_DYNAMIC_DRAW);
-						// Upload the data
-						glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(indices.at(0)), indices.data());
-						//unbind the ibo
-						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+						
 				}
 		}
 }

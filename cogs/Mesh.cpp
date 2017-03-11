@@ -35,7 +35,8 @@ namespace cogs
 								glDeleteVertexArrays(1, &m_VAO);
 								m_VAO = 0;
 						}
-						if (*m_VBOs != 0)
+
+						if (m_VBOs[0] != 0)
 						{
 								glDeleteBuffers(NUM_BUFFERS, m_VBOs);
 								for (size_t i = 0; i < 5; i++)

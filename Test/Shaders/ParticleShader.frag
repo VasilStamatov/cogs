@@ -2,10 +2,10 @@
 
 out vec4 color;
 
-in GS_OUT
+in VS_OUT
 {
-	vec2 uv;
 	vec4 color;
+	vec2 uv;
 } fs_in;
 
 

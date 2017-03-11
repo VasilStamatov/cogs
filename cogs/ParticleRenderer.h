@@ -7,7 +7,7 @@ namespace cogs
 {
 		namespace graphics
 		{
-				class ParticleRenderer : public Renderer2D
+				class ParticleRenderer : public Renderer
 				{
 				public:
 						ParticleRenderer(std::weak_ptr<GLSLProgram> _shader);
@@ -26,21 +26,32 @@ namespace cogs
 						//disposes of buffer objects and data
 						void dispose() override;
 
-				protected:
-						void createSpriteBatches() override; ///< fill the spritebatches vector with the batches
-					 void sortSprites() override; ///< sorts the sprites
-
 				private:
+						void sortParticles();
+
 						/** Enum for the buffer objects */
 						enum BufferObjects : unsigned int
 						{
 								POSITION,
+								WORLDPOS_AND_SIZE,
 								COLOR,
+
+								INDEX,
 
 								NUM_BUFFERS
 						};
 
 						VBO m_VBOs[BufferObjects::NUM_BUFFERS] = { 0 }; ///< the vbos
+						VAO m_VAO{ 0 };
+
+						struct InstanceData
+						{
+								std::vector<Color> colors;
+								std::vector<glm::vec4> worldPosAndSize;
+						};
+						//key = texture id (all sprites of the same texture to be instanced rendered)
+						//value = instance data = per instance data
+						std::unordered_map<unsigned int, InstanceData> m_entitiesMap;
 				};
 		}
 }

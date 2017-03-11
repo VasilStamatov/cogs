@@ -64,7 +64,6 @@ namespace cogs
 				private:
 						//finds a free particle position from all possible particles (maxParticles) or overwrites the first one
 						int findFreeParticle();
-						void sortParticles();
 						void generateParticles(float _deltaTime);
 						void spawnParticle();
 
