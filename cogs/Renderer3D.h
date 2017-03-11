@@ -3,6 +3,9 @@
 
 #include "Renderer.h"
 
+#include "Mesh.h"
+#include <unordered_map>
+
 namespace cogs
 {
 		namespace graphics
@@ -49,6 +52,14 @@ namespace cogs
 						* \brief disposes
 						*/
 						void dispose() override;
+
+				private:
+						struct InstanceData
+						{
+								std::weak_ptr<Mesh> mesh;
+								std::vector<glm::mat4> worldmats;
+						};
+						std::unordered_map<VAO, InstanceData> m_entitiesMap;
 				};
 		}
 }

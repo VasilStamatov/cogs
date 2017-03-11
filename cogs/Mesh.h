@@ -74,6 +74,7 @@ namespace cogs
 								TEXCOORD,
 								NORMAL,
 								TANGENT,
+								WORLDMAT,
 
 								INDEX,
 

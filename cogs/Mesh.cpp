@@ -253,6 +253,26 @@ namespace cogs
 						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBOs[BufferObject::INDEX]);
 						glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(m_indices.at(0)), m_indices.data(), GL_STATIC_DRAW);
 
+						// bind the buffer for world matrices
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObject::WORLDMAT]);
+						// cannot upload mat4's all at once, so upload them as 4 vec4's
+						for (size_t i = 0; i < 4; i++)
+						{
+								//enable the channel of the current matrix row (4,5,6,7)
+								glEnableVertexAttribArray(BufferObject::WORLDMAT + i);
+								//tell opengl how to read it
+								glVertexAttribPointer(BufferObject::WORLDMAT + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+										(const void*)(sizeof(float) * i * 4));
+
+								/** This function is what makes it per-instance data rather than per vertex
+								* The first parameter is the attribute channel as above (4,5,6,7)
+								* The second parameter tells the rate at which the attribute advanced during the rendering
+								* 1 means that this data is updated after 1 instance has been rendered
+								* by default it's 0 which makes it per-vertex and if it's over 1 than more than 1 instances will use this data
+								*/
+								glVertexAttribDivisor(BufferObject::WORLDMAT + i, 1);
+						}
+					
 						glBindVertexArray(0);
 				}
 		}

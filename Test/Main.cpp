@@ -100,13 +100,6 @@ int main(int argc, char** argv)
 						glm::vec2(10.0f, 10.0f), cg::Color::white), billboardRenderer);
 		testSprite.lock()->getComponent<ce::Transform>().lock()->translate(10.0f, 10.0f, 10.0f);*/
 
-		/*int _maxParticles,
-				float _width,
-				const glm::vec3& _emittingVelocity,
-				const graphics::Color& _color,
-				float _particleLifetime,
-				std::weak_ptr<graphics::GLTexture2D> _texture,*/
-
 		//std::weak_ptr<ce::Entity> particleSystem = root->addChild("PSTEST");
 		/*particleSystem.lock()->addComponent<ce::ParticleSystem>(particleRenderer, gravity, cg::Color::red,
 				100, 50.0f, 1.0f, 1.0f, 1.0f, 0.0f,
@@ -117,14 +110,14 @@ int main(int argc, char** argv)
 
 		/*std::weak_ptr<ce::Entity> nanosuit = root->addChild("nanosuit");
 		nanosuit.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(10.0f, 20.0f, 10.0f));
-		cu::loadMeshesToEntity(nanosuit, "Models/nanosuit/nanosuit.obj", renderer3D);*/
-		/*nanosuit.lock()->addComponent<ce::SphereCollider>(3.0f);
+		nanosuit.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getMesh("Models/nanosuit/nanosuit.obj"), renderer3D);
+		nanosuit.lock()->addComponent<ce::SphereCollider>(3.0f);
 		nanosuit.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
 		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(4);
 		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setLinearFactor(glm::vec3(1.0f, 0.0f, 0.0f));
 		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
 		nanosuit.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-		nanosuit.lock()->addComponent<PaddleController>(1.0f);*/
+		nanosuit.lock()->addComponent<PaddleController>(150000.0f);*/
 
 		std::weak_ptr<ce::Entity> directionalLight = root->addChild("PointLight");
 		directionalLight.lock()->addComponent<ce::Light>();
@@ -359,6 +352,7 @@ int main(int argc, char** argv)
 								//use the debug renderer to draw the debug physics world
 								physicsWorld->debugDrawWorld();
 								camera2.lock()->getComponent<ce::Camera>().lock()->renderFrustum(&debugRenderer);
+								//debugRenderer.drawMeshSphereBounds(nanosuit);
 								debugRenderer.end();
 								debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 5.0f);
 						}

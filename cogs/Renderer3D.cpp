@@ -30,21 +30,33 @@ namespace cogs
 
 						std::weak_ptr<Mesh> mesh = _entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
 
+						std::weak_ptr<ecs::Transform> transform = _entity.lock()->getComponent<ecs::Transform>();
+
 						//get the center vertex position in model space
 						const glm::vec4& center = glm::vec4(mesh.lock()->getCenter(), 1.0f);
 
 						//get the transformation matrix to world space
-						const glm::mat4& toWorldMat = _entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform();
+						const glm::mat4& toWorldMat = transform.lock()->worldTransform();
 
 						//calculate the center vertex from model to world space
 						glm::vec3 point = glm::vec3(toWorldMat * center);
 
-						const glm::vec3& scale = _entity.lock()->getComponent<ecs::Transform>().lock()->worldScale();
+						const glm::vec3& scale = transform.lock()->worldScale();
 						float radius = mesh.lock()->getRadius() * glm::max(scale.x, glm::max(scale.y, scale.z));
 						//submit the mesh if it's in the view frustum
+
 						if (currentCam.lock()->sphereInFrustum(point, radius))
 						{
-								m_entities.push_back(_entity);
+								auto iter = m_entitiesMap.find(mesh.lock()->m_VAO);
+
+								//check if it's not in the map
+								if (iter == m_entitiesMap.end())
+								{
+										InstanceData instance;
+										instance.mesh = mesh;
+										m_entitiesMap.insert(std::make_pair(mesh.lock()->m_VAO, instance));
+								}
+								m_entitiesMap[mesh.lock()->m_VAO].worldmats.push_back(toWorldMat);
 						}
 
 				}
@@ -95,18 +107,19 @@ namespace cogs
 								}
 						}
 
-						for (std::weak_ptr<ecs::Entity> entity : m_entities)
+						for (auto& it : m_entitiesMap)
 						{
-								//upload the model matrix as it's the same for 1 whole entity
-								m_shader.lock()->uploadValue("model", entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform());
+								InstanceData instances = it.second;
 
-								//get the mesh
-								std::weak_ptr<Mesh> mesh = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
+								const std::vector<SubMesh>& subMeshes = instances.mesh.lock()->getSubMeshes();
+								const std::vector<std::weak_ptr<Material>>& materials = instances.mesh.lock()->getMaterials();
 
-								const std::vector<SubMesh>& subMeshes = mesh.lock()->getSubMeshes();
-								const std::vector<std::weak_ptr<Material>>& materials = mesh.lock()->getMaterials();
+								//bind the per-instance buffers
+								glBindBuffer(GL_ARRAY_BUFFER, instances.mesh.lock()->m_VBOs[instances.mesh.lock()->BufferObject::WORLDMAT]);
+								//upload the data
+								glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * instances.worldmats.size(), instances.worldmats.data(), GL_DYNAMIC_DRAW);
 
-								glBindVertexArray(mesh.lock()->m_VAO);
+								glBindVertexArray(instances.mesh.lock()->m_VAO);
 
 								for (unsigned int i = 0; i < subMeshes.size(); i++)
 								{
@@ -118,8 +131,8 @@ namespace cogs
 												m_shader.lock()->uploadMaterial(materials.at(materialIndex));
 										}
 
-										glDrawElementsBaseVertex(GL_TRIANGLES, subMeshes.at(i).m_numIndices,	GL_UNSIGNED_INT,
-												(void*)(sizeof(unsigned int) * subMeshes.at(i).m_baseIndex),
+										glDrawElementsInstancedBaseVertex(GL_TRIANGLES, subMeshes.at(i).m_numIndices, GL_UNSIGNED_INT,
+												(void*)(sizeof(unsigned int) * subMeshes.at(i).m_baseIndex), instances.worldmats.size(),
 												subMeshes.at(i).m_baseVertex);
 								}
 
@@ -136,7 +149,7 @@ namespace cogs
 
 				void Renderer3D::begin()
 				{
-						m_entities.clear();
+						m_entitiesMap.clear();
 				}
 
 				void Renderer3D::end()

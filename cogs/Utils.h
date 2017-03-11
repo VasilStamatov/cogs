@@ -43,6 +43,17 @@ namespace cogs
 				*/
 				extern bool loadCubemap(const std::vector<std::string>& _fileNames, int* _width, int* _height, unsigned int* _id);
 
+				/**
+				* \brief Loads a mesh data into the vectors using ASSIMP.
+				* \param _filePath  - the filepath of the mesh to load
+				* \param _subMeshes	- vector of submeshes the main mesh is made of
+				* \param _positions	- vector of vec3 positions/vertices to fill
+				* \param _uvs							- vector of vec2 texture coordinates to fill
+				* \param _normals			- vector of vec3 normals to fill
+				* \param _tangents  - vector of vec3 tangents to fill
+				* \param _indices	  - vector of unsigned ints indices to fill for indexed rendering
+				* \param _materials	- vector of Materials that the mesh has to fill
+				*/
 				extern void loadMesh(const std::string& _filePath,
 						std::vector<graphics::SubMesh>& _subMeshes,
 						std::vector<glm::vec3>& _positions,

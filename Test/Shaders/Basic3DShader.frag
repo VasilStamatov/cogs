@@ -10,6 +10,8 @@ in VS_OUT
 	mat3 TBN;
 } fs_in;
 
+flat in int instanceID;
+
 struct Material
 {
 	sampler2D texture_diffuse;
