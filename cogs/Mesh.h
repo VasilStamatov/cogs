@@ -6,25 +6,31 @@
 #include <glm\vec3.hpp>
 #include <glm\vec2.hpp>
 
+#include "Material.h"
+
 namespace cogs
 {
 		namespace graphics
 		{
+				//Structure of submeshes the mesh is composed of
+				struct SubMesh
+				{
+						unsigned int m_baseVertex{ 0 };
+						unsigned int m_baseIndex{ 0 };
+						unsigned int m_numIndices{ 0 };
+						unsigned int m_materialIndex{ 9999 };
+				};
+
 				/**
 				* Mesh class, for storing mesh data and handling rendering
 				*/
 				class Mesh
 				{
+						friend class Renderer3D;
+
 				public:
 						Mesh() {}
-						Mesh(const std::string& _name);
-						Mesh(const std::string& _name,
-								const std::vector<unsigned int>& _indices,
-								const std::vector<glm::vec3>& _positions,
-								const std::vector<glm::vec2>& _uvs,
-								const std::vector<glm::vec3>& _normals,
-								const std::vector<glm::vec3>& _tangents);
-						Mesh(const Mesh& _other);
+						Mesh(const std::string& _filePath);
 
 						~Mesh();
 
@@ -39,58 +45,28 @@ namespace cogs
 						void dispose();
 
 						/**
-						* \brief disposes of the vbo's and vao and reuploads the mesh data
-						*/
-						void reupload();
-
-						/**
 						* \brief Checks if the mesh is valid
 						*/
 						bool isValid() const;
 
 						/**
-						* \brief mesh name getter and setter
+						* \brief loads mesh data into this object (buffer objects, vertex data etc.)
 						*/
-						void setName(const std::string& _name) { m_name = _name; }
-						const std::string& getName()											{ return m_name; }
+						void load(const std::string& _filePath);
 
-						/**
-						* \brief Utility functions to add data to the mesh and possibly build a whole mesh
-						*/
-
-						/** \brief adds a vertex/position point to the mesh */
-						void addPoint(const glm::vec3& _point);
-						/** \brief adds a texcoord/uv to the mesh */
-						void addTexCoord(const glm::vec2& _uv);
-						/** \brief adds a normal point to the mesh */
-						void addNormal(const glm::vec3& _normal);
-						/** \brief adds a tangent point to the mesh */
-						void addTangent(const glm::vec3& _tangent);
-						/** \brief adds a face/triangle face to the mesh */
-						void addFace(unsigned int _vertIndex0, unsigned int _vertIndex1, unsigned int _vertIndex2);
-
-						inline void addVertex  (float x, float y, float z) { addPoint(glm::vec3(x, y, z)); }
-						inline void addTexCoord(float u, float v)									 { addTexCoord(glm::vec2(u, v)); }
-						inline void addNormal  (float x, float y, float z) { addNormal(glm::vec3(x, y, z)); }
-						inline void addTangent (float x, float y, float z) { addTangent(glm::vec3(x, y, z)); }
-
-						/** \brief mesh getters */
-						inline const std::vector<unsigned int>& getIndices()  const noexcept { return m_indices; }
-						inline const std::vector<glm::vec3>& getPositions()   const noexcept { return m_positions; }
-						inline const std::vector<glm::vec2>& getTexCoords()   const noexcept { return m_uvs; }
-						inline const std::vector<glm::vec3>& getNormals()     const noexcept { return m_normals; }
-						inline const std::vector<glm::vec3>& getTangents()    const noexcept { return m_tangents; }
-						inline const glm::vec3& getCenter() const noexcept { return m_center; }
-						inline const float& getRadius() const noexcept				 { return m_radius; }
-						/** \brief mesh setters */
-						inline void setIndices(std::vector<unsigned int>& _indices)  { m_indices = _indices; }
-						inline void setPositions(std::vector<glm::vec3>& _positions) { m_positions = _positions; }
-						inline void	setTexCoords(std::vector<glm::vec2>& _texCoords) { m_uvs = _texCoords; }
-						inline void	setNormals(std::vector<glm::vec3>& _normals)				 { m_normals = _normals; }
-						inline void	setTangents(std::vector<glm::vec3>& _tangents)		 { m_tangents = _tangents; }
-
+						inline const glm::vec3& getCenter()																	  const noexcept { return m_center; }
+						inline const float& getRadius()																							const noexcept	{ return m_radius; }
+						inline const std::vector<SubMesh>& getSubMeshes()					const noexcept { return m_subMeshes; }
+						inline const std::vector<std::weak_ptr<Material>>& getMaterials()	const noexcept { return m_materials; }
 
 				private:
+						/* internal utility functions */
+						void calcBoundingSphere();
+						void calcNormals();
+						void calcTangents();
+						void finalize();
+						void createBuffers();
+
 						//enum for all the buffer objects
 						enum BufferObject
 						{
@@ -104,16 +80,7 @@ namespace cogs
 								NUM_BUFFERS
 						};
 
-						/* internal utility functions */
-						void calcBoundingSphere();
-						void calcNormals();
-						void calcTangents();
-						void finalize();
-						void createBuffers();
-
 				private:
-						std::string m_name; ///< the name of the mesh 
-
 						std::vector<glm::vec3> m_positions; ///< position data
 						std::vector<glm::vec2> m_uvs; ///< texcoordinates
 						std::vector<glm::vec3> m_normals; ///< normal data
@@ -125,6 +92,9 @@ namespace cogs
 
 						unsigned int m_VAO{ 0 }; ///< the vao of this mesh
 						unsigned int m_VBOs[BufferObject::NUM_BUFFERS] = {0}; ///< the vbo's of this mesh
+
+						std::vector<SubMesh> m_subMeshes;
+						std::vector<std::weak_ptr<Material>> m_materials;
 				};
 		}
 }

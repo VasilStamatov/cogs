@@ -5,6 +5,8 @@
 #include "MeshRenderer.h"
 #include "Light.h"
 
+#include <GL\glew.h>
+
 namespace cogs
 {
 		namespace graphics
@@ -100,12 +102,28 @@ namespace cogs
 
 								//get the mesh
 								std::weak_ptr<Mesh> mesh = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
-								//get the Material
-								std::weak_ptr<Material> material = entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMaterial();
 
-								m_shader.lock()->uploadMaterial(material);
+								const std::vector<SubMesh>& subMeshes = mesh.lock()->getSubMeshes();
+								const std::vector<std::weak_ptr<Material>>& materials = mesh.lock()->getMaterials();
 
-								mesh.lock()->render();
+								glBindVertexArray(mesh.lock()->m_VAO);
+
+								for (unsigned int i = 0; i < subMeshes.size(); i++)
+								{
+										const unsigned int materialIndex = subMeshes[i].m_materialIndex;
+										assert(materialIndex < materials.size());
+
+										if (!materials.at(materialIndex).expired())
+										{
+												m_shader.lock()->uploadMaterial(materials.at(materialIndex));
+										}
+
+										glDrawElementsBaseVertex(GL_TRIANGLES, subMeshes.at(i).m_numIndices,	GL_UNSIGNED_INT,
+												(void*)(sizeof(unsigned int) * subMeshes.at(i).m_baseIndex),
+												subMeshes.at(i).m_baseVertex);
+								}
+
+								glBindVertexArray(0);
 						}
 
 						//finally unbind the current shader program

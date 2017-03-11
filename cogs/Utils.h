@@ -2,12 +2,6 @@
 #define UTILS_H
 
 #include "Mesh.h"
-#include "Material.h"
-#include "Entity.h"
-#include "Renderer3D.h"
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 namespace cogs
 {
@@ -49,51 +43,14 @@ namespace cogs
 				*/
 				extern bool loadCubemap(const std::vector<std::string>& _fileNames, int* _width, int* _height, unsigned int* _id);
 
-				/**
-				* \brief Loads a single mesh file with no materials, just mesh data, 
-				* \param _filePath - the filepath of the model
-				* \return a single mesh with the loaded data
-				*/
-				extern graphics::Mesh loadPrimitive(const std::string& _filePath);
-
-				/**
-				* \brief Constructs a new Entity and fills it up with children
-				* with MeshRenderers to create a hierarchicaly structured model
-				* \param[in] _filePath - the filepath of the model
-				* \param[in] _renderer - The renderer which will render this model
-				* \param[out] a shared pointer of the newly created entity with all of its children
-				*/
-				extern std::shared_ptr<ecs::Entity> loadEntityWithMeshes(const std::string& _filePath,
-						std::weak_ptr<graphics::Renderer3D> _renderer);
-
-				/**
-				* \brief Takes an already existing entity and creates children into it with mesh
-				renderers based on the loaded model file to create a hierarchically structured model
-				* \param[in] _mainHolder -  the entity into which to create all the children nodes
-				* \param[in] _filePath - the filepath of the model
-				* \param[in] _renderer - The renderer which will render this model
-				*/
-				extern void loadMeshesToEntity(std::weak_ptr<ecs::Entity> _mainHolder, 
-						const std::string& _filePath, std::weak_ptr<graphics::Renderer3D> _renderer);
-
-				namespace internal
-				{
-						/**
-						* \brief Process a single node of the aiScene
-						*/
-						extern void processNode(aiNode* _node, const aiScene* _scene, const std::string& _directory, std::weak_ptr<ecs::Entity> _parent,
-								std::weak_ptr<graphics::Renderer3D> _renderer);
-
-						/**
-						* \brief Construct a mesh from an aiMesh data
-						*/
-						extern void processMesh(aiMesh* _aiMesh, std::weak_ptr<graphics::Mesh> _cogsMesh);
-						
-						/**
-						* \brief Construct a material from an aiMaterial data
-						*/
-						extern void processMaterial(aiMaterial* _aiMaterial, std::weak_ptr<graphics::Material> _cogsMaterial, const std::string& _directory);
-				}
+				extern void loadMesh(const std::string& _filePath,
+						std::vector<graphics::SubMesh>& _subMeshes,
+						std::vector<glm::vec3>& _positions,
+						std::vector<glm::vec2>& _uvs,
+						std::vector<glm::vec3>& _normals,
+						std::vector<glm::vec3>& _tangents,
+						std::vector<unsigned int>& _indices,
+						std::vector<std::weak_ptr<graphics::Material>>& _materials);
 		}
 }
 

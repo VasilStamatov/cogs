@@ -14,11 +14,11 @@ namespace cogs
 				{
 						if (_isBox)
 						{
-								m_mesh = utils::ResourceManager::getPrimitive("Models/TestModels/cube.obj");
+								m_mesh = utils::ResourceManager::getMesh("Models/TestModels/cube.obj");
 						}
 						else
 						{
-								m_mesh = utils::ResourceManager::getPrimitive("Models/TestModels/sphere.obj");
+								m_mesh = utils::ResourceManager::getMesh("Models/TestModels/sphere.obj");
 						}
 				}
 

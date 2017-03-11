@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include "Utils.h"
+
 #include <glm\glm.hpp>
 #include <GL\glew.h>
 
@@ -7,35 +9,9 @@ namespace cogs
 {
 		namespace graphics
 		{
-				Mesh::Mesh(const std::string& _name) : m_name(_name)
+				Mesh::Mesh(const std::string & _filePath)
 				{
-				}
-
-				Mesh::Mesh(const std::string& _name,
-						const std::vector<unsigned int>& _indices,
-						const std::vector<glm::vec3>& _positions,
-						const std::vector<glm::vec2>& _uvs,
-						const std::vector<glm::vec3>& _normals,
-						const std::vector<glm::vec3>& _tangents) :
-						m_name(_name),
-						m_indices(_indices),
-						m_positions(_positions),
-						m_uvs(_uvs),
-						m_normals(_normals),
-						m_tangents(_tangents)
-				{
-						createBuffers();
-				}
-
-				Mesh::Mesh(const Mesh & _other) :
-						m_name(_other.m_name),
-						m_indices(_other.m_indices),
-						m_positions(_other.m_positions),
-						m_uvs(_other.m_uvs),
-						m_normals(_other.m_normals),
-						m_tangents(_other.m_tangents)
-				{
-						createBuffers();
+						load(_filePath);
 				}
 
 				Mesh::~Mesh()
@@ -69,12 +45,6 @@ namespace cogs
 						}
 				}
 
-				void Mesh::reupload()
-				{
-						dispose();
-						createBuffers();
-				}
-
 				bool Mesh::isValid() const
 				{
 						return m_positions.size() == m_uvs.size()
@@ -82,27 +52,11 @@ namespace cogs
 								&& m_normals.size() == m_tangents.size();
 				}
 
-				void Mesh::addPoint(const glm::vec3 & _point)
+				void Mesh::load(const std::string & _filePath)
 				{
-						m_positions.push_back(_point);
-				}
-				void Mesh::addTexCoord(const glm::vec2 & _uv)
-				{
-						m_uvs.push_back(_uv);
-				}
-				void Mesh::addNormal(const glm::vec3 & _normal)
-				{
-						m_normals.push_back(_normal);
-				}
-				void Mesh::addTangent(const glm::vec3 & _tangent)
-				{
-						m_tangents.push_back(_tangent);
-				}
-				void Mesh::addFace(unsigned int _vertIndex0, unsigned int _vertIndex1, unsigned int _vertIndex2)
-				{
-						m_indices.push_back(_vertIndex0);
-						m_indices.push_back(_vertIndex1);
-						m_indices.push_back(_vertIndex2);
+						utils::loadMesh(_filePath, m_subMeshes, m_positions, m_uvs, m_normals, m_tangents, m_indices, m_materials);
+
+						createBuffers();
 				}
 
 				void Mesh::calcBoundingSphere()

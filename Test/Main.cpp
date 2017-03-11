@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 		window.setRelativeMouseMode(true);
 		bool quit{ false };
 		bool debugMode{ false };
-		cu::FpsLimiter fpsLimiter(60.0f);
+		cu::FpsLimiter fpsLimiter(600.0f);
 
 		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
 
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
 		paddle.lock()->setTag("Paddle");
-		cu::loadMeshesToEntity(paddle, "Models/TestModels/cube.obj", renderer3D);
+		paddle.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
 		paddle.lock()->getComponent<ce::Transform>().lock()->setWorldScale(glm::vec3(2.0f, 0.5f, 1.0f));
 		paddle.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, -3.0f, 0.0f));
 		paddle.lock()->addComponent<ce::BoxCollider>(glm::vec3(2.0f, 0.5f, 1.0f));
@@ -147,15 +147,15 @@ int main(int argc, char** argv)
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 		paddle.lock()->addComponent<PaddleController>(150000.0f);
-		paddle.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 1.0f, 10.0f, 1.0f,
-				gravity, cg::Color::white, 0.1f,
-				cu::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
-				[](ce::Particle& _particle, float _gravity, float _deltaTime)
-		{
-				//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
-				_particle.m_velocity.y += _gravity * _deltaTime;
-				_particle.m_position += _particle.m_velocity * _deltaTime;
-		});
+		//paddle.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 1.0f, 10.0f, 1.0f,
+		//		gravity, cg::Color::white, 0.1f,
+		//		cu::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
+		//		[](ce::Particle& _particle, float _gravity, float _deltaTime)
+		//{
+		//		//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
+		//		_particle.m_velocity.y += _gravity * _deltaTime;
+		//		_particle.m_position += _particle.m_velocity * _deltaTime;
+		//});
 
 		std::weak_ptr<ce::Entity> groundBound = root->addChild("GroundBoundary");
 		groundBound.lock()->setTag("ground");
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<ce::Entity> ball = root->addChild("Ball");
 		ball.lock()->setTag("ball");
-		cu::loadMeshesToEntity(ball, "Models/TestModels/sphere.obj", renderer3D);
+		ball.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getMesh("Models/TestModels/sphere.obj"), renderer3D);
 		ball.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f, 3.0f, 0.0f));
 		ball.lock()->addComponent<ce::SphereCollider>(1.0f);
 		ball.lock()->addComponent<ce::RigidBody>(physicsWorld, 1.0f);
@@ -198,42 +198,28 @@ int main(int argc, char** argv)
 		ball.lock()->getComponent<ce::Light>().lock()->setDiffuseIntensity(0.8f);
 		ball.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(1.0f);
 		ball.lock()->getComponent<ce::Light>().lock()->setAttenuation(ce::Attenuation(1.0f, 0.09f, 0.032f));
-		ball.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 1.0f, 10.0f, 1.0f,
-				gravity, cg::Color::white, 1.0f,
-				cu::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
-				[](ce::Particle& _particle, float _gravity, float _deltaTime)
-		{
-				_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
-				_particle.m_velocity.y += _gravity * _deltaTime;
-				_particle.m_position += _particle.m_velocity * _deltaTime;
-		});
+		//ball.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 1.0f, 10.0f, 1.0f,
+		//		gravity, cg::Color::white, 1.0f,
+		//		cu::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
+		//		[](ce::Particle& _particle, float _gravity, float _deltaTime)
+		//{
+		//		//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
+		//		_particle.m_velocity.y += _gravity * _deltaTime;
+		//		_particle.m_position += _particle.m_velocity * _deltaTime;
+		//});
 
 		for (int i = -30; i < 30; i += 4)
 		{
 				for (int j = -10; j < 0; j += 4)
 				{
-						if (cu::Random::getRandInt(0, 10) > 2)
-						{
 								std::weak_ptr<ce::Entity> brick = root->addChild("Brick");
 								brick.lock()->setTag("brick");
-								cu::loadMeshesToEntity(brick, "Models/TestModels/cube.obj", renderer3D);
+								brick.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
 								brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
 								brick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
 								brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
 								brick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
 								brick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-						}
-						else
-						{
-								std::weak_ptr<ce::Entity> brick = root->addChild("HardBrick" + std::to_string(i) + std::to_string(j));
-								brick.lock()->setTag("indestructible");
-								cu::loadMeshesToEntity(brick, "Models/TestModels/cube2.obj", renderer3D);
-								brick.lock()->getComponent<ce::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
-								brick.lock()->addComponent<ce::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
-								brick.lock()->addComponent<ce::RigidBody>(physicsWorld, 0.0f);
-								brick.lock()->getComponent<ce::RigidBody>().lock()->setActivationState(5);
-								brick.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
-						}
 				}
 		}
 

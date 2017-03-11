@@ -41,8 +41,8 @@ namespace cogs
 						static std::weak_ptr<graphics::Material> getMaterial(const std::string& _name);
 
 						/* Mesh getters */
-						static std::weak_ptr<graphics::Mesh> getMesh(const std::string& _name);
-						static std::weak_ptr<graphics::Mesh> getPrimitive(const std::string& _filePath);
+						static std::weak_ptr<graphics::Mesh> getMesh(const std::string& _filePath);
+						//static std::weak_ptr<graphics::Mesh> getPrimitive(const std::string& _filePath);
 
 						/* Sprite getters */
 						static std::weak_ptr<graphics::Sprite> getSprite(const std::string& _name);

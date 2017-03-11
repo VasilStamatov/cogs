@@ -21,7 +21,7 @@ namespace cogs
 						* the material of the mesh, and the renderer the mesh will be submitted to
 						*/
 						MeshRenderer(std::weak_ptr<graphics::Mesh> _mesh,
-								std::weak_ptr<graphics::Material> _material,
+								//std::weak_ptr<graphics::Material> _material,
 								std::weak_ptr<graphics::Renderer3D> _renderer);
 						~MeshRenderer();
 
@@ -44,18 +44,18 @@ namespace cogs
 						* Getters
 						*/
 						std::weak_ptr<graphics::Mesh> getMesh()									const noexcept { return m_mesh; }
-						std::weak_ptr<graphics::Material> getMaterial()	const noexcept { return m_material; }
+						//std::weak_ptr<graphics::Material> getMaterial()	const noexcept { return m_material; }
 
 						/**
 						* Setters
 						*/
 						void setMesh(std::weak_ptr<graphics::Mesh> _mesh) { m_mesh = _mesh; }
-						void setMaterial(std::weak_ptr<graphics::Material> _material) { m_material = _material; }
+						//void setMaterial(std::weak_ptr<graphics::Material> _material) { m_material = _material; }
 						void setRenderer(std::weak_ptr<graphics::Renderer3D> _renderer) { m_renderer = _renderer; }
 
 				private:
 						std::weak_ptr<graphics::Mesh> m_mesh; ///< reference to the mesh rendererd
-						std::weak_ptr<graphics::Material> m_material; ///< reference to the material the mesh is rendered with
+						//std::weak_ptr<graphics::Material> m_material; ///< reference to the material the mesh is rendered with
 						std::weak_ptr<graphics::Renderer3D> m_renderer; ///< reference to the renderer the mesh is submitted to
 				};
 		}

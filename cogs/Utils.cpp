@@ -1,12 +1,16 @@
 #include "Utils.h"
 
 #include "ResourceManager.h"
-#include "MeshRenderer.h"
+//#include "MeshRenderer.h"
 
 #include <SDL\SDL_timer.h>
 #include <SOIL2\SOIL2.h>
 
 #include <GL\glew.h>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 namespace cogs
 {
@@ -85,233 +89,128 @@ namespace cogs
 						return true;
 				}
 
-				graphics::Mesh loadPrimitive(const std::string & _filePath)
+				void loadMesh(const std::string& _filePath,
+						std::vector<graphics::SubMesh>& _subMeshes,
+						std::vector<glm::vec3>& _positions,
+						std::vector<glm::vec2>& _uvs,
+						std::vector<glm::vec3>& _normals,
+						std::vector<glm::vec3>& _tangents,
+						std::vector<unsigned int>& _indices,
+						std::vector<std::weak_ptr<graphics::Material>>& _materials)
 				{
 						Assimp::Importer importer;
 
-						const aiScene* scene = importer.ReadFile(_filePath.c_str(),
+						const aiScene* scene = importer.ReadFile(_filePath,
 								aiProcess_Triangulate |
 								aiProcess_GenSmoothNormals |
 								//aiProcess_FlipUVs |
 								aiProcess_CalcTangentSpace);
 
-						if (!scene)
+						//error check
+						if (!scene || !scene->mRootNode || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
 						{
-								printf("Mesh failed to load");
+								printf("ERROR::ASSIMP:: %s \n", importer.GetErrorString());
 								assert(false);
 						}
 
-						//this is supposed to be a primitive with only 1 mesh so get the first in the scene
-						const aiMesh* mesh = scene->mMeshes[0];
-						if (mesh == nullptr)
+						const std::string directory = _filePath.substr(0, _filePath.find_last_of('/'));
+
+						_subMeshes.resize(scene->mNumMeshes);
+						_materials.resize(scene->mNumMaterials);
+
+						unsigned int numVertices{ 0 };
+						unsigned int numIndices{ 0 };
+
+						for (size_t i = 0; i < _subMeshes.size(); i++)
 						{
-								assert(false);
+								_subMeshes.at(i).m_materialIndex = scene->mMeshes[i]->mMaterialIndex;
+								_subMeshes.at(i).m_numIndices = scene->mMeshes[i]->mNumFaces * 3;
+								_subMeshes.at(i).m_baseVertex = numVertices;
+								_subMeshes.at(i).m_baseIndex = numIndices;
+
+								numVertices += scene->mMeshes[i]->mNumVertices;
+								numIndices += _subMeshes.at(i).m_numIndices;
 						}
 
-						std::vector<glm::vec3> positions(mesh->mNumVertices);
-						std::vector<glm::vec2> uvs(mesh->mNumVertices);
-						std::vector<glm::vec3> normals(mesh->mNumVertices);
-						std::vector<glm::vec3> tangents(mesh->mNumVertices);
-						std::vector<unsigned int> indices;
-						indices.reserve(mesh->mNumFaces * 3);
+						_positions.reserve(numVertices);
+						_uvs.reserve(numVertices);
+						_normals.reserve(numVertices);
+						_tangents.reserve(numVertices);
+						_indices.reserve(numIndices);
 
 						const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
 
-						//load all the per-vertex data
-						for (unsigned int currVert = 0; currVert < mesh->mNumVertices; ++currVert)
+						// Initialize the meshes in the scene one by one
+						for (unsigned int i = 0; i < _subMeshes.size(); i++) 
 						{
-								const aiVector3D pos = mesh->mVertices[currVert];
-								const aiVector3D normal = mesh->mNormals[currVert];
-								const aiVector3D uv = mesh->HasTextureCoords(0) ? mesh->mTextureCoords[0][currVert] : aiZeroVector;
-								const aiVector3D tangent = mesh->mTangents[currVert];
+								const aiMesh* paiMesh = scene->mMeshes[i];
 
-								positions.at(currVert) = (glm::vec3(pos.x, pos.y, pos.z));
-								uvs.at(currVert) = (glm::vec2(uv.x, uv.y));
-								normals.at(currVert) = (glm::vec3(normal.x, normal.y, normal.z));
-								tangents.at(currVert) = (glm::vec3(tangent.x, tangent.y, tangent.z));
-						}
-
-						//load all the indices for indexed rendering
-						for (unsigned int currFace = 0; currFace < mesh->mNumFaces; ++currFace)
-						{
-								const aiFace& face = mesh->mFaces[currFace];
-								assert(face.mNumIndices == 3);
-								indices.push_back(face.mIndices[0]);
-								indices.push_back(face.mIndices[1]);
-								indices.push_back(face.mIndices[2]);
-						}
-
-						return graphics::Mesh(mesh->mName.C_Str(), indices, positions, uvs, normals, tangents);
-				}
-				std::shared_ptr<ecs::Entity> loadEntityWithMeshes(const std::string & _filePath, std::weak_ptr<graphics::Renderer3D> _renderer)
-				{
-						Assimp::Importer importer;
-
-						const aiScene* scene = importer.ReadFile(_filePath.c_str(),
-								aiProcess_Triangulate |
-								aiProcess_GenSmoothNormals |
-								//aiProcess_FlipUVs |
-								aiProcess_CalcTangentSpace);
-
-						//error check
-						if (!scene || !scene->mRootNode || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
-						{
-								printf("ERROR::ASSIMP:: %s \n", importer.GetErrorString());
-								assert(false);
-						}
-						std::shared_ptr<ecs::Entity> mainHandle = ecs::Entity::create(scene->mRootNode->mName.C_Str());
-
-						const std::string directory = _filePath.substr(0, _filePath.find_last_of('/'));
-
-						internal::processNode(scene->mRootNode, scene, directory, mainHandle, _renderer);
-
-						return std::move(mainHandle);
-				}
-
-				void loadMeshesToEntity(std::weak_ptr<ecs::Entity> _mainHolder,
-						const std::string & _filePath, std::weak_ptr<graphics::Renderer3D> _renderer)
-				{
-						Assimp::Importer importer;
-
-						const aiScene* scene = importer.ReadFile(_filePath.c_str(),
-								aiProcess_Triangulate |
-								aiProcess_GenSmoothNormals |
-								//aiProcess_FlipUVs |
-								aiProcess_CalcTangentSpace);
-
-						//error check
-						if (!scene || !scene->mRootNode || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE)
-						{
-								printf("ERROR::ASSIMP:: %s \n", importer.GetErrorString());
-								assert(false);
-						}
-
-						const std::string directory = _filePath.substr(0, _filePath.find_last_of('/'));
-
-						internal::processNode(scene->mRootNode, scene, directory, _mainHolder, _renderer);
-				}
-
-				void internal::processNode(aiNode* _node, const aiScene* _scene, const std::string& _directory,
-						std::weak_ptr<ecs::Entity> _parent,
-						std::weak_ptr<graphics::Renderer3D> _renderer)
-				{
-						for (GLuint i = 0; i < _node->mNumMeshes; i++)
-						{
-								aiMesh* assimpMesh = _scene->mMeshes[_node->mMeshes[i]];
-								std::weak_ptr<graphics::Mesh> cogsMesh = utils::ResourceManager::getMesh(assimpMesh->mName.C_Str());
-								std::weak_ptr<graphics::Material> cogsMaterial = utils::ResourceManager::getMaterial(assimpMesh->mName.C_Str());
-
-								//check if it has no positions (not loaded)
-								if (cogsMesh.lock()->getPositions().empty())
+								//load all the per-vertex data
+								for (unsigned int currVert = 0; currVert < paiMesh->mNumVertices; ++currVert)
 								{
-										processMesh(assimpMesh, cogsMesh);
+										const aiVector3D pos				 = paiMesh->mVertices[currVert];
+										const aiVector3D normal  = paiMesh->mNormals[currVert];
+										const aiVector3D uv					 = paiMesh->HasTextureCoords(0) ? paiMesh->mTextureCoords[0][currVert] : aiZeroVector;
+										const aiVector3D tangent = paiMesh->mTangents[currVert];
+
+										_positions.push_back(glm::vec3(pos.x, pos.y, pos.z));
+										_uvs.push_back(glm::vec2(uv.x, uv.y));
+										_normals.push_back(glm::vec3(normal.x, normal.y, normal.z));
+										_tangents.push_back(glm::vec3(tangent.x, tangent.y, tangent.z));
 								}
 
-								//check if it has no diffuse map (not loaded)
-								if (cogsMaterial.lock()->getDiffuseMap().expired())
+								//load all the indices for indexed rendering
+								for (unsigned int currFace = 0; currFace < paiMesh->mNumFaces; ++currFace)
 								{
-										//load all the textures for this mesh
-										if (assimpMesh->mMaterialIndex >= 0)
+										const aiFace& face = paiMesh->mFaces[currFace];
+										assert(face.mNumIndices == 3);
+										_indices.push_back(face.mIndices[0]);
+										_indices.push_back(face.mIndices[1]);
+										_indices.push_back(face.mIndices[2]);
+								}
+						}
+
+						for (size_t i = 0; i < scene->mNumMaterials; i++)
+						{
+								aiMaterial* paiMaterial = scene->mMaterials[i];
+
+								std::string materialName = directory + "/" + scene->mRootNode->mName.C_Str() + std::to_string(i);
+
+								std::weak_ptr<graphics::Material> material = utils::ResourceManager::getMaterial(materialName);
+
+								if (material.lock()->getDiffuseMap().expired())
+								{
+										//load materials data
+										if (paiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
 										{
-												aiMaterial* material = _scene->mMaterials[assimpMesh->mMaterialIndex];
-												processMaterial(material, cogsMaterial, _directory);
+												aiString str;
+												paiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
+												material.lock()->setDiffuseMap(
+														ResourceManager::getGLTexture2D(directory + "/" + str.C_Str(), "texture_diffuse"));
+										}
+										if (paiMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
+										{
+												aiString str;
+												paiMaterial->GetTexture(aiTextureType_SPECULAR, 0, &str);
+												material.lock()->setSpecularMap(
+														ResourceManager::getGLTexture2D(directory + "/" + str.C_Str(), "texture_specular"));
+										}
+										if (paiMaterial->GetTextureCount(aiTextureType_AMBIENT) > 0)
+										{
+												aiString str;
+												paiMaterial->GetTexture(aiTextureType_AMBIENT, 0, &str);
+												material.lock()->setReflectionMap(
+														ResourceManager::getGLTexture2D(directory + "/" + str.C_Str(), "texture_reflection"));
+										}
+										if (paiMaterial->GetTextureCount(aiTextureType_HEIGHT) > 0)
+										{
+												aiString str;
+												paiMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
+												material.lock()->setNormalMap(
+														ResourceManager::getGLTexture2D(directory + "/" + str.C_Str(), "texture_normal"));
 										}
 								}
-
-								std::weak_ptr<ecs::Entity> child = _parent.lock()->addChild(_node->mName.C_Str());
-								child.lock()->addComponent<ecs::MeshRenderer>(cogsMesh, cogsMaterial, _renderer);
-						}
-
-						for (GLuint i = 0; i < _node->mNumChildren; i++)
-						{
-								aiNode* aiChild = _node->mChildren[i];
-
-								std::weak_ptr<ecs::Entity> child = _parent.lock()->getChild(aiChild->mName.C_Str());
-
-								if (child.expired())
-								{
-										processNode(aiChild, _scene, _directory, _parent, _renderer);
-								}
-								else
-								{
-										processNode(aiChild, _scene, _directory, child, _renderer);
-								}
-						}
-				}
-
-				void internal::processMesh(aiMesh* _aiMesh, std::weak_ptr<graphics::Mesh> _cogsMesh)
-				{
-						std::vector<glm::vec3> positions(_aiMesh->mNumVertices);
-						std::vector<glm::vec2> uvs(_aiMesh->mNumVertices);
-						std::vector<glm::vec3> normals(_aiMesh->mNumVertices);
-						std::vector<glm::vec3> tangents(_aiMesh->mNumVertices);
-						std::vector<unsigned int> indices;
-						indices.reserve(_aiMesh->mNumFaces * 3);
-
-						const aiVector3D aiZeroVector(0.0f, 0.0f, 0.0f);
-
-						//load all the per-vertex data
-						for (unsigned int currVert = 0; currVert < _aiMesh->mNumVertices; ++currVert)
-						{
-								const aiVector3D pos = _aiMesh->mVertices[currVert];
-								const aiVector3D normal = _aiMesh->mNormals[currVert];
-								const aiVector3D uv = _aiMesh->HasTextureCoords(0) ? _aiMesh->mTextureCoords[0][currVert] : aiZeroVector;
-								const aiVector3D tangent = _aiMesh->mTangents[currVert];
-
-								positions.at(currVert) = (glm::vec3(pos.x, pos.y, pos.z));
-								uvs.at(currVert) = (glm::vec2(uv.x, uv.y));
-								normals.at(currVert) = (glm::vec3(normal.x, normal.y, normal.z));
-								tangents.at(currVert) = (glm::vec3(tangent.x, tangent.y, tangent.z));
-						}
-
-						//load all the indices for indexed rendering
-						for (unsigned int currFace = 0; currFace < _aiMesh->mNumFaces; ++currFace)
-						{
-								const aiFace& face = _aiMesh->mFaces[currFace];
-								assert(face.mNumIndices == 3);
-								indices.push_back(face.mIndices[0]);
-								indices.push_back(face.mIndices[1]);
-								indices.push_back(face.mIndices[2]);
-						}
-
-						_cogsMesh.lock()->setPositions(positions);
-						_cogsMesh.lock()->setTexCoords(uvs);
-						_cogsMesh.lock()->setNormals(normals);
-						_cogsMesh.lock()->setTangents(tangents);
-						_cogsMesh.lock()->setIndices(indices);
-						_cogsMesh.lock()->reupload();
-				}
-
-				void internal::processMaterial(aiMaterial* _aiMaterial,
-						std::weak_ptr<graphics::Material> _cogsMaterial, const std::string& _directory)
-				{
-						if (_aiMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0)
-						{
-								aiString str;
-								_aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &str);
-								_cogsMaterial.lock()->setDiffuseMap(
-										ResourceManager::getGLTexture2D(_directory + "/" + str.C_Str(), "texture_diffuse"));
-						}
-						if (_aiMaterial->GetTextureCount(aiTextureType_SPECULAR) > 0)
-						{
-								aiString str;
-								_aiMaterial->GetTexture(aiTextureType_SPECULAR, 0, &str);
-								_cogsMaterial.lock()->setSpecularMap(
-										ResourceManager::getGLTexture2D(_directory + "/" + str.C_Str(), "texture_specular"));
-						}
-						if (_aiMaterial->GetTextureCount(aiTextureType_AMBIENT) > 0)
-						{
-								aiString str;
-								_aiMaterial->GetTexture(aiTextureType_AMBIENT, 0, &str);
-								_cogsMaterial.lock()->setReflectionMap(
-										ResourceManager::getGLTexture2D(_directory + "/" + str.C_Str(), "texture_reflection"));
-						}
-						if (_aiMaterial->GetTextureCount(aiTextureType_HEIGHT) > 0)
-						{
-								aiString str;
-								_aiMaterial->GetTexture(aiTextureType_HEIGHT, 0, &str);
-								_cogsMaterial.lock()->setNormalMap(
-										ResourceManager::getGLTexture2D(_directory + "/" + str.C_Str(), "texture_normal"));
+								_materials.at(i) = material;
 						}
 				}
 		}

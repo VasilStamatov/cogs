@@ -33,7 +33,7 @@ public:
 		*/
 		void init() override 
 		{
-				m_quad = cu::ResourceManager::getPrimitive("Models/TestModels/ScreenQuad.obj");
+				m_quad = cu::ResourceManager::getMesh("Models/TestModels/ScreenQuad.obj");
 		}
 
 		/**

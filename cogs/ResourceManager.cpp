@@ -61,8 +61,15 @@ namespace cogs
 						//check if it's not in the map
 						if (iter == s_glTex2DMap.end())
 						{
-								//return an empty/expired pointer
-								return std::weak_ptr<graphics::GLTexture2D>();
+								// if the resource does not exist, create it
+								std::shared_ptr<graphics::GLTexture2D> newTexture =
+										std::make_shared<graphics::GLTexture2D>(_filePath, _filePath);
+
+								//insert it into the resource map
+								s_glTex2DMap.insert(std::make_pair(_filePath, std::move(newTexture)));
+
+								//return it as it 100% exists
+								return s_glTex2DMap.at(_filePath);
 						}
 						else
 						{
@@ -159,30 +166,7 @@ namespace cogs
 						}
 				}
 
-				std::weak_ptr<graphics::Mesh> ResourceManager::getMesh(const std::string & _name)
-				{
-						auto iter = s_meshMap.find(_name);
-
-						//check if it's not in the map
-						if (iter == s_meshMap.end())
-						{
-								// if the resource does not exist, create it
-								std::shared_ptr<graphics::Mesh> newMesh = std::make_shared<graphics::Mesh>(_name);
-
-								//insert it into the resource map
-								s_meshMap.insert(std::make_pair(_name, std::move(newMesh)));
-
-								//return it as it 100% exists
-								return s_meshMap.at(_name);
-						}
-						else
-						{
-								//return the found resource
-								return iter->second;
-						}
-				}
-
-				std::weak_ptr<graphics::Mesh> ResourceManager::getPrimitive(const std::string& _filePath)
+				std::weak_ptr<graphics::Mesh> ResourceManager::getMesh(const std::string & _filePath)
 				{
 						auto iter = s_meshMap.find(_filePath);
 
@@ -190,7 +174,7 @@ namespace cogs
 						if (iter == s_meshMap.end())
 						{
 								// if the resource does not exist, create it
-								std::shared_ptr<graphics::Mesh> newMesh = std::make_shared<graphics::Mesh>(loadPrimitive(_filePath));
+								std::shared_ptr<graphics::Mesh> newMesh = std::make_shared<graphics::Mesh>(_filePath);
 
 								//insert it into the resource map
 								s_meshMap.insert(std::make_pair(_filePath, std::move(newMesh)));
@@ -204,6 +188,29 @@ namespace cogs
 								return iter->second;
 						}
 				}
+
+				//std::weak_ptr<graphics::Mesh> ResourceManager::getPrimitive(const std::string& _filePath)
+				//{
+				//		auto iter = s_meshMap.find(_filePath);
+
+				//		//check if it's not in the map
+				//		if (iter == s_meshMap.end())
+				//		{
+				//				// if the resource does not exist, create it
+				//				std::shared_ptr<graphics::Mesh> newMesh = std::make_shared<graphics::Mesh>(loadPrimitive(_filePath));
+
+				//				//insert it into the resource map
+				//				s_meshMap.insert(std::make_pair(_filePath, std::move(newMesh)));
+
+				//				//return it as it 100% exists
+				//				return s_meshMap.at(_filePath);
+				//		}
+				//		else
+				//		{
+				//				//return the found resource
+				//				return iter->second;
+				//		}
+				//}
 
 				std::weak_ptr<graphics::Sprite> ResourceManager::getSprite(const std::string & _name)
 				{
