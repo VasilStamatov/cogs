@@ -70,16 +70,16 @@ namespace cogs
 						std::weak_ptr<Mesh> mesh = _entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
 
 						//get the center vertex position in model space
-						const glm::vec4& center = glm::vec4(mesh.lock()->getCenter(), 1.0f);
+						const MeshBoundingSphere& sphereBounds = mesh.lock()->getSphereBounds();
 
 						//get the transformation matrix to world space
 						const glm::mat4& toWorldMat = _entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform();
 
 						//calculate the center vertex from model to world space
-						glm::vec3 point = glm::vec3(toWorldMat * center);
+						glm::vec3 point = glm::vec3(toWorldMat * glm::vec4(sphereBounds.m_center, 1.0f));
 
 						const glm::vec3& scale = _entity.lock()->getComponent<ecs::Transform>().lock()->worldScale();
-						float radius = mesh.lock()->getRadius() * glm::max(scale.x, glm::max(scale.y, scale.z));
+						float radius = sphereBounds.m_radius * glm::max(scale.x, glm::max(scale.y, scale.z));
 
 						//const glm::vec3& worldPos = _entity.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
 

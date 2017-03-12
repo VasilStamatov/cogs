@@ -159,6 +159,9 @@
     <ClInclude Include="ParticleRenderer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="SpatialHash.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">

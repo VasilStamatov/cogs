@@ -33,16 +33,18 @@ namespace cogs
 						std::weak_ptr<ecs::Transform> transform = _entity.lock()->getComponent<ecs::Transform>();
 
 						//get the center vertex position in model space
-						const glm::vec4& center = glm::vec4(mesh.lock()->getCenter(), 1.0f);
+						const MeshBoundingSphere& sphereBounds = mesh.lock()->getSphereBounds();
 
 						//get the transformation matrix to world space
 						const glm::mat4& toWorldMat = transform.lock()->worldTransform();
 
 						//calculate the center vertex from model to world space
-						glm::vec3 point = glm::vec3(toWorldMat * center);
+						glm::vec3 point = glm::vec3(toWorldMat * glm::vec4(sphereBounds.m_center, 1.0f));
 
 						const glm::vec3& scale = transform.lock()->worldScale();
-						float radius = mesh.lock()->getRadius() * glm::max(scale.x, glm::max(scale.y, scale.z));
+
+						//scale the radius
+						float radius = sphereBounds.m_radius * glm::max(scale.x, glm::max(scale.y, scale.z));
 						//submit the mesh if it's in the view frustum
 
 						if (currentCam.lock()->sphereInFrustum(point, radius))
