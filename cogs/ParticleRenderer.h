@@ -1,7 +1,10 @@
 #ifndef PARTICLE_RENDERER_H
 #define PARTICLE_RENDERER_H
 
-#include "Renderer2D.h"
+#include "Renderer.h"
+#include "Color.h"
+
+#include <unordered_map>
 
 namespace cogs
 {
@@ -35,6 +38,8 @@ namespace cogs
 								POSITION,
 								WORLDPOS_AND_SIZE,
 								COLOR,
+								TEXOFFSETS,
+								BLENDFACTOR,
 
 								INDEX,
 
@@ -46,12 +51,16 @@ namespace cogs
 
 						struct InstanceData
 						{
+								bool isTexAdditive{ true };
+								float texNumOfRows{ 0.0f };
 								std::vector<Color> colors;
 								std::vector<glm::vec4> worldPosAndSize;
+								std::vector<glm::vec4> texOffsets;
+								std::vector<float> blendFactors;
 						};
 						//key = texture id (all sprites of the same texture to be instanced rendered)
 						//value = instance data = per instance data
-						std::unordered_map<unsigned int, InstanceData> m_entitiesMap;
+						std::unordered_map<unsigned int, InstanceData> m_particlesMap;
 				};
 		}
 }

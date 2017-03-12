@@ -57,6 +57,20 @@ namespace cogs
 						glVertexAttribPointer(BufferObjects::COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Color), 0);
 						glVertexAttribDivisor(BufferObjects::COLOR, 1);
 
+						// bind the color buffer
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::TEXOFFSETS]);
+
+						glEnableVertexAttribArray(BufferObjects::TEXOFFSETS);
+						glVertexAttribPointer(BufferObjects::TEXOFFSETS, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
+						glVertexAttribDivisor(BufferObjects::TEXOFFSETS, 1);
+
+						// bind the color buffer
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::BLENDFACTOR]);
+
+						glEnableVertexAttribArray(BufferObjects::BLENDFACTOR);
+						glVertexAttribPointer(BufferObjects::BLENDFACTOR, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+						glVertexAttribDivisor(BufferObjects::BLENDFACTOR, 1);
+
 						unsigned int indices[] = { 0,1,2,			// first triangle (bottom left - top left - top right)
 																																	0,2,3 }; // second triangle (bottom left - top right - bottom right)
 
@@ -68,39 +82,58 @@ namespace cogs
 				}
 				void ParticleRenderer::begin()
 				{
-						m_entitiesMap.clear();
+						m_particlesMap.clear();
 				}
 				void ParticleRenderer::submit(std::weak_ptr<ecs::Entity> _entity)
 				{
 						std::weak_ptr<ecs::ParticleSystem> particleSystem = _entity.lock()->getComponent<ecs::ParticleSystem>();
 						std::weak_ptr<GLTexture2D> texture = particleSystem.lock()->getTexture();
 
-						glm::vec3 particleSystemWorldPos = _entity.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-
 						ecs::Particle* particles = particleSystem.lock()->getParticles();
 
-						auto iter = m_entitiesMap.find(texture.lock()->getTextureID());
+						auto iter = m_particlesMap.find(texture.lock()->getTextureID());
 
 						//check if it's not in the map
-						if (iter == m_entitiesMap.end())
+						if (iter == m_particlesMap.end())
 						{
 								InstanceData instance;
-								m_entitiesMap.insert(std::make_pair(texture.lock()->getTextureID(), instance));
+								if (texture.lock()->getDims().x == 0)
+								{
+										instance.texNumOfRows = 1;
+								}
+								else
+								{
+										instance.texNumOfRows = (float)texture.lock()->getDims().x;
+								}
+								instance.isTexAdditive = particleSystem.lock()->getAdditive();
+
+								m_particlesMap.insert(std::make_pair(texture.lock()->getTextureID(), instance));
 						}
 
 						for (int i = 0; i < particleSystem.lock()->getMaxParticles(); i++)
 						{
 								if (particles[i].m_life > 0.0f)
 								{
-										glm::vec3 particleWorldPos = particleSystemWorldPos + particles[i].m_position;
-										m_entitiesMap[texture.lock()->getTextureID()].worldPosAndSize.push_back(glm::vec4(particleWorldPos, particles[i].m_width));
-										m_entitiesMap[texture.lock()->getTextureID()].colors.push_back(particles[i].m_color);
+										float lifeFactor = abs(particles[i].m_life - 1.0f);
+										int stageCount = texture.lock()->getDims().x * texture.lock()->getDims().y;
+										float atlasProgression = lifeFactor * stageCount;
+										float index1{ 0.0f }, index2{ 0.0f }, blend{ 0.0f };
+										blend = modff(atlasProgression, &index1);
+										index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
+
+										glm::vec2 texOffset1 = texture.lock()->getTexOffsets((int)(index1));
+										glm::vec2 texOffset2 = texture.lock()->getTexOffsets((int)(index1));
+
+										m_particlesMap[texture.lock()->getTextureID()].worldPosAndSize.push_back(glm::vec4(particles[i].m_position, particles[i].m_width));
+										m_particlesMap[texture.lock()->getTextureID()].colors.push_back(particles[i].m_color);
+										m_particlesMap[texture.lock()->getTextureID()].texOffsets.push_back(glm::vec4(texOffset1, texOffset2));
+										m_particlesMap[texture.lock()->getTextureID()].blendFactors.push_back(blend);
 								}
 						}
 				}
 				void ParticleRenderer::end()
 				{
-						sortParticles();
+						//sortParticles();
 				}
 
 				void ParticleRenderer::flush()
@@ -114,17 +147,24 @@ namespace cogs
 								currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldRightAxis());
 						m_shader.lock()->uploadValue("cameraUp_worldSpace",
 								currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldUpAxis());
-
 						/* Bind the VAO. This sets up the opengl state we need, including the
 						vertex attribute pointers and it binds the VBO */
 						glBindVertexArray(m_VAO);
 
 						glDepthMask(GL_FALSE);
 
-						for (auto& it : m_entitiesMap)
+						for (auto& it : m_particlesMap)
 						{
 								InstanceData instances = it.second;
 								GLuint texID = it.first;
+
+								if (instances.isTexAdditive)
+								{
+										glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+								}
+
+								m_shader.lock()->uploadValue("texNumOfRows", instances.texNumOfRows);
+
 								//bind the per-instance buffers
 								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDPOS_AND_SIZE]);
 								//upload the data
@@ -133,9 +173,20 @@ namespace cogs
 								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
 								glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * instances.colors.size(), instances.colors.data(), GL_DYNAMIC_DRAW);
 
+								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::TEXOFFSETS]);
+								glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * instances.texOffsets.size(), instances.texOffsets.data(), GL_DYNAMIC_DRAW);
+
+								glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::BLENDFACTOR]);
+								glBufferData(GL_ARRAY_BUFFER, sizeof(float) * instances.blendFactors.size(), instances.blendFactors.data(), GL_DYNAMIC_DRAW);
+
 								glBindTexture(GL_TEXTURE_2D, texID);
 
 								glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.worldPosAndSize.size());
+
+								if (instances.isTexAdditive)
+								{
+										glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+								}
 						}
 
 						glDepthMask(GL_TRUE);
@@ -167,7 +218,7 @@ namespace cogs
 				}
 				void ParticleRenderer::sortParticles()
 				{
-						for (auto& it : m_entitiesMap)
+						for (auto& it : m_particlesMap)
 						{
 								InstanceData instances = it.second;
 

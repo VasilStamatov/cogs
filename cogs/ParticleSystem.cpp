@@ -15,8 +15,8 @@ namespace cogs
 				ParticleSystem::ParticleSystem(std::weak_ptr<graphics::ParticleRenderer> _renderer,
 						int _maxParticles,
 						float _initialSpeed,
-						float _pps,
 						float _width,
+						bool _additive,
 						const glm::vec3& _worldGravity,
 						const graphics::Color& _color,
 						float _decayRate,
@@ -24,8 +24,8 @@ namespace cogs
 						std::function<void(Particle&, float, float)> _updateFunc) :
 						m_maxParticles(_maxParticles),
 						m_initialSpeed(_initialSpeed),
-						m_particlesPerSec(_pps),
 						m_particlesWidth(_width),
+						m_additive(_additive),
 						m_worldGravity(_worldGravity),
 						m_particlesColor(_color),
 						m_renderer(_renderer),
@@ -64,6 +64,10 @@ namespace cogs
 
 				void ParticleSystem::render()
 				{
+						if (!m_additive)
+						{
+								sortParticles();
+						}
 						m_renderer.lock()->submit(m_entity);
 				}
 
@@ -124,7 +128,7 @@ namespace cogs
 
 				void ParticleSystem::generateParticles(float _deltaTime)
 				{
-						float particlesToCreate = m_particlesPerSec * _deltaTime;
+						/*float particlesToCreate = m_particlesPerSec * _deltaTime;
 
 						int count = (int)ceilf(particlesToCreate);
 
@@ -138,7 +142,7 @@ namespace cogs
 						if (utils::Random::getRandFloat(0.0f, 1.0f) < partialParticle)
 						{
 								spawnParticle();
-						}
+						}*/
 				}
 
 				void ParticleSystem::spawnParticle()
@@ -151,8 +155,9 @@ namespace cogs
 						}*/
 
 						float dirX = utils::Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
+						float dirY = utils::Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
 						float dirZ = utils::Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
-						glm::vec3 vel = glm::normalize(glm::vec3(dirX, 1.0f, dirZ));
+						glm::vec3 vel = glm::normalize(glm::vec3(dirX, dirY, dirZ));
 						vel *= m_initialSpeed;
 						//find a free particle index, or overwrite the first one
 						//get an alias to the particle
@@ -162,7 +167,7 @@ namespace cogs
 						particle.m_life = 1.0f;
 
 						//set its local position to 0 as it's being spawned from the particle system
-						particle.m_position = glm::vec3(0.0f);
+						particle.m_position = m_entity.lock()->getComponent<Transform>().lock()->worldPosition();
 
 						//set its velocity to the emitting velocity
 						particle.m_velocity = vel;
@@ -173,5 +178,19 @@ namespace cogs
 						particle.m_width = m_particlesWidth;
 				}
 
+				void ParticleSystem::sortParticles()
+				{
+						std::weak_ptr<ecs::Camera> currentCam = ecs::Camera::getCurrent();
+						const glm::vec3& cameraPos = currentCam.lock()->getEntity().lock()->getComponent<ecs::Transform>().lock()->worldPosition();
+
+						std::sort(&m_particles[0], &m_particles[m_maxParticles],
+								[&cameraPos](const Particle& _p1, const Particle& _p2)
+						{
+								float distanceFromCamera1 = glm::length2(_p1.m_position - cameraPos);
+								float distanceFromCamera2 = glm::length2(_p2.m_position - cameraPos);
+
+								return (distanceFromCamera1 > distanceFromCamera2);
+						});
+				}
 		}
 }

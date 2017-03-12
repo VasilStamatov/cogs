@@ -36,8 +36,8 @@ namespace cogs
 						ParticleSystem(std::weak_ptr<graphics::ParticleRenderer> _renderer,
 								int _maxParticles,
 								float _initialSpeed,
-								float _pps,
 								float _width,
+								bool _additive,
 								const glm::vec3& _worldGravity,
 								const graphics::Color& _color,
 								float _decayRate,
@@ -60,12 +60,15 @@ namespace cogs
 
 						std::weak_ptr<graphics::GLTexture2D> getTexture() { return m_texture; }
 						int getMaxParticles() { return m_maxParticles; }
+						bool getAdditive() { return m_additive; }
 					 Particle* getParticles() { return m_particles; }
+
 				private:
 						//finds a free particle position from all possible particles (maxParticles) or overwrites the first one
 						int findFreeParticle();
 						void generateParticles(float _deltaTime);
 						void spawnParticle();
+						void sortParticles();
 
 				private:
 						/** custom update function for each particle system */
@@ -90,7 +93,7 @@ namespace cogs
 						int m_maxParticles{ 0 };
 						float m_initialSpeed{ 1.0f };
 
-						float m_particlesPerSec{ 0.0f };
+						bool m_additive{ true };
 						/** 2D texture for the particle */
 						std::weak_ptr<graphics::GLTexture2D> m_texture;
 

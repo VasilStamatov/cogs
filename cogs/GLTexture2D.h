@@ -41,6 +41,7 @@ namespace cogs
 						void unbind() const override;
 
 						glm::vec4 getTexCoords(int _index);
+						glm::vec2 getTexOffsets(int _index);
 
 						//operator overloads
 						inline bool operator> (const GLTexture2D& _rhs) const

@@ -132,6 +132,10 @@ int main(int argc, char** argv)
 		directionalLight.lock()->getComponent<ce::Light>().lock()->setSpecularIntensity(0.8f);
 		directionalLight.lock()->getComponent<ce::Transform>().lock()->setLocalOrientation(glm::vec3(-0.2f, -1.0f, -0.3f));
 
+		std::weak_ptr<cg::GLTexture2D> textureAtlas = cu::ResourceManager::getGLTexture2D("Textures/fire.png", "texture_diffuse");
+		textureAtlas.lock()->setType(cg::TextureType::MULTIPLE);
+		textureAtlas.lock()->setDims(glm::ivec2(8, 8));
+
 		std::weak_ptr<ce::Entity> paddle = root->addChild("PlayerPaddle");
 		paddle.lock()->setTag("Paddle");
 		paddle.lock()->addComponent<ce::MeshRenderer>(cu::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
@@ -144,8 +148,8 @@ int main(int argc, char** argv)
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
 		paddle.lock()->getComponent<ce::RigidBody>().lock()->setRestitution(1.0f);
 		paddle.lock()->addComponent<PaddleController>(150000.0f);
-		paddle.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 1.0f, 5.0f, 1.0f,
-				gravity, cg::Color::green, 0.08f,
+		paddle.lock()->addComponent<ce::ParticleSystem>(particleRenderer, 100, 10.0f, 1.0f, true,
+				gravity, cg::Color::white, 0.5f,
 				cu::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](ce::Particle& _particle, float _gravity, float _deltaTime)
 		{
