@@ -4,6 +4,8 @@
 #include "Entity.h"
 #include "Transform.h"
 #include "MeshRenderer.h"
+#include "GLSLProgram.h"
+#include "Mesh.h"
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -12,152 +14,149 @@
 
 namespace cogs
 {
-		namespace graphics
+		BulletDebugRenderer::BulletDebugRenderer()
 		{
-				BulletDebugRenderer::BulletDebugRenderer()
+				m_shader = ResourceManager::getGLSLProgram("DebugShader", "Shaders/DebugShader.vert", "Shaders/DebugShader.frag");
+				// Generate the buffers
+				glGenVertexArrays(1, &m_vao);
+				glGenBuffers(1, &m_vbo);
+				glGenBuffers(1, &m_ibo);
+
+				//bind the vertex array object
+				glBindVertexArray(m_vao);
+
+				//bind the vertex buffer object
+				glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+
+				glEnableVertexAttribArray(DEBUG_POSITION_ATTRIBUTE_INDEX);
+				glVertexAttribPointer(DEBUG_POSITION_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, sizeof(DebugVertex),
+						(const GLvoid*)offsetof(DebugVertex, DebugVertex::position));
+
+				glEnableVertexAttribArray(DEBUG_COLOR_ATTRIBUTE_INDEX);
+				glVertexAttribPointer(DEBUG_COLOR_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, sizeof(DebugVertex),
+						(const GLvoid*)offsetof(DebugVertex, DebugVertex::color));
+
+				//bind the index buffer object
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+
+				//unbind the vao
+				glBindVertexArray(0);
+		}
+
+		BulletDebugRenderer::~BulletDebugRenderer()
+		{
+				//Dispose of all the buffest if they have't been disposed already
+				if (m_vao != 0)
 				{
-						m_shader = utils::ResourceManager::getGLSLProgram("DebugShader", "Shaders/DebugShader.vert", "Shaders/DebugShader.frag");
-						// Generate the buffers
-						glGenVertexArrays(1, &m_vao);
-						glGenBuffers(1, &m_vbo);
-						glGenBuffers(1, &m_ibo);
-
-						//bind the vertex array object
-						glBindVertexArray(m_vao);
-
-						//bind the vertex buffer object
-						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-						glEnableVertexAttribArray(DEBUG_POSITION_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(DEBUG_POSITION_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, sizeof(DebugVertex), 
-								(const GLvoid*)offsetof(DebugVertex, DebugVertex::position)); 
-
-						glEnableVertexAttribArray(DEBUG_COLOR_ATTRIBUTE_INDEX);
-						glVertexAttribPointer(DEBUG_COLOR_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, sizeof(DebugVertex),
-								(const GLvoid*)offsetof(DebugVertex, DebugVertex::color));
-
-						//bind the index buffer object
-						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-
-						//unbind the vao
-						glBindVertexArray(0);
+						glDeleteVertexArrays(1, &m_vao);
+						m_vao = 0;
 				}
 
-				BulletDebugRenderer::~BulletDebugRenderer()
+				if (m_vbo != 0)
 				{
-						//Dispose of all the buffest if they have't been disposed already
-						if (m_vao != 0)
-						{
-								glDeleteVertexArrays(1, &m_vao);
-								m_vao = 0;
-						}
-
-						if (m_vbo != 0)
-						{
-								glDeleteBuffers(1, &m_vbo);
-								m_vbo = 0;
-						}
-
-						if (m_ibo != 0)
-						{
-								glDeleteBuffers(1, &m_ibo);
-								m_ibo = 0;
-						}
+						glDeleteBuffers(1, &m_vbo);
+						m_vbo = 0;
 				}
 
-				void BulletDebugRenderer::drawMeshSphereBounds(std::weak_ptr<ecs::Entity> _entity)
+				if (m_ibo != 0)
 				{
-						std::weak_ptr<Mesh> mesh = _entity.lock()->getComponent<ecs::MeshRenderer>().lock()->getMesh();
-
-						//get the center vertex position in model space
-						const MeshBoundingSphere& sphereBounds = mesh.lock()->getSphereBounds();
-
-						//get the transformation matrix to world space
-						const glm::mat4& toWorldMat = _entity.lock()->getComponent<ecs::Transform>().lock()->worldTransform();
-
-						//calculate the center vertex from model to world space
-						glm::vec3 point = glm::vec3(toWorldMat * glm::vec4(sphereBounds.m_center, 1.0f));
-
-						const glm::vec3& scale = _entity.lock()->getComponent<ecs::Transform>().lock()->worldScale();
-						float radius = sphereBounds.m_radius * glm::max(scale.x, glm::max(scale.y, scale.z));
-
-						//const glm::vec3& worldPos = _entity.lock()->getComponent<ecs::Transform>().lock()->worldPosition();
-
-						drawSphere(btVector3(point.x, point.y, point.z), radius, btVector3(1.0f, 1.0f, 1.0f));
+						glDeleteBuffers(1, &m_ibo);
+						m_ibo = 0;
 				}
+		}
 
-				void BulletDebugRenderer::drawLine(const btVector3 & _from, const btVector3 & _to, const btVector3 & _color)
-				{
-						int i = m_verts.size();
-						//resize the verts to +2 in size
-						m_verts.resize(m_verts.size() + 2);
+		void BulletDebugRenderer::drawMeshSphereBounds(std::weak_ptr<Entity> _entity)
+		{
+				std::weak_ptr<Mesh> mesh = _entity.lock()->getComponent<MeshRenderer>().lock()->getMesh();
 
-						m_verts[i].position = _from;
-						m_verts[i].color = _color;
-						m_verts[i + 1].position = _to;
-						m_verts[i + 1].color = _color;
-						//push back the indices
-						m_indices.push_back(i);
-						m_indices.push_back(i + 1);
-				}
+				//get the center vertex position in model space
+				const MeshBoundingSphere& sphereBounds = mesh.lock()->getSphereBounds();
 
-				void BulletDebugRenderer::drawContactPoint(const btVector3 & _PointOnB, const btVector3 & _normalOnB, btScalar _distance, int _lifeTime, const btVector3 & _color)
-				{
-				}
-			
-				void BulletDebugRenderer::reportErrorWarning(const char * _warningString)
-				{
-						printf(_warningString);
-				}
+				//get the transformation matrix to world space
+				const glm::mat4& toWorldMat = _entity.lock()->getComponent<Transform>().lock()->worldTransform();
 
-				void BulletDebugRenderer::draw3dText(const btVector3 & _location, const char * _textString)
-				{
-				}
-				
-				void BulletDebugRenderer::setDebugMode(int _debugMode)
-				{
-						m_debugDrawMode = DebugDrawModes(_debugMode);
-				}
-				void BulletDebugRenderer::end()
-				{
-						//bind the vbo
-						glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-						// Orphan the buffer
-						glBufferData(GL_ARRAY_BUFFER, m_verts.size() * sizeof(DebugVertex), nullptr, GL_DYNAMIC_DRAW);
-						// Upload the data
-						glBufferSubData(GL_ARRAY_BUFFER, 0, m_verts.size() * sizeof(DebugVertex), m_verts.data());
-						//unbind the vbo
-						glBindBuffer(GL_ARRAY_BUFFER, 0);
-						//bind the ibo
-						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
-						// Orphan the buffer
-						glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
-						// Upload the data
-						glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_indices.size() * sizeof(GLuint), m_indices.data());
-						//unbind the ibo
-						glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-						//set up the numelements to be the same as indices.size
-						m_numElements = m_indices.size();
-						//clear the inices and vertices vectors
-						m_indices.clear();
-						m_verts.clear();
-				}
-				void BulletDebugRenderer::render(const glm::mat4 & _view, const glm::mat4 & _projection, float _lineWidth)
-				{
-						//begin using the shader program
-						m_shader.lock()->use();
-						m_shader.lock()->uploadValue("projection", _projection);
-						m_shader.lock()->uploadValue("view", _view);
-						//set up the line width
-						glLineWidth(_lineWidth);
-						//bind the vertex array object
-						glBindVertexArray(m_vao);
-						//draw the elements
-						glDrawElements(GL_LINES, m_numElements, GL_UNSIGNED_INT, 0);
-						//unbind the vao
-						glBindVertexArray(0);
-						//stop using the shader program
-						m_shader.lock()->unUse();
-				}
+				//calculate the center vertex from model to world space
+				glm::vec3 point = glm::vec3(toWorldMat * glm::vec4(sphereBounds.m_center, 1.0f));
+
+				const glm::vec3& scale = _entity.lock()->getComponent<Transform>().lock()->worldScale();
+				float radius = sphereBounds.m_radius * glm::max(scale.x, glm::max(scale.y, scale.z));
+
+				//const glm::vec3& worldPos = _entity.lock()->getComponent<Transform>().lock()->worldPosition();
+
+				drawSphere(btVector3(point.x, point.y, point.z), radius, btVector3(1.0f, 1.0f, 1.0f));
+		}
+
+		void BulletDebugRenderer::drawLine(const btVector3 & _from, const btVector3 & _to, const btVector3 & _color)
+		{
+				int i = m_verts.size();
+				//resize the verts to +2 in size
+				m_verts.resize(m_verts.size() + 2);
+
+				m_verts[i].position = _from;
+				m_verts[i].color = _color;
+				m_verts[i + 1].position = _to;
+				m_verts[i + 1].color = _color;
+				//push back the indices
+				m_indices.push_back(i);
+				m_indices.push_back(i + 1);
+		}
+
+		void BulletDebugRenderer::drawContactPoint(const btVector3 & _PointOnB, const btVector3 & _normalOnB, btScalar _distance, int _lifeTime, const btVector3 & _color)
+		{
+		}
+
+		void BulletDebugRenderer::reportErrorWarning(const char * _warningString)
+		{
+				printf(_warningString);
+		}
+
+		void BulletDebugRenderer::draw3dText(const btVector3 & _location, const char * _textString)
+		{
+		}
+
+		void BulletDebugRenderer::setDebugMode(int _debugMode)
+		{
+				m_debugDrawMode = DebugDrawModes(_debugMode);
+		}
+		void BulletDebugRenderer::end()
+		{
+				//bind the vbo
+				glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+				// Orphan the buffer
+				glBufferData(GL_ARRAY_BUFFER, m_verts.size() * sizeof(DebugVertex), nullptr, GL_DYNAMIC_DRAW);
+				// Upload the data
+				glBufferSubData(GL_ARRAY_BUFFER, 0, m_verts.size() * sizeof(DebugVertex), m_verts.data());
+				//unbind the vbo
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				//bind the ibo
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
+				// Orphan the buffer
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(GLuint), nullptr, GL_DYNAMIC_DRAW);
+				// Upload the data
+				glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_indices.size() * sizeof(GLuint), m_indices.data());
+				//unbind the ibo
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+				//set up the numelements to be the same as indices.size
+				m_numElements = m_indices.size();
+				//clear the inices and vertices vectors
+				m_indices.clear();
+				m_verts.clear();
+		}
+		void BulletDebugRenderer::render(const glm::mat4 & _view, const glm::mat4 & _projection, float _lineWidth)
+		{
+				//begin using the shader program
+				m_shader.lock()->use();
+				m_shader.lock()->uploadValue("projection", _projection);
+				m_shader.lock()->uploadValue("view", _view);
+				//set up the line width
+				glLineWidth(_lineWidth);
+				//bind the vertex array object
+				glBindVertexArray(m_vao);
+				//draw the elements
+				glDrawElements(GL_LINES, m_numElements, GL_UNSIGNED_INT, 0);
+				//unbind the vao
+				glBindVertexArray(0);
+				//stop using the shader program
+				m_shader.lock()->unUse();
 		}
 }

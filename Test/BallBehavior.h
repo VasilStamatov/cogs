@@ -4,12 +4,10 @@
 #include <cogs\RigidBody.h>
 #include <cogs\Transform.h>
 
-namespace ce = cogs::ecs;
-
 /**
 * Component for the ball to handle its behavior
 */
-class BallBehavior : public ce::Component
+class BallBehavior : public cogs::Component
 {
 public:
 		BallBehavior();
@@ -31,10 +29,10 @@ public:
 		void onCollision(const glm::vec3& _pointA,
 				const glm::vec3& _pointB,
 				const glm::vec3& _normalOnB,
-				ce::Entity* _other) override;
+				cogs::Entity* _other) override;
 
 private:
-		std::weak_ptr<ce::RigidBody> m_rb; ///< the rigidbody of the ball
+		std::weak_ptr<cogs::RigidBody> m_rb; ///< the rigidbody of the ball
 		float m_desiredVelocity{ 0.0f }; ///< the desired velocity of the ball
 };
 

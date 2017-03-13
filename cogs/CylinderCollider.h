@@ -5,28 +5,25 @@
 
 namespace cogs
 {
-		namespace ecs
+		/**
+		* \brief Constructor to create the btCylinderShape
+		*/
+		class CylinderCollider : public Collider
 		{
+		public:
 				/**
 				* \brief Constructor to create the btCylinderShape
+				* \param _halfExtents - the half extent on every axis in meters
 				*/
-				class CylinderCollider : public Collider
+				CylinderCollider(const glm::vec3& _halfExtents)
 				{
-				public:
-						/**
-						* \brief Constructor to create the btCylinderShape
-						* \param _halfExtents - the half extent on every axis in meters
-						*/
-						CylinderCollider(const glm::vec3& _halfExtents)
-						{
-								m_collisionShape = std::make_shared<btCylinderShape>(btVector3(_halfExtents.x, _halfExtents.y, _halfExtents.z));
-						}
-						virtual ~CylinderCollider() {}
+						m_collisionShape = std::make_shared<btCylinderShape>(btVector3(_halfExtents.x, _halfExtents.y, _halfExtents.z));
+				}
+				virtual ~CylinderCollider() {}
 
-				private:
+		private:
 
-				};
-		}
+		};
 }
 
 #endif // !CYLINDER_COLLIDER_H

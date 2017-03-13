@@ -185,9 +185,6 @@
     <ClCompile Include="Timing.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>

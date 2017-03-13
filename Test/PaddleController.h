@@ -3,12 +3,10 @@
 
 #include <cogs\Rigidbody.h>
 
-namespace ce = cogs::ecs;
-
 /**
 * \brief Component for the paddle to handle its controls
 */
-class PaddleController : public ce::Component
+class PaddleController : public cogs::Component
 {
 public:
 		PaddleController(float _moveSpeed);
@@ -30,10 +28,10 @@ public:
 		void onCollision(const glm::vec3& _pointA,
 				const glm::vec3& _pointB,
 				const glm::vec3& _normalOnB,
-				ce::Entity* _other) override;
+				cogs::Entity* _other) override;
 
 private:
-		std::weak_ptr<ce::RigidBody> m_rb; ///< the paddle's rigidbody
+		std::weak_ptr<cogs::RigidBody> m_rb; ///< the paddle's rigidbody
 		float m_moveSpeed{ 0.0f }; ///< the movespeed of the paddle
 };
 

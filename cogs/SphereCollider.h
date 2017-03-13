@@ -5,28 +5,25 @@
 
 namespace cogs
 {
-		namespace ecs
+		/**
+		* \brief Constructor to create the btSphereShape
+		*/
+		class SphereCollider : public Collider
 		{
+		public:
 				/**
 				* \brief Constructor to create the btSphereShape
+				* \param _radius - the radius of the sphere
 				*/
-				class SphereCollider : public Collider
+				SphereCollider(float _radius)
 				{
-				public:
-						/**
-						* \brief Constructor to create the btSphereShape
-						* \param _radius - the radius of the sphere
-						*/
-						SphereCollider(float _radius) 
-						{
-								m_collisionShape = std::make_shared<btSphereShape>(_radius);
-						}
-						virtual ~SphereCollider() {}
+						m_collisionShape = std::make_shared<btSphereShape>(_radius);
+				}
+				virtual ~SphereCollider() {}
 
-				private:
+		private:
 
-				};
-		}
+		};
 }
 
 #endif // !SPHERE_COLLIDER_H

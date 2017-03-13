@@ -4,25 +4,24 @@
 #include <cogs\Component.h>
 #include <cogs\ResourceManager.h>
 #include <cogs\Camera.h>
+#include <cogs\GLSLProgram.h>
+#include <cogs\Mesh.h>
+#include <cogs\Framebuffer.h>
 
 #include <GL\glew.h>
 #include <iostream>
-
-namespace ce = cogs::ecs;
-namespace cg = cogs::graphics;
-namespace cu = cogs::utils;
 
 /**
 * \brief Primitive postprocessing component
 * quite hardcoded at the moment but will be changed in the future
 */
-class PostProcessTest : public ce::Component
+class PostProcessTest : public cogs::Component
 {
 public:
 		/**
 		* \brief PConstruct the component and set the shader
 		*/
-		PostProcessTest(std::weak_ptr<cg::GLSLProgram> _postProcessShader)
+		PostProcessTest(std::weak_ptr<cogs::GLSLProgram> _postProcessShader)
 				: m_postProcessShader(_postProcessShader)
 		{
 		}
@@ -33,7 +32,7 @@ public:
 		*/
 		void init() override 
 		{
-				m_quad = cu::ResourceManager::getMesh("Models/TestModels/ScreenQuad.obj");
+				m_quad = cogs::ResourceManager::getMesh("Models/TestModels/ScreenQuad.obj");
 		}
 
 		/**
@@ -48,7 +47,7 @@ public:
 		*/
 		void postProcess() override
 		{
-				std::weak_ptr<ce::Camera> finalCam = ce::Camera::getCurrent();
+				std::weak_ptr<cogs::Camera> finalCam = cogs::Camera::getCurrent();
 
 				if (finalCam.lock()->getRenderTarget().expired())
 				{
@@ -66,8 +65,8 @@ public:
 				m_postProcessShader.lock()->unUse();
 		}
 private:
-		std::weak_ptr<cg::Mesh> m_quad; ///< the screen quad 
-		std::weak_ptr<cg::GLSLProgram> m_postProcessShader; ///< the postprocess shader
+		std::weak_ptr<cogs::Mesh> m_quad; ///< the screen quad 
+		std::weak_ptr<cogs::GLSLProgram> m_postProcessShader; ///< the postprocess shader
 };
 
 #endif // !POSTPROCESS_H

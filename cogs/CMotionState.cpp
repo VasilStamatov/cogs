@@ -1,45 +1,43 @@
 #include "CMotionState.h"
+#include "Transform.h"
 
 #include <glm\gtc\type_ptr.hpp>
 
 namespace cogs
 {
-		namespace physics
+		CMotionState::CMotionState(std::weak_ptr<Transform> _transform)
 		{
-				CMotionState::CMotionState(std::weak_ptr<ecs::Transform> _transform)
+				m_transform = _transform;
+		}
+
+		CMotionState::~CMotionState()
+		{
+		}
+
+		void CMotionState::getWorldTransform(btTransform & _worldTrans) const
+		{
+				if (m_transform.expired())
 				{
-						m_transform = _transform;
+						return;
 				}
 
-				CMotionState::~CMotionState()
+				btTransform transform;
+				transform.setFromOpenGLMatrix(glm::value_ptr(m_transform.lock()->worldTransform()));
+
+				_worldTrans = transform;
+		}
+
+		void CMotionState::setWorldTransform(const btTransform & _worldTrans)
+		{
+				if (m_transform.expired())
 				{
+						return;
 				}
 
-				void CMotionState::getWorldTransform(btTransform & _worldTrans) const
-				{
-						if (m_transform.expired())
-						{
-								return;
-						}
+				btQuaternion rot = _worldTrans.getRotation();
+				const btVector3& pos = _worldTrans.getOrigin();
 
-						btTransform transform;
-						transform.setFromOpenGLMatrix(glm::value_ptr(m_transform.lock()->worldTransform()));
-
-						_worldTrans = transform;
-				}
-
-				void CMotionState::setWorldTransform(const btTransform & _worldTrans)
-				{
-						if (m_transform.expired())
-						{
-								return;
-						}
-
-						btQuaternion rot = _worldTrans.getRotation();
-						const btVector3& pos = _worldTrans.getOrigin();
-
-						m_transform.lock()->setWorldOrientation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
-						m_transform.lock()->setWorldPosition(glm::vec3(pos.x(), pos.y(), pos.z()));
-				}
+				m_transform.lock()->setWorldOrientation(glm::quat(rot.w(), rot.x(), rot.y(), rot.z()));
+				m_transform.lock()->setWorldPosition(glm::vec3(pos.x(), pos.y(), pos.z()));
 		}
 }

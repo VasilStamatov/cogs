@@ -5,29 +5,26 @@
 
 namespace cogs
 {
-		namespace ecs
+		/**
+		* \brief Instantiates a btConeShape using the passed radius and height
+		*/
+		class ConeCollider : public Collider
 		{
+		public:
 				/**
-				* \brief Instantiates a btConeShape using the passed radius and height
+				* \brief create the btConeShape
+				* \param _radius - the radius of the capsule
+				* \param _height - the height of the capsule
 				*/
-				class ConeCollider : public Collider
+				ConeCollider(float _radius, float _height)
 				{
-				public:
-						/**
-						* \brief create the btConeShape
-						* \param _radius - the radius of the capsule
-						* \param _height - the height of the capsule
-						*/
-						ConeCollider(float _radius, float _height)
-						{
-								m_collisionShape = std::make_shared<btConeShape>(_radius, _height);
-						}
-						virtual ~ConeCollider() {}
+						m_collisionShape = std::make_shared<btConeShape>(_radius, _height);
+				}
+				virtual ~ConeCollider() {}
 
-				private:
+		private:
 
-				};
-		}
+		};
 }
 
 #endif // !CONE_COLLIDER_H

@@ -6,35 +6,31 @@
 
 namespace cogs
 {
-		namespace utils
+		using HighResClock = std::chrono::high_resolution_clock;
+
+		/**
+		* Static class for random number generation
+		*/
+		class Random
 		{
-				using HighResClock = std::chrono::high_resolution_clock;
+		public:
+				/**
+				* Generate a random integer between [min, max]
+				*/
+				static int getRandInt(int _min, int _max);
 
 				/**
-				* Static class for random number generation
+				* Generate a random float between [min, max]
 				*/
-				class Random
-				{
-				public:
-						/**
-						* Generate a random integer between [min, max]
-						*/
-						static int getRandInt(int _min, int _max);
+				static float getRandFloat(float _min, float _max);
 
-						/**
-						* Generate a random float between [min, max]
-						*/
-						static float getRandFloat(float _min, float _max);
+		private:
+				Random() {}
+				~Random() {}
 
-				private:
-						Random() {}
-						~Random() {}
-
-				private:
-						static std::mt19937 m_generator; ///< the mersene twister engine for generation
-						static bool m_seeded; ///< flag if it's been seeded
-				};
-		}
-
+		private:
+				static std::mt19937 m_generator; ///< the mersene twister engine for generation
+				static bool m_seeded; ///< flag if it's been seeded
+		};
 }
 #endif // !RANDOM_H

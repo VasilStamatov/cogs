@@ -3,8 +3,6 @@
 #include <cogs\Entity.h>
 #include <cogs\Input.h>
 
-namespace cu = cogs::utils;
-
 BallBehavior::BallBehavior()
 {
 }
@@ -15,14 +13,14 @@ BallBehavior::~BallBehavior()
 
 void BallBehavior::init()
 {
-		m_rb = m_entity.lock()->getComponent<ce::RigidBody>();
+		m_rb = m_entity.lock()->getComponent<cogs::RigidBody>();
 }
 
 void BallBehavior::update(float _deltaTime)
 {
 		if (m_rb.lock()->getActivationState() == 5)
 		{
-				if (cu::Input::isKeyPressed(cu::KeyCode::SPACE))
+				if (cogs::Input::isKeyPressed(cogs::KeyCode::SPACE))
 				{
 						m_rb.lock()->setActivationState(1);
 						m_rb.lock()->setLinearVelocity(glm::vec3(20.0f, 20.0f, 0.0f));
@@ -42,7 +40,7 @@ void BallBehavior::update(float _deltaTime)
 		}
 }
 
-void BallBehavior::onCollision(const glm::vec3 & _pointA, const glm::vec3 & _pointB, const glm::vec3 & _normalOnB, ce::Entity * _other)
+void BallBehavior::onCollision(const glm::vec3 & _pointA, const glm::vec3 & _pointB, const glm::vec3 & _normalOnB, cogs::Entity * _other)
 {
 		const std::string& otherTag = _other->getTag();
 
