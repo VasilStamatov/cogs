@@ -46,20 +46,7 @@ namespace cogs
 				glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 				glEnableVertexAttribArray(BufferObjects::POSITION);
-				glVertexAttribPointer(BufferObjects::POSITION, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-				// bind the color buffer
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
-
-				glEnableVertexAttribArray(BufferObjects::COLOR);
-				glVertexAttribPointer(BufferObjects::COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Color), 0);
-				glVertexAttribDivisor(BufferObjects::COLOR, 1);
-
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::SIZE]);
-
-				glEnableVertexAttribArray(BufferObjects::SIZE);
-				glVertexAttribPointer(BufferObjects::SIZE, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), 0);
-				glVertexAttribDivisor(BufferObjects::SIZE, 1);
+				glVertexAttribPointer(SPRITE_POSITION_ATTRIBUTE, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 				unsigned int indices[] = { 0,1,2,			// first triangle (bottom left - top left - top right)
 																															0,2,3 }; // second triangle (bottom left - top right - bottom right)
@@ -67,16 +54,28 @@ namespace cogs
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBOs[BufferObjects::INDEX]);
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-				// bind the buffer for world matrices
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDMAT]);
+				// bind the color buffer
+				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::INSTANCED_ATTRIBS]);
+
+				glEnableVertexAttribArray(SPRITE_COLOR_ATTRIBUTE);
+				glVertexAttribPointer(SPRITE_COLOR_ATTRIBUTE, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(InstancedAttributes),
+						(const GLvoid*)offsetof(InstancedAttributes, InstancedAttributes::color));
+				glVertexAttribDivisor(SPRITE_COLOR_ATTRIBUTE, 1);
+
+				glEnableVertexAttribArray(SPRITE_SIZE_ATTRIBUTE);
+				glVertexAttribPointer(SPRITE_SIZE_ATTRIBUTE, 2, GL_FLOAT, GL_FALSE, sizeof(InstancedAttributes),
+						(const GLvoid*)offsetof(InstancedAttributes, InstancedAttributes::size));
+				glVertexAttribDivisor(SPRITE_SIZE_ATTRIBUTE, 1);
+
 				// cannot upload mat4's all at once, so upload them as 4 vec4's
 				for (size_t i = 0; i < 4; i++)
 				{
 						//enable the channel of the current matrix row (4,5,6,7)
-						glEnableVertexAttribArray(BufferObjects::WORLDMAT + i);
+						glEnableVertexAttribArray(SPRITE_WORLDMAT_ATTRIBUTE + i);
 						//tell opengl how to read it
-						glVertexAttribPointer(BufferObjects::WORLDMAT + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
-								(const void*)(sizeof(float) * i * 4));
+						glVertexAttribPointer(SPRITE_WORLDMAT_ATTRIBUTE + i, 4, GL_FLOAT, GL_FALSE, sizeof(InstancedAttributes),
+								(const GLvoid*)offsetof(InstancedAttributes, InstancedAttributes::worldMat[i]));
+								//(const void*)(sizeof(float) * i * 4));
 
 						/** This function is what makes it per-instance data rather than per vertex
 						* The first parameter is the attribute channel as above (4,5,6,7)
@@ -84,8 +83,10 @@ namespace cogs
 						* 1 means that this data is updated after 1 instance has been rendered
 						* by default it's 0 which makes it per-vertex and if it's over 1 than more than 1 instances will use this data
 						*/
-						glVertexAttribDivisor(BufferObjects::WORLDMAT + i, 1);
+						glVertexAttribDivisor(SPRITE_WORLDMAT_ATTRIBUTE + i, 1);
 				}
+				glBufferData(GL_ARRAY_BUFFER, sizeof(InstancedAttributes) * SPRITE_MAX_INSTANCES, nullptr, GL_STREAM_DRAW);
+
 				// unbind the vao after the setup is done
 				glBindVertexArray(0);
 		}
@@ -98,18 +99,20 @@ namespace cogs
 				//The transform values of the sprite
 				std::weak_ptr<Transform> transform = _entity.lock()->getComponent<Transform>();
 
-				auto iter = m_entitiesMap.find(texture.lock()->getTextureID());
+				auto iter = m_spritesMap.find(texture.lock()->getTextureID());
 
 				//check if it's not in the map
-				if (iter == m_entitiesMap.end())
+				if (iter == m_spritesMap.end())
 				{
-						InstanceData instance;
-						m_entitiesMap.insert(std::make_pair(texture.lock()->getTextureID(), instance));
+						std::vector<InstancedAttributes> newInstances;
+						m_spritesMap.insert(std::make_pair(texture.lock()->getTextureID(), newInstances));
 				}
+				InstancedAttributes newInstance;
+				newInstance.worldMat = transform.lock()->worldTransform();
+				newInstance.color = sprite.lock()->getColor();
+				newInstance.size = sprite.lock()->getSize();
 
-				m_entitiesMap[texture.lock()->getTextureID()].worldmats.push_back(transform.lock()->worldTransform());
-				m_entitiesMap[texture.lock()->getTextureID()].colors.push_back(sprite.lock()->getColor());
-				m_entitiesMap[texture.lock()->getTextureID()].sizes.push_back(sprite.lock()->getSize());
+				m_spritesMap[texture.lock()->getTextureID()].push_back(newInstance);
 		}
 
 		void Renderer2D::flush()
@@ -125,24 +128,18 @@ namespace cogs
 
 				//glDepthMask(GL_FALSE);
 
-				for (auto& it : m_entitiesMap)
+				for (auto& it : m_spritesMap)
 				{
-						InstanceData instances = it.second;
+						std::vector<InstancedAttributes> instances = it.second;
 						GLuint texID = it.first;
 						//bind the per-instance buffers
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDMAT]);
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::INSTANCED_ATTRIBS]);
 						//upload the data
-						glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * instances.worldmats.size(), instances.worldmats.data(), GL_DYNAMIC_DRAW);
-
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
-						glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * instances.colors.size(), instances.colors.data(), GL_DYNAMIC_DRAW);
-
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::SIZE]);
-						glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * instances.sizes.size(), instances.sizes.data(), GL_DYNAMIC_DRAW);
+						glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(InstancedAttributes) * instances.size(), instances.data());
 
 						glBindTexture(GL_TEXTURE_2D, texID);
 
-						glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.worldmats.size());
+						glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.size());
 				}
 
 				//glDepthMask(GL_TRUE);
@@ -155,7 +152,7 @@ namespace cogs
 
 		void Renderer2D::begin()
 		{
-				m_entitiesMap.clear();
+				m_spritesMap.clear();
 		}
 
 		void Renderer2D::end()

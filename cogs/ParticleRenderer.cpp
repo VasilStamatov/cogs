@@ -40,42 +40,38 @@ namespace cogs
 						0.5f,  0.5f, 0.0f }; // top right corner
 
 				glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-				glEnableVertexAttribArray(BufferObjects::POSITION);
-				glVertexAttribPointer(BufferObjects::POSITION, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDPOS_AND_SIZE]);
-
-				glEnableVertexAttribArray(BufferObjects::WORLDPOS_AND_SIZE);
-				glVertexAttribPointer(BufferObjects::WORLDPOS_AND_SIZE, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
-				glVertexAttribDivisor(BufferObjects::WORLDPOS_AND_SIZE, 1);
-
-				// bind the color buffer
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
-
-				glEnableVertexAttribArray(BufferObjects::COLOR);
-				glVertexAttribPointer(BufferObjects::COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Color), 0);
-				glVertexAttribDivisor(BufferObjects::COLOR, 1);
-
-				// bind the color buffer
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::TEXOFFSETS]);
-
-				glEnableVertexAttribArray(BufferObjects::TEXOFFSETS);
-				glVertexAttribPointer(BufferObjects::TEXOFFSETS, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
-				glVertexAttribDivisor(BufferObjects::TEXOFFSETS, 1);
-
-				// bind the color buffer
-				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::BLENDFACTOR]);
-
-				glEnableVertexAttribArray(BufferObjects::BLENDFACTOR);
-				glVertexAttribPointer(BufferObjects::BLENDFACTOR, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
-				glVertexAttribDivisor(BufferObjects::BLENDFACTOR, 1);
+				glEnableVertexAttribArray(PARTICLE_POSITION_ATTRIBUTE);
+				glVertexAttribPointer(PARTICLE_POSITION_ATTRIBUTE, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 				unsigned int indices[] = { 0,1,2,			// first triangle (bottom left - top left - top right)
 																															0,2,3 }; // second triangle (bottom left - top right - bottom right)
 
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBOs[BufferObjects::INDEX]);
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+				glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::INSTANCED_ATTRIBS]);
+
+				glEnableVertexAttribArray(PARTICLE_WORLDNSIZE_ATTRIBUTE);
+				glVertexAttribPointer(PARTICLE_WORLDNSIZE_ATTRIBUTE, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceAttributes),
+						(const GLvoid*)offsetof(InstanceAttributes, InstanceAttributes::worldPosAndSize));
+				glVertexAttribDivisor(PARTICLE_WORLDNSIZE_ATTRIBUTE, 1);
+
+				glEnableVertexAttribArray(PARTICLE_COLOR_ATTRIBUTE);
+				glVertexAttribPointer(PARTICLE_COLOR_ATTRIBUTE, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(InstanceAttributes),
+						(const GLvoid*)offsetof(InstanceAttributes, InstanceAttributes::color));
+				glVertexAttribDivisor(PARTICLE_COLOR_ATTRIBUTE, 1);
+
+				glEnableVertexAttribArray(PARTICLE_TEXOFFSETS_ATTRIBUTE);
+				glVertexAttribPointer(PARTICLE_TEXOFFSETS_ATTRIBUTE, 4, GL_FLOAT, GL_FALSE, sizeof(InstanceAttributes),
+						(const GLvoid*)offsetof(InstanceAttributes, InstanceAttributes::texOffsets));
+				glVertexAttribDivisor(PARTICLE_TEXOFFSETS_ATTRIBUTE, 1);
+
+				glEnableVertexAttribArray(PARTICLE_BLEND_ATTRIBUTE);
+				glVertexAttribPointer(PARTICLE_BLEND_ATTRIBUTE, 1, GL_FLOAT, GL_FALSE, sizeof(InstanceAttributes),
+						(const GLvoid*)offsetof(InstanceAttributes, InstanceAttributes::blendFactor));
+				glVertexAttribDivisor(PARTICLE_BLEND_ATTRIBUTE, 1);
+
+				glBufferData(GL_ARRAY_BUFFER, sizeof(InstanceAttributes) * PARTICLE_MAX_INSTANCES, nullptr, GL_STREAM_DRAW);
 
 				// unbind the vao after the setup is done
 				glBindVertexArray(0);
@@ -124,16 +120,19 @@ namespace cogs
 								glm::vec2 texOffset1 = texture.lock()->getTexOffsets((int)(index1));
 								glm::vec2 texOffset2 = texture.lock()->getTexOffsets((int)(index1));
 
-								m_particlesMap[texture.lock()->getTextureID()].worldPosAndSize.push_back(glm::vec4(particles[i].m_position, particles[i].m_width));
-								m_particlesMap[texture.lock()->getTextureID()].colors.push_back(particles[i].m_color);
-								m_particlesMap[texture.lock()->getTextureID()].texOffsets.push_back(glm::vec4(texOffset1, texOffset2));
-								m_particlesMap[texture.lock()->getTextureID()].blendFactors.push_back(blend);
+								InstanceAttributes newInstance;
+								newInstance.worldPosAndSize = glm::vec4(particles[i].m_position, particles[i].m_width);
+								newInstance.color = particles[i].m_color;
+								newInstance.texOffsets = glm::vec4(texOffset1, texOffset2);
+								newInstance.blendFactor = blend;
+
+								m_particlesMap[texture.lock()->getTextureID()].instanceAttribs.push_back(newInstance);
 						}
 				}
 		}
 		void ParticleRenderer::end()
 		{
-				//sortParticles();
+				sortParticles();
 		}
 
 		void ParticleRenderer::flush()
@@ -166,22 +165,13 @@ namespace cogs
 						m_shader.lock()->uploadValue("texNumOfRows", instances.texNumOfRows);
 
 						//bind the per-instance buffers
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::WORLDPOS_AND_SIZE]);
+						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::INSTANCED_ATTRIBS]);
 						//upload the data
-						glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * instances.worldPosAndSize.size(), instances.worldPosAndSize.data(), GL_DYNAMIC_DRAW);
-
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::COLOR]);
-						glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * instances.colors.size(), instances.colors.data(), GL_DYNAMIC_DRAW);
-
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::TEXOFFSETS]);
-						glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * instances.texOffsets.size(), instances.texOffsets.data(), GL_DYNAMIC_DRAW);
-
-						glBindBuffer(GL_ARRAY_BUFFER, m_VBOs[BufferObjects::BLENDFACTOR]);
-						glBufferData(GL_ARRAY_BUFFER, sizeof(float) * instances.blendFactors.size(), instances.blendFactors.data(), GL_DYNAMIC_DRAW);
+						glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(InstanceAttributes) * instances.instanceAttribs.size(), instances.instanceAttribs.data());
 
 						glBindTexture(GL_TEXTURE_2D, texID);
 
-						glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.worldPosAndSize.size());
+						glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances.instanceAttribs.size());
 
 						if (instances.isTexAdditive)
 						{
@@ -222,14 +212,19 @@ namespace cogs
 				{
 						InstanceData instances = it.second;
 
+						if (instances.isTexAdditive)
+						{
+								continue;
+						}
+
 						std::weak_ptr<Camera> currentCam = Camera::getCurrent();
 						const glm::vec3& cameraPos = currentCam.lock()->getEntity().lock()->getComponent<Transform>().lock()->worldPosition();
 
-						std::sort(instances.worldPosAndSize.begin(), instances.worldPosAndSize.end(),
-								[&cameraPos](const glm::vec4& _p1, const glm::vec4& _p2)
+						std::sort(instances.instanceAttribs.begin(), instances.instanceAttribs.end(),
+								[&cameraPos](const InstanceAttributes& _p1, const InstanceAttributes& _p2)
 						{
-								glm::vec3 p1WorldPos(_p1);
-								glm::vec3 p2WorldPos(_p2);
+								glm::vec3 p1WorldPos(_p1.worldPosAndSize);
+								glm::vec3 p2WorldPos(_p2.worldPosAndSize);
 
 								float distanceFromCamera1 = glm::length2(p1WorldPos - cameraPos);
 								float distanceFromCamera2 = glm::length2(p2WorldPos - cameraPos);

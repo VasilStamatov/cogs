@@ -11,6 +11,11 @@
 
 namespace cogs
 {
+		constexpr uint SPRITE_POSITION_ATTRIBUTE = 0;
+		constexpr uint SPRITE_COLOR_ATTRIBUTE			 = 1;
+		constexpr uint SPRITE_SIZE_ATTRIBUTE				 = 2;
+		constexpr uint SPRITE_WORLDMAT_ATTRIBUTE = 3;
+		constexpr uint SPRITE_MAX_INSTANCES						= 1000;
 		/**
 		* \brief derived class from Base Renderer to handle rendering sprites
 		*/
@@ -61,9 +66,7 @@ namespace cogs
 				enum BufferObjects : unsigned int
 				{
 						POSITION,
-						COLOR,
-						SIZE,
-						WORLDMAT,
+						INSTANCED_ATTRIBS,
 
 						INDEX,
 
@@ -73,15 +76,16 @@ namespace cogs
 				VAO m_VAO{ 0 }; ///< the vao to be used
 				VBO m_VBOs[BufferObjects::NUM_BUFFERS] = { 0 }; ///< the vbos
 
-				struct InstanceData
+				struct InstancedAttributes
 				{
-						std::vector<Color> colors;
-						std::vector<glm::vec2> sizes;
-						std::vector<glm::mat4> worldmats;
+						Color color;
+						glm::vec2 size;
+						glm::mat4 worldMat;
 				};
+
 				//key = texture id (all sprites of the same texture to be instanced rendered)
 				//value = instance data = per instance data
-				std::unordered_map<unsigned int, InstanceData> m_entitiesMap;
+				std::unordered_map<unsigned int, std::vector<InstancedAttributes>> m_spritesMap;
 		};
 }
 

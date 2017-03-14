@@ -10,6 +10,13 @@
 
 namespace cogs
 {
+		constexpr uint PARTICLE_POSITION_ATTRIBUTE	  = 0;
+		constexpr uint PARTICLE_WORLDNSIZE_ATTRIBUTE	= 1;
+		constexpr uint PARTICLE_COLOR_ATTRIBUTE					 = 2;
+		constexpr uint PARTICLE_TEXOFFSETS_ATTRIBUTE = 3;
+		constexpr uint PARTICLE_BLEND_ATTRIBUTE					 = 4;
+		constexpr uint PARTICLE_MAX_INSTANCES					 		= 10000;
+
 		class ParticleRenderer : public Renderer
 		{
 		public:
@@ -36,10 +43,7 @@ namespace cogs
 				enum BufferObjects : unsigned int
 				{
 						POSITION,
-						WORLDPOS_AND_SIZE,
-						COLOR,
-						TEXOFFSETS,
-						BLENDFACTOR,
+						INSTANCED_ATTRIBS,
 
 						INDEX,
 
@@ -49,14 +53,19 @@ namespace cogs
 				VBO m_VBOs[BufferObjects::NUM_BUFFERS] = { 0 }; ///< the vbos
 				VAO m_VAO{ 0 };
 
+				struct InstanceAttributes
+				{
+						Color color;
+						glm::vec4 worldPosAndSize;
+						glm::vec4 texOffsets;
+						float blendFactor;
+				};
+
 				struct InstanceData
 				{
 						bool isTexAdditive{ true };
 						float texNumOfRows{ 0.0f };
-						std::vector<Color> colors;
-						std::vector<glm::vec4> worldPosAndSize;
-						std::vector<glm::vec4> texOffsets;
-						std::vector<float> blendFactors;
+						std::vector<InstanceAttributes> instanceAttribs;
 				};
 				//key = texture id (all sprites of the same texture to be instanced rendered)
 				//value = instance data = per instance data
