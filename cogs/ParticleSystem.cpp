@@ -5,30 +5,38 @@
 #include "Random.h"
 #include "GLTexture2D.h"
 #include "ParticleRenderer.h"
+#include "SpatialHash.h"
 
-#include <algorithm>
 #include <glm\gtx\norm.hpp>
 
 namespace cogs
 {
 		ParticleSystem::ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
+				std::weak_ptr<SpatialHash> _hashTable,
 				int _maxParticles,
 				float _initialSpeed,
 				float _width,
-				bool _additive,
-				const glm::vec3& _worldGravity,
-				const Color& _color,
 				float _decayRate,
+				bool _additive,
+				bool _collide,
+				const glm::vec3& _worldGravity,
+				const glm::vec3& _maxBounds,
+				const glm::vec3& _minBounds,
+				const Color& _color,
 				std::weak_ptr<GLTexture2D> _texture,
-				std::function<void(Particle&, float, float)> _updateFunc) :
+				std::function<void(Particle&, const glm::vec3&, float)> _updateFunc) :
+				m_hashTable(_hashTable),
 				m_maxParticles(_maxParticles),
 				m_initialSpeed(_initialSpeed),
 				m_particlesWidth(_width),
+				m_decayRate(_decayRate),
 				m_additive(_additive),
+				m_collisions(_collide),
 				m_worldGravity(_worldGravity),
+				m_maxBounds(_maxBounds),
+				m_minBounds(_minBounds),
 				m_particlesColor(_color),
 				m_renderer(_renderer),
-				m_decayRate(_decayRate),
 				m_texture(_texture),
 				m_updateFunc(_updateFunc)
 		{
@@ -53,25 +61,27 @@ namespace cogs
 						if (m_particles[i].m_life > 0.0f)
 						{
 								// Update using function pointer
-								m_updateFunc(m_particles[i], m_worldGravity.y, _deltaTime);
+								m_updateFunc(m_particles[i], m_worldGravity, _deltaTime);
 
 								//reduce its life by decay amount with frame independence
 								m_particles[i].m_life -= (m_decayRate * _deltaTime);
+
+								if (m_collisions)
+								{
+										collideWithBounds(&m_particles[i]);
+										m_hashTable.lock()->addParticle(&m_particles[i]);
+								}
 						}
 				}
 
-				/*if (m_collisions)
+				if (m_collisions)
 				{
 						collideParticles();
-				}*/
+				}
 		}
 
 		void ParticleSystem::render()
 		{
-				if (!m_additive)
-				{
-						sortParticles();
-				}
 				m_renderer.lock()->submit(m_entity);
 		}
 
@@ -80,14 +90,9 @@ namespace cogs
 				m_texture = _texture;
 		}
 
-		void ParticleSystem::setMaxParticles(int _maxParticles)
+		void ParticleSystem::setDecayRate(float _decayRate)
 		{
-				//m_particles.resize(_maxParticles);
-		}
-
-		void ParticleSystem::setParticleLifetime(float _particleLifetime)
-		{
-				m_decayRate = _particleLifetime;
+				m_decayRate = _decayRate;
 		}
 
 		void ParticleSystem::setParticlesWidth(float _width)
@@ -95,7 +100,37 @@ namespace cogs
 				m_particlesWidth = _width;
 		}
 
-		void ParticleSystem::setUpdateFunc(std::function<void(Particle&, float, float)> _updateFunc)
+		void ParticleSystem::setInitialSpeed(float _initialSpeed)
+		{
+				m_initialSpeed = _initialSpeed;
+		}
+
+		void ParticleSystem::setCollide(bool _flag)
+		{
+				m_collisions = _flag;
+		}
+
+		void ParticleSystem::setAdditive(bool _flag)
+		{
+				m_additive = m_additive;
+		}
+
+		void ParticleSystem::setWorldGravity(const glm::vec3 & _gravity)
+		{
+				m_worldGravity = _gravity;
+		}
+
+		void ParticleSystem::setMaxBounds(const glm::vec3 & _bounds)
+		{
+				m_maxBounds = _bounds;
+		}
+
+		void ParticleSystem::setMinBounds(const glm::vec3 & _bounds)
+		{
+				m_minBounds = _bounds;
+		}
+
+		void ParticleSystem::setUpdateFunc(std::function<void(Particle&, const glm::vec3&, float)> _updateFunc)
 		{
 				m_updateFunc = _updateFunc;
 		}
@@ -103,6 +138,55 @@ namespace cogs
 		void ParticleSystem::setRenderer(std::weak_ptr<ParticleRenderer> _renderer)
 		{
 				m_renderer = _renderer;
+		}
+
+		void ParticleSystem::RenderBounds(BulletDebugRenderer * _debugRenderer)
+		{
+				//floor
+				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z),
+						btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z),
+						btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z),
+						btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z),
+						btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				//right wall
+				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z),
+						btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z),
+						btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z),
+						btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				//left wall
+				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z),
+						btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z),
+						btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z),
+						btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				//ceiling
+				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z),
+						btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z),
+						btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z),
+						btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+
+				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z),
+						btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 		}
 
 		int ParticleSystem::findFreeParticle()
@@ -127,7 +211,7 @@ namespace cogs
 						}
 				}
 				// no particles are free return the first index
-				return 0;
+				return m_maxParticles + 1;
 		}
 
 		void ParticleSystem::generateParticles(float _deltaTime)
@@ -153,10 +237,10 @@ namespace cogs
 		{
 				int particleIndex = findFreeParticle();
 
-				/*if (particleIndex > m_maxParticles)
+				if (particleIndex > m_maxParticles)
 				{
 						return;
-				}*/
+				}
 
 				float dirX = Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
 				float dirY = Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
@@ -171,9 +255,10 @@ namespace cogs
 				particle.m_life = 1.0f;
 
 				//set its local position to 0 as it's being spawned from the particle system
-				particle.m_position = m_entity.lock()->getComponent<Transform>().lock()->worldPosition();
+				particle.m_position = m_entity.lock()->getComponent<Transform>().lock()->worldPosition() + (Random::getRandFloat(-2.0f, 2.0f));
 
 				//set its velocity to the emitting velocity
+				//particle.m_velocity = glm::vec3(1.0f, 0.0f, 0.0f) * m_initialSpeed;
 				particle.m_velocity = vel;
 
 				//set its color to the set color for all particles
@@ -182,104 +267,116 @@ namespace cogs
 				particle.m_width = m_particlesWidth;
 		}
 
-		void ParticleSystem::sortParticles()
+		void ParticleSystem::collideParticles()
 		{
-				std::weak_ptr<Camera> currentCam = Camera::getCurrent();
-				const glm::vec3& cameraPos = currentCam.lock()->getEntity().lock()->getComponent<Transform>().lock()->worldPosition();
+				std::vector<Particle*> checkedParticles;
 
-				std::sort(&m_particles[0], &m_particles[m_maxParticles],
-						[&cameraPos](const Particle& _p1, const Particle& _p2)
+				for (int i = 0; i < m_maxParticles; i++)
 				{
-						float distanceFromCamera1 = glm::length2(_p1.m_position - cameraPos);
-						float distanceFromCamera2 = glm::length2(_p2.m_position - cameraPos);
+						if (m_particles[i].m_life > 0.0f)
+						{
+								checkedParticles.push_back(&m_particles[i]);
 
-						return (distanceFromCamera1 > distanceFromCamera2);
-				});
+								std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(&m_particles[i]);
+
+								for (Particle* neighbor : neighbors)
+								{
+										if (std::find(checkedParticles.begin(), checkedParticles.end(), neighbor) == checkedParticles.end())
+										{
+												checkCollision(&m_particles[i], neighbor);
+										}
+								}
+						}
+				}
 		}
 
-		//void ParticleSystem::collideParticles()
-		//{
-		//		for (size_t i = 0; i < m_maxParticles - 1; i++)
-		//		{
-		//				if (m_particles[i].m_life <= 0.0f)
-		//				{
-		//						continue;
-		//				}
-		//				for (size_t j = i + 1; j < m_maxParticles; j++)
-		//				{
-		//						if (m_particles[j].m_life <= 0.0f)
-		//						{
-		//								continue;
-		//						}
-		//						float p1Radius = m_particles[i].m_width * 0.5f;
-		//						float p2Radius = m_particles[j].m_width * 0.5f;
+		void ParticleSystem::checkCollision(Particle * _p1, Particle * _p2)
+		{
+				glm::vec3 distVec = _p2->m_position - _p1->m_position;
+				glm::vec3 distDir = glm::normalize(distVec);
+				float dist = glm::length2(distVec);
+				float totalRadius = _p1->m_width * 0.5f + _p2->m_width * 0.5f;
 
-		//						glm::vec3 p1min(m_particles[i].m_position.x - p1Radius,
-		//								m_particles[i].m_position.y - p1Radius,
-		//								m_particles[i].m_position.z);
-		//						glm::vec3 p1max(m_particles[i].m_position.x + p1Radius,
-		//								m_particles[i].m_position.y + p1Radius,
-		//								m_particles[i].m_position.z);
+				float collisionDepth = totalRadius * totalRadius - dist;
+				// Check for collision
+				if (collisionDepth > 0.0f)
+				{
+						// Push away the balls based on ratio of masses
+						_p1->m_position -= distDir * collisionDepth * (_p2->m_width / _p1->m_width) * 0.5f;
+						_p2->m_position += distDir * collisionDepth * (_p1->m_width / _p2->m_width) * 0.5f;
 
-		//						glm::vec3 p2min(m_particles[j].m_position.x - p2Radius,
-		//								m_particles[j].m_position.y - p2Radius,
-		//								m_particles[j].m_position.z);
-		//						glm::vec3 p2max(m_particles[j].m_position.x + p2Radius,
-		//								m_particles[j].m_position.y + p2Radius,
-		//								m_particles[j].m_position.z);
+						// Calculate deflection. http://stackoverflow.com/a/345863
+						float aci = glm::dot(_p1->m_velocity, distDir);
+						float bci = glm::dot(_p2->m_velocity, distDir);
 
-		//						if (p1max.x > p2min.x &&
-		//								p1min.x < p2max.x &&
-		//								p1max.y > p2min.y &&
-		//								p1min.y < p2max.y &&
-		//								p1max.z == p2min.z &&
-		//								p1min.z == p2max.z)
-		//						{
-		//								//AABBs are overlapping
+						float acf = (aci * (_p1->m_width - _p2->m_width) + 2 * _p2->m_width * bci) / (_p1->m_width + _p2->m_width);
+						float bcf = (bci * (_p2->m_width - _p1->m_width) + 2 * _p1->m_width * aci) / (_p1->m_width + _p2->m_width);
 
-		//								float distance = sqrtf(
-		//										((m_particles[i].m_position.x - m_particles[j].m_position.x) *
-		//										(m_particles[i].m_position.x - m_particles[j].m_position.x)) +
-		//												((m_particles[i].m_position.y - m_particles[j].m_position.y) *
-		//										(m_particles[i].m_position.y - m_particles[j].m_position.y))
-		//								);
+						_p1->m_velocity += (acf - aci) * distDir;
+						_p2->m_velocity += (bcf - bci) * distDir;
 
-		//								if (distance < p1Radius + p2Radius)
-		//								{
-		//										//circle collision detected !
-		//										/*
-		//										newVelX1 = (firstBall.speed.x * (firstBall.mass – secondBall.mass) + (2 * secondBall.mass * secondBall.speed.x)) / (firstBall.mass + secondBall.mass);
-		//										newVelY1 = (firstBall.speed.y * (firstBall.mass – secondBall.mass) + (2 * secondBall.mass * secondBall.speed.y)) / (firstBall.mass + secondBall.mass);
-		//										newVelX2 = (secondBall.speed.x * (secondBall.mass – firstBall.mass) + (2 * firstBall.mass * firstBall.speed.x)) / (firstBall.mass + secondBall.mass);
-		//										newVelY2 = (secondBall.speed.y * (secondBall.mass – firstBall.mass) + (2 * firstBall.mass * firstBall.speed.y)) / (firstBall.mass + secondBall.mass);
-		//										*/
+						if (glm::length2(_p1->m_velocity + _p2->m_velocity) > 1.0f)
+						{
+								// Choose the faster ball
+								bool choice = glm::length2(_p1->m_velocity) < glm::length2(_p2->m_velocity);
 
-		//										float newVelX1 = (m_particles[i].m_velocity.x * (p1Radius - p2Radius) +
-		//												(2 * p2Radius * m_particles[j].m_velocity.x)) / (p1Radius + p2Radius);
+								// Faster ball transfers it's color to the slower ball
+								choice ? _p2->m_color = _p1->m_color : _p1->m_color = _p2->m_color;
+						}
+				}
+		}
 
-		//										float newVelY1 = (m_particles[i].m_velocity.y * (p1Radius - p2Radius) +
-		//												(2 * p2Radius * m_particles[j].m_velocity.y)) / (p1Radius + p2Radius);
+		void ParticleSystem::collideWithBounds(Particle * _p)
+		{
+				if (_p->m_position.x < m_minBounds.x + _p->m_width * 0.5f)
+				{
+						_p->m_position.x = m_minBounds.x + _p->m_width * 0.5f;
+						if (_p->m_velocity.x < 0.0f)
+						{
+								_p->m_velocity.x *= -1.0f;
+						}
+				}
+				else if (_p->m_position.x > m_maxBounds.x - _p->m_width * 0.5f)
+				{
+						_p->m_position.x = m_maxBounds.x - _p->m_width * 0.5f;
+						if (_p->m_velocity.x > 0.0f)
+						{
+								_p->m_velocity.x *= -1.0f;
+						}
+				}
 
-		//										float newVelZ1 = (m_particles[i].m_velocity.z * (p1Radius - p2Radius) +
-		//												(2 * p2Radius * m_particles[j].m_velocity.z)) / (p1Radius + p2Radius);
+				if (_p->m_position.y < m_minBounds.y + _p->m_width * 0.5f)
+				{
+						_p->m_position.y = m_minBounds.y + _p->m_width * 0.5f;
+						if (_p->m_velocity.y < 0.0f)
+						{
+								_p->m_velocity.y *= -1.0f;
+						}
+				}
+				else if (_p->m_position.y > m_maxBounds.y - _p->m_width * 0.5f)
+				{
+						_p->m_position.y = m_maxBounds.y - _p->m_width * 0.5f;
+						if (_p->m_velocity.y > 0.0f)
+						{
+								_p->m_velocity.y *= -1.0f;
+						}
+				}
 
-		//										float newVelX2 = (m_particles[j].m_velocity.x * (p2Radius - p1Radius) +
-		//												(2 * p1Radius * m_particles[i].m_velocity.x)) / (p1Radius + p2Radius);
-
-		//										float newVelY2 = (m_particles[j].m_velocity.y * (p2Radius - p1Radius) +
-		//												(2 * p1Radius * m_particles[i].m_velocity.y)) / (p1Radius + p2Radius);
-
-		//										float newVelZ2 = (m_particles[j].m_velocity.z * (p2Radius - p1Radius) +
-		//												(2 * p1Radius * m_particles[i].m_velocity.z)) / (p1Radius + p2Radius);
-
-		//										m_particles[i].m_velocity = glm::vec3(newVelX1, newVelY1, newVelZ1);
-		//										m_particles[j].m_velocity = glm::vec3(newVelX2, newVelY2, newVelZ2);
-
-		//										m_particles[i].m_position += m_particles[i].m_velocity;
-		//										m_particles[j].m_position += m_particles[j].m_velocity;
-		//								}
-		//						}
-		//				}
-		//		}
-		//}
+				if (_p->m_position.z < m_minBounds.z + _p->m_width * 0.5f)
+				{
+						_p->m_position.z = m_minBounds.z + _p->m_width * 0.5f;
+						if (_p->m_velocity.z < 0.0f)
+						{
+								_p->m_velocity.z *= -1.0f;
+						}
+				}
+				else if (_p->m_position.z > m_maxBounds.z - _p->m_width * 0.5f)
+				{
+						_p->m_position.z = m_maxBounds.z - _p->m_width * 0.5f;
+						if (_p->m_velocity.z > 0.0f)
+						{
+								_p->m_velocity.z *= -1.0f;
+						}
+				}
+		}
 }

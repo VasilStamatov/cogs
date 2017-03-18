@@ -11,6 +11,8 @@ namespace cogs
 {
 		class ParticleRenderer;
 		class GLTexture2D;
+		class SpatialHash;
+		class BulletDebugRenderer;
 
 		struct Particle
 		{
@@ -23,9 +25,9 @@ namespace cogs
 				float m_life{ 0.0f }; ///< the life of the particle,
 		};
 		// Default function pointer
-		inline void defaultParticleUpdate(Particle& _particle, float _gravity, float _deltaTime)
+		inline void defaultParticleUpdate(Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
-				_particle.m_velocity.y += _gravity * _deltaTime;
+				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		}
 
@@ -33,15 +35,19 @@ namespace cogs
 		{
 		public:
 				ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
+						std::weak_ptr<SpatialHash> _hashTable,
 						int _maxParticles,
 						float _initialSpeed,
 						float _width,
-						bool _additive,
-						const glm::vec3& _worldGravity,
-						const Color& _color,
 						float _decayRate,
+						bool _additive,
+						bool _collide,
+						const glm::vec3& _worldGravity,
+						const glm::vec3& _maxBounds,
+						const glm::vec3& _minBounds,
+						const Color& _color,
 						std::weak_ptr<GLTexture2D> _texture,
-						std::function<void(Particle&, float, float)> _updateFunc = defaultParticleUpdate);
+						std::function<void(Particle&, const glm::vec3&, float)> _updateFunc = defaultParticleUpdate);
 				~ParticleSystem();
 
 				void init() override;
@@ -51,11 +57,17 @@ namespace cogs
 				void render() override;
 
 				void setTexture(std::weak_ptr<GLTexture2D> _texture);
-				void setMaxParticles(int _maxParticles);
-				void setParticleLifetime(float _particleLifetime);
+				void setDecayRate(float _decayRate);
 				void setParticlesWidth(float _width);
-				void setUpdateFunc(std::function<void(Particle&, float, float)> _updateFunc);
+				void setInitialSpeed(float _initialSpeed);
+				void setCollide(bool _flag);
+				void setAdditive(bool _flag);
+				void setWorldGravity(const glm::vec3& _gravity);
+				void setMaxBounds(const glm::vec3& _bounds);
+				void setMinBounds(const glm::vec3& _bounds);
+				void setUpdateFunc(std::function<void(Particle&, const glm::vec3&, float)> _updateFunc);
 				void setRenderer(std::weak_ptr<ParticleRenderer> _renderer);
+				void RenderBounds(BulletDebugRenderer* _debugRenderer);
 
 				std::weak_ptr<GLTexture2D> getTexture() { return m_texture; }
 				int getMaxParticles() { return m_maxParticles; }
@@ -67,17 +79,20 @@ namespace cogs
 				int findFreeParticle();
 				void generateParticles(float _deltaTime);
 				void spawnParticle();
-				void sortParticles();
-				//void collideParticles();
+				void collideParticles();
+				void checkCollision(Particle * _p1, Particle * _p2);
+				void collideWithBounds(Particle * _p);
 
 		private:
 				/** custom update function for each particle system */
-				std::function<void(Particle&, float, float)> m_updateFunc;
+				std::function<void(Particle&, const glm::vec3&, float)> m_updateFunc;
 
 				/** Array of all particles */
 				Particle* m_particles{ nullptr };
 
 				glm::vec3 m_worldGravity{ 0.0f, 0.0f, 0.0f };
+				glm::vec3 m_maxBounds{ 0.0f, 0.0f, 0.0f };
+				glm::vec3 m_minBounds{ 0.0f, 0.0f, 0.0f };
 
 				/** The color set to the newly spawned particles */
 				Color m_particlesColor{ Color::white };
@@ -94,12 +109,14 @@ namespace cogs
 				float m_initialSpeed{ 1.0f };
 
 				bool m_additive{ true };
-				//bool m_collisions{ true };
+				bool m_collisions{ false };
 
 				/** 2D texture for the particle */
 				std::weak_ptr<GLTexture2D> m_texture;
 
 				std::weak_ptr<ParticleRenderer> m_renderer;
+
+				std::weak_ptr<SpatialHash> m_hashTable;
 		};
 }
 
