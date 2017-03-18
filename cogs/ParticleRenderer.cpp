@@ -84,6 +84,7 @@ namespace cogs
 		{
 				std::weak_ptr<ParticleSystem> particleSystem = _entity.lock()->getComponent<ParticleSystem>();
 				std::weak_ptr<GLTexture2D> texture = particleSystem.lock()->getTexture();
+				std::weak_ptr<Camera> currentCam = Camera::getCurrent();
 
 				Particle* particles = particleSystem.lock()->getParticles();
 
@@ -110,23 +111,27 @@ namespace cogs
 				{
 						if (particles[i].m_life > 0.0f)
 						{
-								float lifeFactor = abs(particles[i].m_life - 1.0f);
-								int stageCount = texture.lock()->getDims().x * texture.lock()->getDims().y;
-								float atlasProgression = lifeFactor * stageCount;
-								float index1{ 0.0f }, index2{ 0.0f }, blend{ 0.0f };
-								blend = modff(atlasProgression, &index1);
-								index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
+								//submit the mesh if it's in the view frustum
+								if (currentCam.lock()->sphereInFrustum(particles[i].m_position, particles[i].m_width * 0.5f))
+								{
+										float lifeFactor = abs(particles[i].m_life - 1.0f);
+										int stageCount = texture.lock()->getDims().x * texture.lock()->getDims().y;
+										float atlasProgression = lifeFactor * stageCount;
+										float index1{ 0.0f }, index2{ 0.0f }, blend{ 0.0f };
+										blend = modff(atlasProgression, &index1);
+										index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
 
-								glm::vec2 texOffset1 = texture.lock()->getTexOffsets((int)(index1));
-								glm::vec2 texOffset2 = texture.lock()->getTexOffsets((int)(index1));
+										glm::vec2 texOffset1 = texture.lock()->getTexOffsets((int)(index1));
+										glm::vec2 texOffset2 = texture.lock()->getTexOffsets((int)(index1));
 
-								InstanceAttributes newInstance;
-								newInstance.worldPosAndSize = glm::vec4(particles[i].m_position, particles[i].m_width);
-								newInstance.color = particles[i].m_color;
-								newInstance.texOffsets = glm::vec4(texOffset1, texOffset2);
-								newInstance.blendFactor = blend;
+										InstanceAttributes newInstance;
+										newInstance.worldPosAndSize = glm::vec4(particles[i].m_position, particles[i].m_width);
+										newInstance.color = particles[i].m_color;
+										newInstance.texOffsets = glm::vec4(texOffset1, texOffset2);
+										newInstance.blendFactor = blend;
 
-								m_particlesMap[texture.lock()->getTextureID()].instanceAttribs.push_back(newInstance);
+										m_particlesMap[texture.lock()->getTextureID()].instanceAttribs.push_back(newInstance);
+								}
 						}
 				}
 		}
