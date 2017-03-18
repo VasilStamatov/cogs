@@ -37,11 +37,13 @@ namespace cogs
 				ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
 						std::weak_ptr<SpatialHash> _hashTable,
 						int _maxParticles,
+						float _particlePerSec,
 						float _initialSpeed,
 						float _width,
 						float _decayRate,
 						bool _additive,
 						bool _collide,
+						bool _playOnInit,
 						const glm::vec3& _worldGravity,
 						const glm::vec3& _maxBounds,
 						const glm::vec3& _minBounds,
@@ -56,6 +58,14 @@ namespace cogs
 
 				void render() override;
 
+				void play();
+				void pause();
+				void stopEmitting();
+				void continueEmitting();
+
+				bool isPlaying();
+				bool isStopped();
+
 				void setTexture(std::weak_ptr<GLTexture2D> _texture);
 				void setDecayRate(float _decayRate);
 				void setParticlesWidth(float _width);
@@ -67,7 +77,7 @@ namespace cogs
 				void setMinBounds(const glm::vec3& _bounds);
 				void setUpdateFunc(std::function<void(Particle&, const glm::vec3&, float)> _updateFunc);
 				void setRenderer(std::weak_ptr<ParticleRenderer> _renderer);
-				void RenderBounds(BulletDebugRenderer* _debugRenderer);
+				void renderBounds(BulletDebugRenderer* _debugRenderer);
 
 				std::weak_ptr<GLTexture2D> getTexture() { return m_texture; }
 				int getMaxParticles() { return m_maxParticles; }
@@ -103,6 +113,12 @@ namespace cogs
 				/** The width/size of the particles */
 				float m_particlesWidth{ 1.0f };
 
+				/* accumulator for the particles per second */
+				float m_accumulator{ 0.0f };
+
+				/* number of particles generated per second */
+				float m_particlesPerFrame{ 0.0f };
+
 				/** index of the last available particle in the particle array */
 				int m_lastFreeParticle{ 0 };
 				int m_maxParticles{ 0 };
@@ -110,6 +126,9 @@ namespace cogs
 
 				bool m_additive{ true };
 				bool m_collisions{ false };
+				bool m_isPlaying{ false };
+				bool m_isStopped{ false };
+				bool m_playOnInit{ true };
 
 				/** 2D texture for the particle */
 				std::weak_ptr<GLTexture2D> m_texture;

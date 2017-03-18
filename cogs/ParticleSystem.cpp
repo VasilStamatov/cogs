@@ -14,11 +14,13 @@ namespace cogs
 		ParticleSystem::ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
 				std::weak_ptr<SpatialHash> _hashTable,
 				int _maxParticles,
+				float _particlePerSec,
 				float _initialSpeed,
 				float _width,
 				float _decayRate,
 				bool _additive,
 				bool _collide,
+				bool _playOnInit,
 				const glm::vec3& _worldGravity,
 				const glm::vec3& _maxBounds,
 				const glm::vec3& _minBounds,
@@ -27,11 +29,13 @@ namespace cogs
 				std::function<void(Particle&, const glm::vec3&, float)> _updateFunc) :
 				m_hashTable(_hashTable),
 				m_maxParticles(_maxParticles),
+				m_particlesPerFrame(1.0f / _particlePerSec),
 				m_initialSpeed(_initialSpeed),
 				m_particlesWidth(_width),
 				m_decayRate(_decayRate),
 				m_additive(_additive),
 				m_collisions(_collide),
+				m_playOnInit(_playOnInit),
 				m_worldGravity(_worldGravity),
 				m_maxBounds(_maxBounds),
 				m_minBounds(_minBounds),
@@ -49,40 +53,79 @@ namespace cogs
 
 		void ParticleSystem::init()
 		{
+				if (m_playOnInit)
+				{
+						play();
+				}
 		}
 
 		void ParticleSystem::update(float _deltaTime)
 		{
-				//generateParticles(_deltaTime);
-				spawnParticle();
-				for (int i = 0; i < m_maxParticles; ++i)
+				if (m_isPlaying)
 				{
-						// check if it is active
-						if (m_particles[i].m_life > 0.0f)
+						if (!m_isStopped)
 						{
-								// Update using function pointer
-								m_updateFunc(m_particles[i], m_worldGravity, _deltaTime);
-
-								//reduce its life by decay amount with frame independence
-								m_particles[i].m_life -= (m_decayRate * _deltaTime);
-
-								if (m_collisions)
+								generateParticles(_deltaTime);
+						}
+						for (int i = 0; i < m_maxParticles; ++i)
+						{
+								// check if it is active
+								if (m_particles[i].m_life > 0.0f)
 								{
-										collideWithBounds(&m_particles[i]);
-										m_hashTable.lock()->addParticle(&m_particles[i]);
+										// Update using function pointer
+										m_updateFunc(m_particles[i], m_worldGravity, _deltaTime);
+
+										//reduce its life by decay amount with frame independence
+										m_particles[i].m_life -= (m_decayRate * _deltaTime);
+
+										if (m_collisions)
+										{
+												collideWithBounds(&m_particles[i]);
+												m_hashTable.lock()->addParticle(&m_particles[i]);
+										}
 								}
 						}
-				}
 
-				if (m_collisions)
-				{
-						collideParticles();
+						if (m_collisions)
+						{
+								collideParticles();
+						}
 				}
 		}
 
 		void ParticleSystem::render()
 		{
 				m_renderer.lock()->submit(m_entity);
+		}
+
+		void ParticleSystem::play()
+		{
+				m_isPlaying = true;
+		}
+
+		void ParticleSystem::pause()
+		{
+				m_isPlaying = false;
+		}
+
+		void ParticleSystem::continueEmitting()
+		{
+				m_isStopped = false;
+		}
+
+		void ParticleSystem::stopEmitting()
+		{
+				m_isStopped = true;
+		}
+
+		bool ParticleSystem::isPlaying()
+		{
+				return m_isPlaying;
+		}
+
+		bool ParticleSystem::isStopped()
+		{
+				return m_isStopped;
 		}
 
 		void ParticleSystem::setTexture(std::weak_ptr<GLTexture2D> _texture)
@@ -140,7 +183,7 @@ namespace cogs
 				m_renderer = _renderer;
 		}
 
-		void ParticleSystem::RenderBounds(BulletDebugRenderer * _debugRenderer)
+		void ParticleSystem::renderBounds(BulletDebugRenderer * _debugRenderer)
 		{
 				//floor
 				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z),
@@ -210,27 +253,25 @@ namespace cogs
 								return i;
 						}
 				}
-				// no particles are free return the first index
+				// no particles are free
 				return m_maxParticles + 1;
 		}
 
 		void ParticleSystem::generateParticles(float _deltaTime)
 		{
-				/*float particlesToCreate = m_particlesPerSec * _deltaTime;
-
-				int count = (int)ceilf(particlesToCreate);
-
-				float partialParticle = glm::clamp(particlesToCreate, 0.0f, 1.0f);
-
-				for (int i = 0; i < count; i++)
+				// limit the particles per sec accumulation to 60 fps minimum
+				// otherwise if it goes too low it will start spawning massive amounts at once
+				// and make it even slower
+				if (_deltaTime > 0.016f)
 				{
-						spawnParticle();
+						_deltaTime = 0.016f;
 				}
-
-				if (Random::getRandFloat(0.0f, 1.0f) < partialParticle)
+				m_accumulator += _deltaTime;
+				while (m_accumulator > m_particlesPerFrame)
 				{
 						spawnParticle();
-				}*/
+						m_accumulator -= m_particlesPerFrame;
+				}
 		}
 
 		void ParticleSystem::spawnParticle()

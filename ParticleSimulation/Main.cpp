@@ -16,6 +16,8 @@
 #include <cogs\MeshRenderer.h>
 #include <cogs\IOManager.h>
 
+#include "ParticleSystemController.h"
+
 int main(int argc, char** argv)
 {
 		cogs::Window window;
@@ -57,7 +59,7 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem1 = root->addChild("ParticleSystem1");
 		particleSystem1.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-25.0f, 5.0f, 5.0f));
-		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 0.5f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::purple,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -66,10 +68,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem1.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA1, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem2 = root->addChild("ParticleSystem2");
 		particleSystem2.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-20.0f, 5.0f, 5.0f));
-		particleSystem2.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem2.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 200.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::green,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -78,10 +81,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem2.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA2, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem3 = root->addChild("ParticleSystem3");
 		particleSystem3.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-15.0f, 5.0f, 5.0f));
-		particleSystem3.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem3.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 300.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::teal,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -90,10 +94,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem3.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA3, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem4 = root->addChild("ParticleSystem4");
 		particleSystem4.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-10.0f, 5.0f, 5.0f));
-		particleSystem4.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem4.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 400.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::yellow,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -102,10 +107,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem4.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA4, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem5 = root->addChild("ParticleSystem5");
 		particleSystem5.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-5.0f, 5.0f, 5.0f));
-		particleSystem5.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem5.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 500.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::lime,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -114,10 +120,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem5.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA5, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem6 = root->addChild("ParticleSystem6");
 		particleSystem6.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f, 5.0f, 5.0f));
-		particleSystem6.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem6.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 600.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::red,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -126,10 +133,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem6.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA6, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem7 = root->addChild("ParticleSystem7");
 		particleSystem7.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(5.0f, 5.0f, 5.0f));
-		particleSystem7.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem7.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 700.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::fuchsia,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -138,10 +146,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem7.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA7, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem8 = root->addChild("ParticleSystem8");
 		particleSystem8.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(10.0f, 5.0f, 5.0f));
-		particleSystem8.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem8.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 800.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::aqua,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -150,10 +159,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem8.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA8, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem9 = root->addChild("ParticleSystem9");
 		particleSystem9.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(15, 5.0f, 5.0f));
-		particleSystem9.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem9.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 900.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::white,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -162,10 +172,11 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem9.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA9, cogs::KeyCode::Q);
 
 		std::weak_ptr<cogs::Entity> particleSystem10 = root->addChild("ParticleSystem10");
 		particleSystem10.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(20.0f, 5.0f, 5.0f));
-		particleSystem10.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 10.0f, 1.0f, 0.0f, true, true,
+		particleSystem10.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 1000.0f, 10.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::silver,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -174,6 +185,7 @@ int main(int argc, char** argv)
 				_particle.m_velocity += _gravity * _deltaTime;
 				_particle.m_position += _particle.m_velocity * _deltaTime;
 		});
+		particleSystem10.lock()->addComponent<ParticleSystemController>(cogs::KeyCode::ALPHA0, cogs::KeyCode::Q);
 
 		cogs::BulletDebugRenderer debugRenderer;
 
@@ -285,7 +297,7 @@ int main(int argc, char** argv)
 						{
 								//use the debug renderer to draw the debug physics world
 								spatialhash->render(&debugRenderer);
-								particleSystem1.lock()->getComponent<cogs::ParticleSystem>().lock()->RenderBounds(&debugRenderer);
+								particleSystem1.lock()->getComponent<cogs::ParticleSystem>().lock()->renderBounds(&debugRenderer);
 								//debugRenderer.drawMeshSphereBounds(nanosuit);
 								debugRenderer.end();
 								debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 1.0f);
