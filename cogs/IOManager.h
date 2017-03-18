@@ -29,6 +29,8 @@ namespace cogs
 						*/
 				static bool readFileToBuffer(const std::string& _filePath, std::string& _buffer);
 
+				static bool writeBufferToFile(const std::string& _buffer, const std::string& _filePath);
+
 				/*
 						* \brief Gets all directory entries in the directory specified by path and stores in rvEntries.
 						* \param[in] _filePath the filepath of the file that should be read from
@@ -43,6 +45,9 @@ namespace cogs
 						* \param[out] bool Returns false the creation failed.
 						*/
 				static bool makeDirectory(const char* _path);
+
+		private:
+				static void openDirectory(const std::string& _filePath);
 		};
 }
 #endif // !IOMANAGER_H

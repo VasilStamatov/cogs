@@ -69,6 +69,25 @@ namespace cogs
 				return true;
 		}
 
+		bool IOManager::writeBufferToFile(const std::string & _buffer, const std::string & _filePath)
+		{
+				const std::string directory = _filePath.substr(0, _filePath.find_last_of('/'));
+				openDirectory(directory);
+
+				std::ofstream file(_filePath, std::ios::out | std::ios::app);
+				if (file.fail())
+				{
+						perror(_filePath.c_str());
+						return false;
+				}
+
+				file << _buffer;
+
+				file.close();
+
+				return true;
+		}
+
 		bool IOManager::getDirectoryEntries(const char * _path, std::vector<DirEntry>& _rvEntries)
 		{
 				auto dpath = fs::path(_path);
@@ -95,5 +114,22 @@ namespace cogs
 		bool IOManager::makeDirectory(const char * _path)
 		{
 				return fs::create_directory(fs::path(_path));
+		}
+
+		void IOManager::openDirectory(const std::string& _filePath)
+		{
+				if (_filePath.find('/') != std::string::npos)
+				{
+						const std::string directory = _filePath.substr(0, _filePath.find_last_of('/'));
+
+						openDirectory(directory);
+				}
+
+				auto dpath = fs::path(_filePath);
+
+				if (!fs::exists(dpath))
+				{
+						makeDirectory(_filePath.c_str());
+				}
 		}
 }
