@@ -22,8 +22,7 @@
 #include <cogs\Skybox.h>
 #include <cogs\Light.h>
 #include <cogs\GLTexture2D.h>
-
-#include <iostream>
+#include <cogs\SpatialHash.h>
 
 #include "PaddleController.h"
 #include "BallBehavior.h"
@@ -90,27 +89,70 @@ int main(int argc, char** argv)
 
 		std::shared_ptr<cogs::ParticleRenderer> particleRenderer = std::make_shared<cogs::ParticleRenderer>(
 				cogs::ResourceManager::getGLSLProgram("ParticleShader", "Shaders/ParticleShader.vert", "Shaders/ParticleShader.frag"));
-		
-		/*for (int i = 0; i < 20; i++)
+
+	/*	for (int i = 0; i < 10; i++)
 		{
-				std::weak_ptr<cogs::Entity> sprite = root->addChild("testSprite" + std::to_string(i));
-				sprite.lock()->addComponent<cogs::SpriteRenderer>(
-						cogs::ResourceManager::getSprite("TestSprite",
-								cogs::ResourceManager::getGLTexture2D("Textures/img_test.png", "texture_diffuse"),
-								glm::vec2(5.0f, 5.0f), cogs::Color::white), renderer2D);
+				for (int j = 0; j < 10; j++)
+				{
+						if (i % 2 == 0)
+						{
+								std::weak_ptr<cogs::Entity> sprite = root->addChild("testSprite" + std::to_string(i));
+								sprite.lock()->addComponent<cogs::SpriteRenderer>(
+										cogs::ResourceManager::getSprite("TestSprite",
+												cogs::ResourceManager::getGLTexture2D("Textures/img_test.png", "texture_diffuse"),
+												glm::vec2(5.0f, 5.0f), cogs::Color::white), renderer2D);
 
-				sprite.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f + i * 6, 10.0f, 10.0f));
+								sprite.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f + i * 6, 0.0f + j * 6, 10.0f));
 
-				sprite.lock()->addComponent<SpriteController>();
+								sprite.lock()->addComponent<SpriteController>();
+						}
+						else
+						{
+								std::weak_ptr<cogs::Entity> sprite = root->addChild("testSprite" + std::to_string(i));
+								sprite.lock()->addComponent<cogs::SpriteRenderer>(
+										cogs::ResourceManager::getSprite("TestSprite2",
+												cogs::ResourceManager::getGLTexture2D("Textures/player.png", "texture_diffuse"),
+												glm::vec2(5.0f, 5.0f), cogs::Color::white), renderer2D);
+
+								sprite.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f + i * 6, 0.0f + j * 6, 10.0f));
+
+								sprite.lock()->addComponent<SpriteController>();
+						}
+				}
 		}*/
 
-		//std::weak_ptr<cogs::Entity> particleSystem = root->addChild("PSTEST");
-		/*particleSystem.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, gravity, cogs::Color::red,
-				100, 50.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-				cogs::ResourceManager::getGLTexture2D("Textures/particle.png", "texture_diffuse"));*/
-		/*particleSystem.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, 100, 10.0f, 10.0f, 1.0f,
-				gravity, cogs::Color::red, 4.0f,
-				cogs::ResourceManager::getGLTexture2D("Textures/particle.png", "texture_diffuse"));*/
+		std::shared_ptr<cogs::SpatialHash> spatialhash = std::make_shared<cogs::SpatialHash>(5, 10, 10, 10);
+
+		std::weak_ptr<cogs::Entity> particleSystem1 = root->addChild("ParticleSystem1");
+		particleSystem1.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-5.0f, 0.0f, -10.0f));
+		particleSystem1.lock()->addComponent<cogs::MeshRenderer>(cogs::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
+		particleSystem1.lock()->getComponent<cogs::Transform>().lock()->setWorldScale(glm::vec3(0.2f, 0.2f, 0.2f));
+
+		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1, 10.0f, 1.0f, true, true,
+				gravity, cogs::Color::white, 1.0f,
+				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
+				[](cogs::Particle& _particle, float _gravity, float _deltaTime)
+		{
+				//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
+				//_particle.m_velocity.y += _gravity * _deltaTime;
+				_particle.m_position += _particle.m_velocity * _deltaTime;
+		});
+
+
+		std::weak_ptr<cogs::Entity> particleSystem2 = root->addChild("ParticleSystem2");
+		particleSystem2.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(5.0f, 0.0f, -10.0f));
+		particleSystem2.lock()->addComponent<cogs::MeshRenderer>(cogs::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
+		particleSystem2.lock()->getComponent<cogs::Transform>().lock()->setWorldScale(glm::vec3(0.2f, 0.2f, 0.2f));
+
+		particleSystem2.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1, -10.0f, 1.0f, true, true,
+				gravity, cogs::Color::white, 1.0f,
+				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
+				[](cogs::Particle& _particle, float _gravity, float _deltaTime)
+		{
+				//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
+				//_particle.m_velocity.y += _gravity * _deltaTime;
+				_particle.m_position += _particle.m_velocity * _deltaTime;
+		});
 
 		/*std::weak_ptr<cogs::Entity> nanosuit = root->addChild("nanosuit");
 		nanosuit.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(10.0f, 20.0f, 10.0f));
@@ -148,7 +190,7 @@ int main(int argc, char** argv)
 		paddle.lock()->getComponent<cogs::RigidBody>().lock()->setAngularFactor(glm::vec3(0.0f, 0.0f, 0.0f));
 		paddle.lock()->getComponent<cogs::RigidBody>().lock()->setRestitution(1.0f);
 		paddle.lock()->addComponent<PaddleController>(150000.0f);
-		//paddle.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, 200, 15.0f, 1.0f, true,
+		//paddle.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, 2, 1.0f, 1.0f, true, true,
 		//		gravity, cogs::Color::white, 1.0f,
 		//		cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 		//		[](cogs::Particle& _particle, float _gravity, float _deltaTime)
@@ -213,14 +255,14 @@ int main(int argc, char** argv)
 		{
 				for (int j = -10; j < 0; j += 4)
 				{
-								std::weak_ptr<cogs::Entity> brick = root->addChild("Brick");
-								brick.lock()->setTag("brick");
-								brick.lock()->addComponent<cogs::MeshRenderer>(cogs::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
-								brick.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
-								brick.lock()->addComponent<cogs::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
-								brick.lock()->addComponent<cogs::RigidBody>(physicsWorld, 0.0f);
-								brick.lock()->getComponent<cogs::RigidBody>().lock()->setActivationState(5);
-								brick.lock()->getComponent<cogs::RigidBody>().lock()->setRestitution(1.0f);
+						std::weak_ptr<cogs::Entity> brick = root->addChild("Brick");
+						brick.lock()->setTag("brick");
+						brick.lock()->addComponent<cogs::MeshRenderer>(cogs::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
+						brick.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f + i, 30.0f + j, 0.0f));
+						brick.lock()->addComponent<cogs::BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+						brick.lock()->addComponent<cogs::RigidBody>(physicsWorld, 0.0f);
+						brick.lock()->getComponent<cogs::RigidBody>().lock()->setActivationState(5);
+						brick.lock()->getComponent<cogs::RigidBody>().lock()->setRestitution(1.0f);
 				}
 		}
 
@@ -303,6 +345,7 @@ int main(int argc, char** argv)
 				}
 
 				//Update
+				spatialhash->clearBuckets();
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
 
@@ -356,11 +399,12 @@ int main(int argc, char** argv)
 								//use the debug renderer to draw the debug physics world
 								physicsWorld->debugDrawWorld();
 								camera2.lock()->getComponent<cogs::Camera>().lock()->renderFrustum(&debugRenderer);
+								spatialhash->render(&debugRenderer);
 								//debugRenderer.drawMeshSphereBounds(nanosuit);
 								debugRenderer.end();
 								debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 5.0f);
 						}
-						
+
 						//render the camera's skybox if it has one
 						camera.lock()->renderSkybox();
 
@@ -376,7 +420,26 @@ int main(int argc, char** argv)
 
 				fpsLimiter.endFrame();
 
-				window.setWindowTitle("FPS: " + std::to_string(fpsLimiter.fps()) + " DT: " + std::to_string(fpsLimiter.deltaTime()));
+				static int counter = 0;
+
+				static float fps = 0.0f;
+				static float dt = 0.0f;
+
+				fps += fpsLimiter.fps();
+				dt += fpsLimiter.deltaTime();
+
+				if (counter == 100)
+				{
+						fps /= 100.0f;
+						dt /= 100.0f;
+						window.setWindowTitle("FPS: " + std::to_string(fps) + " DT: " + std::to_string(dt));
+						counter = 0;
+				}
+				else
+				{
+						counter++;
+				}
+
 		}
 		cogs::ResourceManager::clear();
 		window.close();

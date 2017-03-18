@@ -10,6 +10,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj",
 		{DB6D51B7-921D-41CE-A2D6-391100A5D7A8} = {DB6D51B7-921D-41CE-A2D6-391100A5D7A8}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParticleSimulation", "ParticleSimulation\ParticleSimulation.vcxproj", "{127A2E88-69D9-4953-BC7D-B137C27DBA83}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DB6D51B7-921D-41CE-A2D6-391100A5D7A8} = {DB6D51B7-921D-41CE-A2D6-391100A5D7A8}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +39,14 @@ Global
 		{B82AEE20-6BFA-4C32-91F8-8FB979D352E4}.Release|x64.Build.0 = Release|x64
 		{B82AEE20-6BFA-4C32-91F8-8FB979D352E4}.Release|x86.ActiveCfg = Release|Win32
 		{B82AEE20-6BFA-4C32-91F8-8FB979D352E4}.Release|x86.Build.0 = Release|Win32
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Debug|x64.ActiveCfg = Debug|x64
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Debug|x64.Build.0 = Debug|x64
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Debug|x86.ActiveCfg = Debug|Win32
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Debug|x86.Build.0 = Debug|Win32
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Release|x64.ActiveCfg = Release|x64
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Release|x64.Build.0 = Release|x64
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Release|x86.ActiveCfg = Release|Win32
+		{127A2E88-69D9-4953-BC7D-B137C27DBA83}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
