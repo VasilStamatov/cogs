@@ -225,6 +225,7 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Rigidbody.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="SpatialHash.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="Timing.cpp" />
     <ClCompile Include="Transform.cpp" />

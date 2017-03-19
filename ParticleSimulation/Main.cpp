@@ -15,6 +15,7 @@
 #include <cogs\Renderer3D.h>
 #include <cogs\MeshRenderer.h>
 #include <cogs\IOManager.h>
+#include <cogs\BulletDebugRenderer.h>
 
 #include "ParticleSystemController.h"
 
@@ -57,10 +58,12 @@ int main(int argc, char** argv)
 
 		std::shared_ptr<cogs::SpatialHash> spatialhash = std::make_shared<cogs::SpatialHash>(glm::vec3(5.0f));
 
+		int numActiveParticlesInScene{ 0 };
+
 		std::weak_ptr<cogs::Entity> particleSystem1 = root->addChild("ParticleSystem1");
 		particleSystem1.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-25.0f, 5.0f, 5.0f));
-		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 0.5f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::purple,
+		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 100.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::aqua,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -73,7 +76,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> particleSystem2 = root->addChild("ParticleSystem2");
 		particleSystem2.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-20.0f, 5.0f, 5.0f));
 		particleSystem2.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 200.0f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::green,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::fuchsia,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -86,7 +89,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> particleSystem3 = root->addChild("ParticleSystem3");
 		particleSystem3.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-15.0f, 5.0f, 5.0f));
 		particleSystem3.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 300.0f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::teal,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::green,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -112,7 +115,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> particleSystem5 = root->addChild("ParticleSystem5");
 		particleSystem5.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-5.0f, 5.0f, 5.0f));
 		particleSystem5.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 500.0f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::lime,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::navy,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -138,7 +141,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> particleSystem7 = root->addChild("ParticleSystem7");
 		particleSystem7.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(5.0f, 5.0f, 5.0f));
 		particleSystem7.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 700.0f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::fuchsia,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::white,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -151,7 +154,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> particleSystem8 = root->addChild("ParticleSystem8");
 		particleSystem8.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(10.0f, 5.0f, 5.0f));
 		particleSystem8.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 800.0f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::aqua,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::blue,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -164,7 +167,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> particleSystem9 = root->addChild("ParticleSystem9");
 		particleSystem9.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(15, 5.0f, 5.0f));
 		particleSystem9.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 900.0f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::white,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::olive,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -177,7 +180,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> particleSystem10 = root->addChild("ParticleSystem10");
 		particleSystem10.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(20.0f, 5.0f, 5.0f));
 		particleSystem10.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 1000.0f, 10.0f, 1.0f, 0.0f, true, true, false,
-				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::silver,
+				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::lime,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
 		{
@@ -193,6 +196,8 @@ int main(int argc, char** argv)
 
 		while (!quit)
 		{
+				numActiveParticlesInScene = 0;
+
 				fpsLimiter.beginFrame();
 
 				cogs::Input::update();
@@ -264,6 +269,17 @@ int main(int argc, char** argv)
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
 
+				numActiveParticlesInScene += particleSystem1.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem2.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem3.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem4.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem5.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem6.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem7.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem8.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem9.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+				numActiveParticlesInScene += particleSystem10.lock()->getComponent<cogs::ParticleSystem>().lock()->getNumActiveParticles();
+
 				//Render
 
 				for (std::weak_ptr<cogs::Camera> camera : cogs::Camera::getAllCameras())
@@ -331,7 +347,7 @@ int main(int argc, char** argv)
 				{
 						fps /= 100.0f;
 						dt /= 100.0f;
-						window.setWindowTitle("FPS: " + std::to_string(fps) + " DT: " + std::to_string(dt));
+						window.setWindowTitle("FPS: " + std::to_string(fps) + " DT: " + std::to_string(dt) + " Num of Particles: " + std::to_string(numActiveParticlesInScene));
 						counter = 0;
 				}
 				else

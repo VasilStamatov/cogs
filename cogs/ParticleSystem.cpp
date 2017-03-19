@@ -6,6 +6,7 @@
 #include "GLTexture2D.h"
 #include "ParticleRenderer.h"
 #include "SpatialHash.h"
+#include "BulletDebugRenderer.h"
 
 #include <glm\gtx\norm.hpp>
 
@@ -67,11 +68,13 @@ namespace cogs
 						{
 								generateParticles(_deltaTime);
 						}
+						m_numActiveParticles = 0;
 						for (int i = 0; i < m_maxParticles; ++i)
 						{
 								// check if it is active
 								if (m_particles[i].m_life > 0.0f)
 								{
+										m_numActiveParticles++;
 										// Update using function pointer
 										m_updateFunc(m_particles[i], m_worldGravity, _deltaTime);
 

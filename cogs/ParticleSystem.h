@@ -81,6 +81,7 @@ namespace cogs
 
 				std::weak_ptr<GLTexture2D> getTexture() { return m_texture; }
 				int getMaxParticles() { return m_maxParticles; }
+				int getNumActiveParticles() { return m_numActiveParticles; }
 				bool getAdditive() { return m_additive; }
 				Particle* getParticles() { return m_particles; }
 
@@ -122,6 +123,7 @@ namespace cogs
 				/** index of the last available particle in the particle array */
 				int m_lastFreeParticle{ 0 };
 				int m_maxParticles{ 0 };
+				int m_numActiveParticles{ 0 };
 				float m_initialSpeed{ 1.0f };
 
 				bool m_additive{ true };
