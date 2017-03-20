@@ -111,12 +111,12 @@ namespace cogs
 		{
 				std::vector<glm::ivec3> bucketsParticleIsIn;
 
-				glm::vec3 min(_particle->m_position.x - _particle->m_width * 0.5f,
-						_particle->m_position.y - _particle->m_width * 0.5f,
+				glm::vec3 min(_particle->m_position.x - _particle->m_radius,
+						_particle->m_position.y - _particle->m_radius,
 						_particle->m_position.z);
 
-				glm::vec3 max(_particle->m_position.x + _particle->m_width * 0.5f,
-						_particle->m_position.y + _particle->m_width * 0.5f,
+				glm::vec3 max(_particle->m_position.x + _particle->m_radius,
+						_particle->m_position.y + _particle->m_radius,
 						_particle->m_position.z);
 
 				addBucket(min, bucketsParticleIsIn);

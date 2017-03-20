@@ -18,6 +18,7 @@ namespace cogs
 				float _particlePerSec,
 				float _initialSpeed,
 				float _width,
+				float _mass,
 				float _decayRate,
 				bool _additive,
 				bool _collide,
@@ -32,7 +33,8 @@ namespace cogs
 				m_maxParticles(_maxParticles),
 				m_particlesPerFrame(1.0f / _particlePerSec),
 				m_initialSpeed(_initialSpeed),
-				m_particlesWidth(_width),
+				m_particlesRadius(_width * 0.5f),
+				m_particlesMass(_mass),
 				m_decayRate(_decayRate),
 				m_additive(_additive),
 				m_collisions(_collide),
@@ -143,7 +145,7 @@ namespace cogs
 
 		void ParticleSystem::setParticlesWidth(float _width)
 		{
-				m_particlesWidth = _width;
+				m_particlesRadius = _width * 0.5f;
 		}
 
 		void ParticleSystem::setInitialSpeed(float _initialSpeed)
@@ -308,7 +310,9 @@ namespace cogs
 				//set its color to the set color for all particles
 				particle.m_color = m_particlesColor;
 
-				particle.m_width = m_particlesWidth;
+				particle.m_radius = m_particlesRadius;
+
+				particle.m_mass = m_particlesMass;
 		}
 
 		void ParticleSystem::collideParticles()
@@ -339,22 +343,22 @@ namespace cogs
 				glm::vec3 distVec = _p2->m_position - _p1->m_position;
 				glm::vec3 distDir = glm::normalize(distVec);
 				float dist = glm::length2(distVec);
-				float totalRadius = _p1->m_width * 0.5f + _p2->m_width * 0.5f;
+				float totalRadius = _p1->m_radius + _p2->m_radius;
 
 				float collisionDepth = totalRadius * totalRadius - dist;
 				// Check for collision
 				if (collisionDepth > 0.0f)
 				{
 						// Push away the balls based on ratio of masses
-						_p1->m_position -= distDir * collisionDepth * (_p2->m_width / _p1->m_width) * 0.5f;
-						_p2->m_position += distDir * collisionDepth * (_p1->m_width / _p2->m_width) * 0.5f;
+						_p1->m_position -= distDir * collisionDepth * (_p2->m_mass / _p1->m_mass) * 0.5f;
+						_p2->m_position += distDir * collisionDepth * (_p1->m_mass / _p2->m_mass) * 0.5f;
 
 						// Calculate deflection. http://stackoverflow.com/a/345863
 						float aci = glm::dot(_p1->m_velocity, distDir);
 						float bci = glm::dot(_p2->m_velocity, distDir);
 
-						float acf = (aci * (_p1->m_width - _p2->m_width) + 2 * _p2->m_width * bci) / (_p1->m_width + _p2->m_width);
-						float bcf = (bci * (_p2->m_width - _p1->m_width) + 2 * _p1->m_width * aci) / (_p1->m_width + _p2->m_width);
+						float acf = (aci * (_p1->m_mass - _p2->m_mass) + 2 * _p2->m_mass * bci) / (_p1->m_mass + _p2->m_mass);
+						float bcf = (bci * (_p2->m_mass - _p1->m_mass) + 2 * _p1->m_mass * aci) / (_p1->m_mass + _p2->m_mass);
 
 						_p1->m_velocity += (acf - aci) * distDir;
 						_p2->m_velocity += (bcf - bci) * distDir;
@@ -372,51 +376,51 @@ namespace cogs
 
 		void ParticleSystem::collideWithBounds(Particle * _p)
 		{
-				if (_p->m_position.x < m_minBounds.x + _p->m_width * 0.5f)
+				if (_p->m_position.x < m_minBounds.x + _p->m_radius)
 				{
-						_p->m_position.x = m_minBounds.x + _p->m_width * 0.5f;
+						_p->m_position.x = m_minBounds.x + _p->m_radius;
 						if (_p->m_velocity.x < 0.0f)
 						{
 								_p->m_velocity.x *= -1.0f;
 						}
 				}
-				else if (_p->m_position.x > m_maxBounds.x - _p->m_width * 0.5f)
+				else if (_p->m_position.x > m_maxBounds.x - _p->m_radius)
 				{
-						_p->m_position.x = m_maxBounds.x - _p->m_width * 0.5f;
+						_p->m_position.x = m_maxBounds.x - _p->m_radius;
 						if (_p->m_velocity.x > 0.0f)
 						{
 								_p->m_velocity.x *= -1.0f;
 						}
 				}
 
-				if (_p->m_position.y < m_minBounds.y + _p->m_width * 0.5f)
+				if (_p->m_position.y < m_minBounds.y + _p->m_radius)
 				{
-						_p->m_position.y = m_minBounds.y + _p->m_width * 0.5f;
+						_p->m_position.y = m_minBounds.y + _p->m_radius;
 						if (_p->m_velocity.y < 0.0f)
 						{
 								_p->m_velocity.y *= -1.0f;
 						}
 				}
-				else if (_p->m_position.y > m_maxBounds.y - _p->m_width * 0.5f)
+				else if (_p->m_position.y > m_maxBounds.y - _p->m_radius)
 				{
-						_p->m_position.y = m_maxBounds.y - _p->m_width * 0.5f;
+						_p->m_position.y = m_maxBounds.y - _p->m_radius;
 						if (_p->m_velocity.y > 0.0f)
 						{
 								_p->m_velocity.y *= -1.0f;
 						}
 				}
 
-				if (_p->m_position.z < m_minBounds.z + _p->m_width * 0.5f)
+				if (_p->m_position.z < m_minBounds.z + _p->m_radius)
 				{
-						_p->m_position.z = m_minBounds.z + _p->m_width * 0.5f;
+						_p->m_position.z = m_minBounds.z + _p->m_radius;
 						if (_p->m_velocity.z < 0.0f)
 						{
 								_p->m_velocity.z *= -1.0f;
 						}
 				}
-				else if (_p->m_position.z > m_maxBounds.z - _p->m_width * 0.5f)
+				else if (_p->m_position.z > m_maxBounds.z - _p->m_radius)
 				{
-						_p->m_position.z = m_maxBounds.z - _p->m_width * 0.5f;
+						_p->m_position.z = m_maxBounds.z - _p->m_radius;
 						if (_p->m_velocity.z > 0.0f)
 						{
 								_p->m_velocity.z *= -1.0f;

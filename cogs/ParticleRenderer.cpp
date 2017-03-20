@@ -112,7 +112,7 @@ namespace cogs
 						if (particles[i].m_life > 0.0f)
 						{
 								//submit the mesh if it's in the view frustum
-								if (currentCam.lock()->sphereInFrustum(particles[i].m_position, particles[i].m_width * 0.5f))
+								if (currentCam.lock()->sphereInFrustum(particles[i].m_position, particles[i].m_radius))
 								{
 										float lifeFactor = abs(particles[i].m_life - 1.0f);
 										int stageCount = texture.lock()->getDims().x * texture.lock()->getDims().y;
@@ -125,7 +125,7 @@ namespace cogs
 										glm::vec2 texOffset2 = texture.lock()->getTexOffsets((int)(index1));
 
 										InstanceAttributes newInstance;
-										newInstance.worldPosAndSize = glm::vec4(particles[i].m_position, particles[i].m_width);
+										newInstance.worldPosAndSize = glm::vec4(particles[i].m_position, particles[i].m_radius * 2.0f);
 										newInstance.color = particles[i].m_color;
 										newInstance.texOffsets = glm::vec4(texOffset1, texOffset2);
 										newInstance.blendFactor = blend;

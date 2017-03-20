@@ -62,7 +62,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem1 = root->addChild("ParticleSystem1");
 		particleSystem1.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-25.0f, 5.0f, 5.0f));
-		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 100.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				100.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::aqua,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -75,7 +76,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem2 = root->addChild("ParticleSystem2");
 		particleSystem2.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-20.0f, 5.0f, 5.0f));
-		particleSystem2.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 200.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem2.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				200.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::fuchsia,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -88,7 +90,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem3 = root->addChild("ParticleSystem3");
 		particleSystem3.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-15.0f, 5.0f, 5.0f));
-		particleSystem3.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 300.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem3.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				300.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::green,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -101,7 +104,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem4 = root->addChild("ParticleSystem4");
 		particleSystem4.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-10.0f, 5.0f, 5.0f));
-		particleSystem4.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 400.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem4.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				400.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::yellow,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -114,7 +118,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem5 = root->addChild("ParticleSystem5");
 		particleSystem5.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-5.0f, 5.0f, 5.0f));
-		particleSystem5.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 500.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem5.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				500.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::navy,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -127,7 +132,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem6 = root->addChild("ParticleSystem6");
 		particleSystem6.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f, 5.0f, 5.0f));
-		particleSystem6.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 600.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem6.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				600.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::red,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -140,7 +146,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem7 = root->addChild("ParticleSystem7");
 		particleSystem7.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(5.0f, 5.0f, 5.0f));
-		particleSystem7.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 700.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem7.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				700.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::white,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -153,7 +160,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem8 = root->addChild("ParticleSystem8");
 		particleSystem8.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(10.0f, 5.0f, 5.0f));
-		particleSystem8.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 800.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem8.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				800.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::blue,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -166,7 +174,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem9 = root->addChild("ParticleSystem9");
 		particleSystem9.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(15, 5.0f, 5.0f));
-		particleSystem9.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 900.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem9.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				900.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::olive,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -179,7 +188,8 @@ int main(int argc, char** argv)
 
 		std::weak_ptr<cogs::Entity> particleSystem10 = root->addChild("ParticleSystem10");
 		particleSystem10.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(20.0f, 5.0f, 5.0f));
-		particleSystem10.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000, 1000.0f, 10.0f, 1.0f, 0.0f, true, true, false,
+		particleSystem10.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1000,
+				1000.0f, 10.0f, 1.0f, 1.0f, 0.0f, true, true, false,
 				gravity, glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(-50.0f, -50.0f, -50.0f), cogs::Color::lime,
 				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
 				[](cogs::Particle& _particle, const glm::vec3& _gravity, float _deltaTime)

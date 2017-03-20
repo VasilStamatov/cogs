@@ -21,8 +21,9 @@ namespace cogs
 				glm::vec3 m_position{ 0.0f };
 				glm::vec3 m_velocity{ 0.0f }; ///< a particle's velocity
 				Color m_color{ 255, 255 }; ///< a particle's tint
-				float m_width{ 0.0f }; ///< the width of the particle
+				float m_radius{ 0.0f }; ///< the width of the particle
 				float m_life{ 0.0f }; ///< the life of the particle,
+				float m_mass{ 1.0f }; ///< the mass of the particle
 		};
 		// Default function pointer
 		inline void defaultParticleUpdate(Particle& _particle, const glm::vec3& _gravity, float _deltaTime)
@@ -40,6 +41,7 @@ namespace cogs
 						float _particlePerSec,
 						float _initialSpeed,
 						float _width,
+						float _mass,
 						float _decayRate,
 						bool _additive,
 						bool _collide,
@@ -112,7 +114,10 @@ namespace cogs
 				float m_decayRate{ 0.1f };
 
 				/** The width/size of the particles */
-				float m_particlesWidth{ 1.0f };
+				float m_particlesRadius{ 0.5f };
+				
+				/** The mass of the particles*/
+				float m_particlesMass{ 1.0f };
 
 				/* accumulator for the particles per second */
 				float m_accumulator{ 0.0f };
