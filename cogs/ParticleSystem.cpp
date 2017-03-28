@@ -13,7 +13,7 @@
 namespace cogs
 {
 		ParticleSystem::ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
-				std::weak_ptr<SpatialHash> _hashTable,
+				std::weak_ptr<SpatialHash<Particle>> _hashTable,
 				int _maxParticles,
 				float _particlePerSec,
 				float _initialSpeed,
@@ -86,7 +86,7 @@ namespace cogs
 										if (m_collisions)
 										{
 												collideWithBounds(&m_particles[i]);
-												m_hashTable.lock()->addParticle(&m_particles[i]);
+												m_hashTable.lock()->addItem(&m_particles[i], m_particles[i].m_position, m_particles[i].m_radius);
 										}
 								}
 						}
@@ -325,7 +325,7 @@ namespace cogs
 						{
 								checkedParticles.push_back(&m_particles[i]);
 
-								std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(&m_particles[i]);
+								std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(m_particles[i].m_position, m_particles[i].m_radius);
 
 								for (Particle* neighbor : neighbors)
 								{

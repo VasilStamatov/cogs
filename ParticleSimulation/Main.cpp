@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 		std::shared_ptr<cogs::ParticleRenderer> particleRenderer = std::make_shared<cogs::ParticleRenderer>(
 				cogs::ResourceManager::getGLSLProgram("ParticleShader", "Shaders/ParticleShader.vert", "Shaders/ParticleShader.frag"));
 
-		std::shared_ptr<cogs::SpatialHash> spatialhash = std::make_shared<cogs::SpatialHash>(glm::vec3(5.0f));
+		std::shared_ptr<cogs::SpatialHash<cogs::Particle>> spatialhash = std::make_shared<cogs::SpatialHash<cogs::Particle>>(glm::vec3(5.0f));
 
 		int numActiveParticlesInScene{ 0 };
 

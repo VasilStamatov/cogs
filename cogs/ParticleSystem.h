@@ -11,8 +11,9 @@ namespace cogs
 {
 		class ParticleRenderer;
 		class GLTexture2D;
-		class SpatialHash;
 		class BulletDebugRenderer;
+		template<typename T>
+		class SpatialHash;
 
 		struct Particle
 		{
@@ -36,7 +37,7 @@ namespace cogs
 		{
 		public:
 				ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
-						std::weak_ptr<SpatialHash> _hashTable,
+						std::weak_ptr<SpatialHash<Particle>> _hashTable,
 						int _maxParticles,
 						float _particlePerSec,
 						float _initialSpeed,
@@ -142,7 +143,7 @@ namespace cogs
 
 				std::weak_ptr<ParticleRenderer> m_renderer;
 
-				std::weak_ptr<SpatialHash> m_hashTable;
+				std::weak_ptr<SpatialHash<Particle>> m_hashTable;
 		};
 }
 

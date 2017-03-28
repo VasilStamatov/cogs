@@ -121,39 +121,6 @@ int main(int argc, char** argv)
 				}
 		}*/
 
-		std::shared_ptr<cogs::SpatialHash> spatialhash = std::make_shared<cogs::SpatialHash>(5, 10, 10, 10);
-
-		std::weak_ptr<cogs::Entity> particleSystem1 = root->addChild("ParticleSystem1");
-		particleSystem1.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(-5.0f, 0.0f, -10.0f));
-		particleSystem1.lock()->addComponent<cogs::MeshRenderer>(cogs::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
-		particleSystem1.lock()->getComponent<cogs::Transform>().lock()->setWorldScale(glm::vec3(0.2f, 0.2f, 0.2f));
-
-		particleSystem1.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1, 10.0f, 1.0f, true, true,
-				gravity, cogs::Color::white, 1.0f,
-				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
-				[](cogs::Particle& _particle, float _gravity, float _deltaTime)
-		{
-				//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
-				//_particle.m_velocity.y += _gravity * _deltaTime;
-				_particle.m_position += _particle.m_velocity * _deltaTime;
-		});
-
-
-		std::weak_ptr<cogs::Entity> particleSystem2 = root->addChild("ParticleSystem2");
-		particleSystem2.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(5.0f, 0.0f, -10.0f));
-		particleSystem2.lock()->addComponent<cogs::MeshRenderer>(cogs::ResourceManager::getMesh("Models/TestModels/cube.obj"), renderer3D);
-		particleSystem2.lock()->getComponent<cogs::Transform>().lock()->setWorldScale(glm::vec3(0.2f, 0.2f, 0.2f));
-
-		particleSystem2.lock()->addComponent<cogs::ParticleSystem>(particleRenderer, spatialhash, 1, -10.0f, 1.0f, true, true,
-				gravity, cogs::Color::white, 1.0f,
-				cogs::ResourceManager::getGLTexture2D("Textures/particleStar.png", "texture_diffuse"),
-				[](cogs::Particle& _particle, float _gravity, float _deltaTime)
-		{
-				//_particle.m_color.a = (unsigned char)((_particle.m_life / 1.0f) * 255);
-				//_particle.m_velocity.y += _gravity * _deltaTime;
-				_particle.m_position += _particle.m_velocity * _deltaTime;
-		});
-
 		/*std::weak_ptr<cogs::Entity> nanosuit = root->addChild("nanosuit");
 		nanosuit.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(10.0f, 20.0f, 10.0f));
 		nanosuit.lock()->addComponent<cogs::MeshRenderer>(cogs::ResourceManager::getMesh("Models/nanosuit/nanosuit.obj"), renderer3D);
@@ -345,7 +312,6 @@ int main(int argc, char** argv)
 				}
 
 				//Update
-				spatialhash->clearBuckets();
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
 
@@ -399,7 +365,6 @@ int main(int argc, char** argv)
 								//use the debug renderer to draw the debug physics world
 								physicsWorld->debugDrawWorld();
 								camera2.lock()->getComponent<cogs::Camera>().lock()->renderFrustum(&debugRenderer);
-								spatialhash->render(&debugRenderer);
 								//debugRenderer.drawMeshSphereBounds(nanosuit);
 								debugRenderer.end();
 								debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 5.0f);
