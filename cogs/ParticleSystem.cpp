@@ -281,54 +281,59 @@ namespace cogs
 
 		void ParticleSystem::spawnParticle()
 		{
+				//try to find a free particle index
 				int particleIndex = findFreeParticle();
 
 				if (particleIndex > m_maxParticles)
 				{
+						//there is no free particle index, do not spawn
 						return;
 				}
-
-				float dirX = Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
-				float dirY = Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
-				float dirZ = Random::getRandFloat(0.0f, 1.0f) * 2.0f - 1.0f;
+				//generate random directions in the x,y and z axis
+				float dirX = Random::getRandFloat(-1.0f, 1.0f);
+				float dirY = Random::getRandFloat(-1.0f, 1.0f);
+				float dirZ = Random::getRandFloat(-1.0f, 1.0f);
 				glm::vec3 vel = glm::normalize(glm::vec3(dirX, dirY, dirZ));
 				vel *= m_initialSpeed;
-				//find a free particle index, or overwrite the first one
-				//get an alias to the particle
+
 				auto& particle = m_particles[particleIndex];
 
 				//give it a full life as it's being spawned
 				particle.m_life = 1.0f;
 
-				//set its local position to 0 as it's being spawned from the particle system
+				//set its world position to the position of the entity, but with a little random offset
 				particle.m_position = m_entity.lock()->getComponent<Transform>().lock()->worldPosition() + (Random::getRandFloat(-2.0f, 2.0f));
 
 				//set its velocity to the emitting velocity
-				//particle.m_velocity = glm::vec3(1.0f, 0.0f, 0.0f) * m_initialSpeed;
 				particle.m_velocity = vel;
 
 				//set its color to the set color for all particles
 				particle.m_color = m_particlesColor;
 
+				//set the particle radius
 				particle.m_radius = m_particlesRadius;
 
+				//set the particle mass
 				particle.m_mass = m_particlesMass;
 		}
 
 		void ParticleSystem::collideParticles()
 		{
+				//container with references to all particles that are already checked
 				std::vector<Particle*> checkedParticles;
 
 				for (int i = 0; i < m_maxParticles; i++)
 				{
 						if (m_particles[i].m_life > 0.0f)
 						{
+								//push back the particle as checked so that it does not collide with itself
 								checkedParticles.push_back(&m_particles[i]);
 
 								std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(m_particles[i].m_position, m_particles[i].m_radius);
 
 								for (Particle* neighbor : neighbors)
 								{
+										//collide these 2 particles only if the neighbor isn't already in the checked container
 										if (std::find(checkedParticles.begin(), checkedParticles.end(), neighbor) == checkedParticles.end())
 										{
 												checkCollision(&m_particles[i], neighbor);
@@ -340,12 +345,19 @@ namespace cogs
 
 		void ParticleSystem::checkCollision(Particle * _p1, Particle * _p2)
 		{
+				//get the direction vector from first particle to second particle
 				glm::vec3 distVec = _p2->m_position - _p1->m_position;
+				//normalize it to a unit vector (sicne it's only a direction)
 				glm::vec3 distDir = glm::normalize(distVec);
+				// get the distance between the 2 particles' center
 				float dist = glm::length2(distVec);
+				//get the sum of the 2 particles' radius
 				float totalRadius = _p1->m_radius + _p2->m_radius;
-
+				//get the depth of the collision by calculating the squared radius with the squared distance between 2 particles
 				float collisionDepth = totalRadius * totalRadius - dist;
+				//Collisions are only occuring when the distance between 2 particles is less than or equal than the sum of their radiuses
+				//Therefore, if collision depth is > 0, meaning dist is less than squared radius sum, then collisions are occuring
+
 				// Check for collision
 				if (collisionDepth > 0.0f)
 				{
@@ -376,6 +388,9 @@ namespace cogs
 
 		void ParticleSystem::collideWithBounds(Particle * _p)
 		{
+				// Check collision on every axis with the bounds
+				// and invert the velocity if collided
+
 				if (_p->m_position.x < m_minBounds.x + _p->m_radius)
 				{
 						_p->m_position.x = m_minBounds.x + _p->m_radius;
