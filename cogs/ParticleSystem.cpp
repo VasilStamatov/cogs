@@ -70,24 +70,23 @@ namespace cogs
 						{
 								generateParticles(_deltaTime);
 						}
-						m_numActiveParticles = 0;
-						for (int i = 0; i < m_maxParticles; ++i)
+						for (int i = 0; i < m_numActiveParticles; ++i)
 						{
-								// check if it is active
-								if (m_particles[i].m_life > 0.0f)
+								// Update using function pointer
+								m_updateFunc(m_particles[i], m_worldGravity, _deltaTime);
+
+								//reduce its life by decay amount with frame independence
+								m_particles[i].m_life -= (m_decayRate * _deltaTime);
+
+								if (m_particles[i].m_life <= 0.0f)
 								{
-										m_numActiveParticles++;
-										// Update using function pointer
-										m_updateFunc(m_particles[i], m_worldGravity, _deltaTime);
+										freeParticle(i);
+								}
 
-										//reduce its life by decay amount with frame independence
-										m_particles[i].m_life -= (m_decayRate * _deltaTime);
-
-										if (m_collisions)
-										{
-												collideWithBounds(&m_particles[i]);
-												m_hashTable.lock()->addItem(&m_particles[i], m_particles[i].m_position, m_particles[i].m_radius);
-										}
+								if (m_collisions)
+								{
+										collideWithBounds(&m_particles[i]);
+										m_hashTable.lock()->addItem(&m_particles[i], m_particles[i].m_position, m_particles[i].m_radius);
 								}
 						}
 
@@ -116,6 +115,11 @@ namespace cogs
 		void ParticleSystem::continueEmitting()
 		{
 				m_isStopped = false;
+		}
+
+		void ParticleSystem::togglePlayOnInit()
+		{
+				m_playOnInit = !m_playOnInit;
 		}
 
 		void ParticleSystem::stopEmitting()
@@ -237,31 +241,6 @@ namespace cogs
 						btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 		}
 
-		int ParticleSystem::findFreeParticle()
-		{
-				//check for a free particle from a range between the last free one, and the max possible particles
-				for (int i = m_lastFreeParticle; i < m_maxParticles; ++i)
-				{
-						if (m_particles[i].m_life <= 0.0f)
-						{
-								m_lastFreeParticle = i;
-								return i;
-						}
-				}
-
-				//check for a free particle from a range between the first free, and the last free one
-				for (int i = 0; i < m_lastFreeParticle; ++i)
-				{
-						if (m_particles[i].m_life <= 0.0f)
-						{
-								m_lastFreeParticle = i;
-								return i;
-						}
-				}
-				// no particles are free
-				return m_maxParticles + 1;
-		}
-
 		void ParticleSystem::generateParticles(float _deltaTime)
 		{
 				// limit the particles per sec accumulation to 60 fps minimum
@@ -281,12 +260,9 @@ namespace cogs
 
 		void ParticleSystem::spawnParticle()
 		{
-				//try to find a free particle index
-				int particleIndex = findFreeParticle();
-
-				if (particleIndex > m_maxParticles)
+				if (m_numActiveParticles == m_maxParticles)
 				{
-						//there is no free particle index, do not spawn
+						//no more free particles (range is 0 to max - 1)
 						return;
 				}
 				//generate random directions in the x,y and z axis
@@ -296,7 +272,7 @@ namespace cogs
 				glm::vec3 vel = glm::normalize(glm::vec3(dirX, dirY, dirZ));
 				vel *= m_initialSpeed;
 
-				auto& particle = m_particles[particleIndex];
+				auto& particle = m_particles[m_numActiveParticles];
 
 				//give it a full life as it's being spawned
 				particle.m_life = 1.0f;
@@ -315,6 +291,17 @@ namespace cogs
 
 				//set the particle mass
 				particle.m_mass = m_particlesMass;
+
+				//increment the number of active particles as a new one has spawned
+				m_numActiveParticles++;
+		}
+
+		void ParticleSystem::freeParticle(int _particleIndex)
+		{
+				//decrement the num active particles as 1 is being freed
+				m_numActiveParticles--;
+				//set the particle to be freed to the last active particle (acts as deleting)
+				m_particles[_particleIndex] = m_particles[m_numActiveParticles];
 		}
 
 		void ParticleSystem::collideParticles()
@@ -322,22 +309,19 @@ namespace cogs
 				//container with references to all particles that are already checked
 				std::vector<Particle*> checkedParticles;
 
-				for (int i = 0; i < m_maxParticles; i++)
+				for (int i = 0; i < m_numActiveParticles; i++)
 				{
-						if (m_particles[i].m_life > 0.0f)
+						//push back the particle as checked so that it does not collide with itself
+						checkedParticles.push_back(&m_particles[i]);
+
+						std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(m_particles[i].m_position, m_particles[i].m_radius);
+
+						for (Particle* neighbor : neighbors)
 						{
-								//push back the particle as checked so that it does not collide with itself
-								checkedParticles.push_back(&m_particles[i]);
-
-								std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(m_particles[i].m_position, m_particles[i].m_radius);
-
-								for (Particle* neighbor : neighbors)
+								//collide these 2 particles only if the neighbor isn't already in the checked container
+								if (std::find(checkedParticles.begin(), checkedParticles.end(), neighbor) == checkedParticles.end())
 								{
-										//collide these 2 particles only if the neighbor isn't already in the checked container
-										if (std::find(checkedParticles.begin(), checkedParticles.end(), neighbor) == checkedParticles.end())
-										{
-												checkCollision(&m_particles[i], neighbor);
-										}
+										checkCollision(&m_particles[i], neighbor);
 								}
 						}
 				}

@@ -108,6 +108,10 @@ namespace cogs
 				* \brief resume emitting particles
 				*/
 				void continueEmitting();
+				/**
+				* \brief inverts the playOnInit bool
+				*/
+				void togglePlayOnInit();
 
 				/**
 				* \brief Check if the particle system is currently playing (not paused)
@@ -141,10 +145,6 @@ namespace cogs
 
 		private:
 				/**
-				* \brief finds a free particle position from all possible particles (maxParticles)
-				*/
-				int findFreeParticle();
-				/**
 				* \brief generate the number of particles required for this frame (depends on particles per second)
 				*/
 				void generateParticles(float _deltaTime);
@@ -152,6 +152,10 @@ namespace cogs
 				* \brief spawns a single particle on the first free position found, unless there are no free positions
 				*/
 				void spawnParticle();
+				/**
+				* \brief spawns a single particle on the first free position found, unless there are no free positions
+				*/
+				void freeParticle(int _particleIndex);
 				/**
 				* \brief Check collisions with all neighboring particles from the hashtable
 				*/
