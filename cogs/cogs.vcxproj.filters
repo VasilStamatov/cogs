@@ -251,11 +251,5 @@
     <ClCompile Include="ParticleRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="SpatialHash.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

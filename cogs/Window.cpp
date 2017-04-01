@@ -213,7 +213,7 @@ namespace cogs
 
 		void Window::clear(bool _color, bool _depth, bool _stencil /* = false */)
 		{
-				GLbitfield mask;
+				GLbitfield mask = 0;
 				if (_color)
 				{
 						mask = GL_COLOR_BUFFER_BIT;

@@ -2,14 +2,14 @@
 #define SPATIAL_HASH_H
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <glm\gtx\hash.hpp>
 
+#include "BulletDebugRenderer.h"
+
 namespace cogs
 {
-		//forward declarations
-		class BulletDebugRenderer;
-
 		template<typename T>
 		class SpatialHash
 		{
@@ -74,15 +74,13 @@ namespace cogs
 				*/
 				void addItem(Item* _item, const glm::vec3& _centerPos, float _radius)
 				{
-						std::vector<glm::ivec3> cellIDs = getResidingCellsID(_centerPos, _radius);
+						std::unordered_set<glm::ivec3> cellIDs = getResidingCellsID(_centerPos, _radius);
 						for (auto& id : cellIDs)
 						{
 								//printf("cell ID %d, %d, %d \n\n", id.x, id.y, id.z);
 								m_buckets[id].push_back(_item);
 						}
 				}
-
-				//void updateParticle(Particle* _particle);
 
 				/**
 				* \brief get a vector of neighboring items to a specific item
@@ -92,9 +90,9 @@ namespace cogs
 				std::vector<Item*> getNeighbors(const glm::vec3& _centerPos, float _radius)
 				{
 						std::vector<Item*> otherItems;
-						std::vector<glm::ivec3> bucketsParticleIsIn = getResidingCellsID(_centerPos, _radius);
+						std::unordered_set<glm::ivec3> bucketsItemIsIn = getResidingCellsID(_centerPos, _radius);
 
-						for (auto& id : bucketsParticleIsIn)
+						for (auto& id : bucketsItemIsIn)
 						{
 								otherItems.insert(otherItems.end(), m_buckets[id].begin(), m_buckets[id].end());
 						}
@@ -117,12 +115,12 @@ namespace cogs
 
 								_renderer->drawBox(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), btVector3(1.0f, 1.0f, 1.0f));
 
-								//std::vector<Particle*> particlesInBucket = bucket.second;
+								//std::vector<Item*> ItemsInBucket = bucket.second;
 
-								/*for (Particle* particle : particlesInBucket)
+								/*for (Item* Item : ItemsInBucket)
 								{
-								_renderer->drawSphere(btVector3(particle->m_position.x, particle->m_position.y, particle->m_position.z),
-								particle->m_width * 0.5f, btVector3(1.0f, 1.0f, 1.0f));
+								_renderer->drawSphere(btVector3(Item->m_position.x, Item->m_position.y, Item->m_position.z),
+								Item->m_radius, btVector3(1.0f, 1.0f, 1.0f));
 								}*/
 						}
 				}
@@ -133,28 +131,41 @@ namespace cogs
 				* @param _centerPos - center position of the item in world space
 				* @param _radius - radius of the item
 				*/
-				std::vector<glm::ivec3> getResidingCellsID(const glm::vec3& _centerPos, float _radius)
+				std::unordered_set<glm::ivec3> getResidingCellsID(const glm::vec3& _centerPos, float _radius)
 				{
 						//create the vector of bucket IDs that this item resides in
-						std::vector<glm::ivec3> bucketsParticleIsIn;
+						std::unordered_set<glm::ivec3> bucketsItemIsIn;
 
 						// get the min coordinate of the box
 						glm::vec3 min(_centerPos.x - _radius,
 								_centerPos.y - _radius,
-								_centerPos.z);
+								_centerPos.z - _radius);
 
 						//get the max coordinate of the box
 						glm::vec3 max(_centerPos.x + _radius,
 								_centerPos.y + _radius,
-								_centerPos.z);
+								_centerPos.z + _radius);
 
 						//add all vertices to their respective bucket
-						addBucket(min, bucketsParticleIsIn);
-						addBucket(glm::vec3(max.x, min.y, min.z), bucketsParticleIsIn);
-						addBucket(max, bucketsParticleIsIn);
-						addBucket(glm::vec3(min.x, max.y, max.z), bucketsParticleIsIn);
 
-						return bucketsParticleIsIn;
+						//bottom left back
+						addBucket(min, bucketsItemIsIn);
+						//bottom right back
+						addBucket(glm::vec3(max.x, min.y, min.z), bucketsItemIsIn);
+						//top right back
+						addBucket(glm::vec3(max.x, max.y, min.z), bucketsItemIsIn);
+						//top left back
+						addBucket(glm::vec3(min.x, max.y, min.z), bucketsItemIsIn);
+						//top right front
+						addBucket(max, bucketsItemIsIn);
+						//top left front
+						addBucket(glm::vec3(min.x, max.y, max.z), bucketsItemIsIn);
+						//bottom left front
+						addBucket(glm::vec3(min.x, min.y, max.z), bucketsItemIsIn);
+						//bottom right front
+						addBucket(glm::vec3(max.x, min.y, max.z), bucketsItemIsIn);
+
+						return bucketsItemIsIn;
 				}
 
 				/**
@@ -162,16 +173,16 @@ namespace cogs
 				* @param _point - world space point
 				* @param _bucketToAdd - vector of bucket IDs the new bucket will be added
 				*/
-				void addBucket(const glm::vec3& _point, std::vector<glm::ivec3>& _bucketToAdd)
+				void addBucket(const glm::vec3& _point, std::unordered_set<glm::ivec3>& _bucketToAdd)
 				{
 						//hash the world coordinate point
 						glm::ivec3 cellID = hash(_point);
 
 						//check if the bucket with this ID already exists in the vector of bucket IDs
-						if (std::find(_bucketToAdd.begin(), _bucketToAdd.end(), cellID) == _bucketToAdd.end())
+						if (_bucketToAdd.find(cellID) == _bucketToAdd.end())
 						{
 								//Add it if it doesn't exist already
-								_bucketToAdd.push_back(cellID);
+								_bucketToAdd.insert(cellID);
 						}
 				}
 
