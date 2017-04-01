@@ -22,7 +22,7 @@ namespace cogs
 				* \brief Constructor that sets the cell size
 				& @param _cellSize - vec3 for the dimensions on each axis
 				*/
-				SpatialHash(const glm::vec3& _cellSize) :
+				SpatialHash(float _cellSize) :
 						m_cellSize(_cellSize)
 				{
 				}
@@ -32,7 +32,7 @@ namespace cogs
 				* \brief Set the cell size
 				& @param _cellSize - vec3 for the dimensions on each axis
 				*/
-				void setCellSize(const glm::vec3& _cellSize)
+				void setCellSize(float _cellSize)
 				{
 						m_cellSize = _cellSize;
 				}
@@ -40,7 +40,7 @@ namespace cogs
 				/**
 				* \brief get the cell size
 				*/
-				const glm::vec3& getCellSize() const noexcept
+				float getCellSize() const noexcept
 				{
 						return m_cellSize;
 				}
@@ -110,8 +110,8 @@ namespace cogs
 						{
 								glm::ivec3 index = bucket.first;
 
-								glm::vec3 min(index.x * m_cellSize.x, index.y * m_cellSize.y, index.z * m_cellSize.z);
-								glm::vec3 max(index.x * m_cellSize.x + m_cellSize.x, index.y * m_cellSize.y + m_cellSize.y, index.z * m_cellSize.z + m_cellSize.z);
+								glm::vec3 min(index.x * m_cellSize, index.y * m_cellSize, index.z * m_cellSize);
+								glm::vec3 max(index.x * m_cellSize + m_cellSize, index.y * m_cellSize + m_cellSize, index.z * m_cellSize + m_cellSize);
 
 								_renderer->drawBox(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), btVector3(1.0f, 1.0f, 1.0f));
 
@@ -133,7 +133,8 @@ namespace cogs
 				*/
 				std::unordered_set<glm::ivec3> getResidingCellsID(const glm::vec3& _centerPos, float _radius)
 				{
-						//create the vector of bucket IDs that this item resides in
+						//create the set of bucket IDs that this item resides in
+						//sets have a faster find function than vectors, so it's appropriate here
 						std::unordered_set<glm::ivec3> bucketsItemIsIn;
 
 						// get the min coordinate of the box
@@ -178,7 +179,7 @@ namespace cogs
 						//hash the world coordinate point
 						glm::ivec3 cellID = hash(_point);
 
-						//check if the bucket with this ID already exists in the vector of bucket IDs
+						//check if the bucket with this ID already exists in the set of bucket IDs
 						if (_bucketToAdd.find(cellID) == _bucketToAdd.end())
 						{
 								//Add it if it doesn't exist already
@@ -196,9 +197,9 @@ namespace cogs
 						glm::ivec3 cellID;
 
 						//calculate the cell ID by division with cell size
-						cellID.x = (int)(_point.x / m_cellSize.x);
-						cellID.y = (int)(_point.y / m_cellSize.y);
-						cellID.z = (int)(_point.z / m_cellSize.z);
+						cellID.x = (int)(_point.x / m_cellSize);
+						cellID.y = (int)(_point.y / m_cellSize);
+						cellID.z = (int)(_point.z / m_cellSize);
 
 						if (_point.x < 0.0f) { cellID.x--; }
 						if (_point.y < 0.0f) { cellID.y--; }
@@ -209,7 +210,7 @@ namespace cogs
 				}
 
 		private:
-				glm::vec3 m_cellSize{ 0 }; ///< size of the cells in every axis
+				float m_cellSize{ 0.0f }; ///< size of the cells in every axis
 
 				/** the actual hashtable that uses ivec3 as hash key and vector of Item pointers as value */
 				std::unordered_map<glm::ivec3, std::vector<Item*>> m_buckets;
