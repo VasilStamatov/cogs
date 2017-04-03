@@ -176,7 +176,7 @@ namespace cogs
 				/**
 				* \brief detaches a child from this entity and returns the independant child
 				* \param[in] _childRef - weak pointer to the child to be detached
-				* param[out] std::shared_ptr<Entity> - the independent children with std::move
+				* \param[out] std::shared_ptr<Entity> - the independent children with std::move
 				*/
 				std::shared_ptr<Entity> detachChild(std::weak_ptr<Entity> _childRef)
 				{
@@ -203,7 +203,7 @@ namespace cogs
 
 				/**
 				* \brief detatches this child from its parent
-				* param[out] std::shared_ptr<Entity> - the independent children with std::move
+				* \param[out] std::shared_ptr<Entity> - the independent children with std::move
 				*/
 				std::shared_ptr<Entity> detachFromParent()
 				{

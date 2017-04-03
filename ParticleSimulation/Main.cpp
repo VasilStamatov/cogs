@@ -324,7 +324,6 @@ int main(int argc, char** argv)
 								//use the debug renderer to draw the debug physics world
 								spatialhash->render(&debugRenderer);
 								particleSystem1.lock()->getComponent<cogs::ParticleSystem>().lock()->renderBounds(&debugRenderer);
-								//debugRenderer.drawMeshSphereBounds(nanosuit);
 								debugRenderer.end();
 								debugRenderer.render(camera.lock()->getViewMatrix(), camera.lock()->getProjectionMatrix(), 1.0f);
 						}
@@ -338,8 +337,6 @@ int main(int argc, char** argv)
 						//set the render target to the default window
 						cogs::Framebuffer::setActive(std::weak_ptr<cogs::Framebuffer>());
 				}
-
-				root->postProcessAll();
 
 				window.swapBuffer();
 

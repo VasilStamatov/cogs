@@ -114,14 +114,6 @@ namespace cogs
 								glm::vec3 max(index.x * m_cellSize + m_cellSize, index.y * m_cellSize + m_cellSize, index.z * m_cellSize + m_cellSize);
 
 								_renderer->drawBox(btVector3(min.x, min.y, min.z), btVector3(max.x, max.y, max.z), btVector3(1.0f, 1.0f, 1.0f));
-
-								//std::vector<Item*> ItemsInBucket = bucket.second;
-
-								/*for (Item* Item : ItemsInBucket)
-								{
-								_renderer->drawSphere(btVector3(Item->m_position.x, Item->m_position.y, Item->m_position.z),
-								Item->m_radius, btVector3(1.0f, 1.0f, 1.0f));
-								}*/
 						}
 				}
 
@@ -194,7 +186,7 @@ namespace cogs
 				glm::ivec3 hash(const glm::vec3& _point)
 				{
 						//the bucked ID
-						glm::ivec3 cellID;
+						glm::ivec3 cellID(0);
 
 						//calculate the cell ID by division with cell size
 						cellID.x = (int)(_point.x / m_cellSize);
