@@ -31,14 +31,14 @@ namespace cogs
 		{
 				m_dynamicsWorld->removeRigidBody(_rb);
 		}
-		void Physics::stepSimulation(float _deltaTime)
+		void Physics::stepSimulation()
 		{
 				// must follow this equation:
 				// timeStep < maxSubSteps * fixedTimeStep
 				// as deltaTime is == fixedTimeStep it would work without the 5
 				// but it's helpful just in case the deltaTime gets higher (game lags) by 5 times more
-				m_dynamicsWorld->stepSimulation(_deltaTime, 5);
-
+				m_dynamicsWorld->stepSimulation(m_timer.seconds());
+				m_timer.start();
 				int numManifolds = m_dynamicsWorld->getDispatcher()->getNumManifolds();
 				for (int i = 0; i < numManifolds; i++)
 				{

@@ -4,6 +4,8 @@
 #include <Bullet/btBulletDynamicsCommon.h>
 #include <memory>
 
+#include "Timing.h"
+
 namespace cogs
 {
 		/**
@@ -48,7 +50,7 @@ namespace cogs
 				/**
 				* \brief Steps the simulation for the physics world (called every frame)
 				*/
-				void stepSimulation(float _deltaTime);
+				void stepSimulation();
 
 				/**
 				* \brief Sets the debug renderer
@@ -66,6 +68,7 @@ namespace cogs
 				std::unique_ptr<btCollisionDispatcher>															m_dispatcher{ nullptr };
 				std::unique_ptr<btSequentialImpulseConstraintSolver> m_solver{ nullptr };
 				std::unique_ptr<btDiscreteDynamicsWorld>											  m_dynamicsWorld{ nullptr };
+				HRTimer m_timer;
 		};
 }
 
