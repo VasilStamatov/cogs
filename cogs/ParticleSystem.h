@@ -23,7 +23,7 @@ namespace cogs
 				Color m_color{ 255, 255 }; ///< a particle's tint
 				float m_radius{ 0.0f }; ///< the radius of the particle
 				float m_life{ 0.0f }; ///< the life of the particle, (1.0 for 100% to 0.0 for 0%)
-				float m_mass{ 1.0f }; ///< the mass of the particle, for collisions
+				//float m_mass{ 1.0f }; ///< the mass of the particle, for collisions
 		};
 
 		// Default function pointer for updating a particle
@@ -59,19 +59,19 @@ namespace cogs
 				* @param _updateFunc - the function called for each particle each frame to update them (if not paused)
 				*/
 				ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
-						std::weak_ptr<SpatialHash<Particle>> _hashTable,
+						//std::weak_ptr<SpatialHash<Particle>> _hashTable,
 						int _maxParticles,
 						float _particlePerSec,
 						float _initialSpeed,
 						float _width,
-						float _mass,
+						//float _mass,
 						float _decayRate,
 						bool _additive,
-						bool _collide,
+						//bool _collide,
 						bool _playOnInit,
 						const glm::vec3& _worldGravity,
-						const glm::vec3& _maxBounds,
-						const glm::vec3& _minBounds,
+						//const glm::vec3& _maxBounds,
+						//const glm::vec3& _minBounds,
 						const Color& _color,
 						std::weak_ptr<GLTexture2D> _texture,
 						std::function<void(Particle&, const glm::vec3&, float)> _updateFunc = defaultParticleUpdate);
@@ -127,14 +127,14 @@ namespace cogs
 				void setDecayRate(float _decayRate);
 				void setParticlesWidth(float _width);
 				void setInitialSpeed(float _initialSpeed);
-				void setCollide(bool _flag);
+				//void setCollide(bool _flag);
 				void setAdditive(bool _flag);
 				void setWorldGravity(const glm::vec3& _gravity);
-				void setMaxBounds(const glm::vec3& _bounds);
-				void setMinBounds(const glm::vec3& _bounds);
+				/*void setMaxBounds(const glm::vec3& _bounds);
+				void setMinBounds(const glm::vec3& _bounds);*/
 				void setUpdateFunc(std::function<void(Particle&, const glm::vec3&, float)> _updateFunc);
 				void setRenderer(std::weak_ptr<ParticleRenderer> _renderer);
-				void renderBounds(BulletDebugRenderer* _debugRenderer);
+				//void renderBounds(BulletDebugRenderer* _debugRenderer);
 
 				/* Getters */
 				std::weak_ptr<GLTexture2D> getTexture() const noexcept { return m_texture; }
@@ -159,15 +159,15 @@ namespace cogs
 				/**
 				* \brief Check collisions with all neighboring particles from the hashtable
 				*/
-				void collideParticles();
-				/**
-				* \brief check if 2 particles are colliding, and resolve it
-				*/
-				void checkCollision(Particle * _p1, Particle * _p2);
-				/**
-				* \brief check collisions with the min and max bounds
-				*/
-				void collideWithBounds(Particle * _p);
+				//void collideParticles();
+				///**
+				//* \brief check if 2 particles are colliding, and resolve it
+				//*/
+				//void checkCollision(Particle * _p1, Particle * _p2);
+				///**
+				//* \brief check collisions with the min and max bounds
+				//*/
+				//void collideWithBounds(Particle * _p);
 
 		private:
 				/** 
@@ -182,8 +182,8 @@ namespace cogs
 				Particle* m_particles{ nullptr };
 
 				glm::vec3 m_worldGravity{ 0.0f, 0.0f, 0.0f }; ///< gravity affecting the particles
-				glm::vec3 m_maxBounds{ 0.0f, 0.0f, 0.0f }; ///< max bounds the particles can go to
-				glm::vec3 m_minBounds{ 0.0f, 0.0f, 0.0f }; ///< min bounds the particles can go to
+				/*glm::vec3 m_maxBounds{ 0.0f, 0.0f, 0.0f }; ///< max bounds the particles can go to
+				glm::vec3 m_minBounds{ 0.0f, 0.0f, 0.0f }; ///< min bounds the particles can go to*/
 
 				/** The color set to the newly spawned particles */
 				Color m_particlesColor{ Color::white };
@@ -195,7 +195,7 @@ namespace cogs
 				float m_particlesRadius{ 0.5f };
 				
 				/** The mass of the particles*/
-				float m_particlesMass{ 1.0f };
+				//float m_particlesMass{ 1.0f };
 
 				/* accumulator for the particles per second */
 				float m_accumulator{ 0.0f };
@@ -213,10 +213,10 @@ namespace cogs
 				float m_initialSpeed{ 1.0f };
 
 				bool m_additive{ true }; ///< flag if the particles are additively blended
-				bool m_collisions{ false }; ///< flag if collisions should be checked
 				bool m_isPlaying{ false }; ///< flag if the particle system is paused or playing
 				bool m_isStopped{ false }; ///< flag if the particle emission is stopped or not
 				bool m_playOnInit{ true }; ///< flag if the particles should start spawning on startup
+				//bool m_collisions{ false }; ///< flag if collisions should be checked
 
 				/** 2D texture for the particle */
 				std::weak_ptr<GLTexture2D> m_texture;
@@ -225,7 +225,7 @@ namespace cogs
 				std::weak_ptr<ParticleRenderer> m_renderer;
 
 				/** reference to the hash table of particles this particle system will submit to (if collisions are on) */
-				std::weak_ptr<SpatialHash<Particle>> m_hashTable;
+				//std::weak_ptr<SpatialHash<Particle>> m_hashTable;
 		};
 }
 

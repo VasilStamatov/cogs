@@ -13,35 +13,35 @@
 namespace cogs
 {
 		ParticleSystem::ParticleSystem(std::weak_ptr<ParticleRenderer> _renderer,
-				std::weak_ptr<SpatialHash<Particle>> _hashTable,
+				//std::weak_ptr<SpatialHash<Particle>> _hashTable,
 				int _maxParticles,
 				float _particlePerSec,
 				float _initialSpeed,
 				float _width,
-				float _mass,
+				//float _mass,
 				float _decayRate,
 				bool _additive,
-				bool _collide,
+				//bool _collide,
 				bool _playOnInit,
 				const glm::vec3& _worldGravity,
-				const glm::vec3& _maxBounds,
-				const glm::vec3& _minBounds,
+				//const glm::vec3& _maxBounds,
+				//const glm::vec3& _minBounds,
 				const Color& _color,
 				std::weak_ptr<GLTexture2D> _texture,
 				std::function<void(Particle&, const glm::vec3&, float)> _updateFunc) :
-				m_hashTable(_hashTable),
+				//m_hashTable(_hashTable),
 				m_maxParticles(_maxParticles),
 				m_particlesPerFrame(1.0f / _particlePerSec),
 				m_initialSpeed(_initialSpeed),
 				m_particlesRadius(_width * 0.5f),
-				m_particlesMass(_mass),
+				//m_particlesMass(_mass),
 				m_decayRate(_decayRate),
 				m_additive(_additive),
-				m_collisions(_collide),
+				//m_collisions(_collide),
 				m_playOnInit(_playOnInit),
 				m_worldGravity(_worldGravity),
-				m_maxBounds(_maxBounds),
-				m_minBounds(_minBounds),
+				//m_maxBounds(_maxBounds),
+				//m_minBounds(_minBounds),
 				m_particlesColor(_color),
 				m_renderer(_renderer),
 				m_texture(_texture),
@@ -83,17 +83,17 @@ namespace cogs
 										freeParticle(i);
 								}
 
-								if (m_collisions)
+								/*if (m_collisions)
 								{
 										collideWithBounds(&m_particles[i]);
 										m_hashTable.lock()->addItem(&m_particles[i], m_particles[i].m_position, m_particles[i].m_radius);
-								}
+								}*/
 						}
 
-						if (m_collisions)
+						/*if (m_collisions)
 						{
 								collideParticles();
-						}
+						}*/
 				}
 		}
 
@@ -157,10 +157,10 @@ namespace cogs
 				m_initialSpeed = _initialSpeed;
 		}
 
-		void ParticleSystem::setCollide(bool _flag)
+		/*void ParticleSystem::setCollide(bool _flag)
 		{
 				m_collisions = _flag;
-		}
+		}*/
 
 		void ParticleSystem::setAdditive(bool _flag)
 		{
@@ -172,7 +172,7 @@ namespace cogs
 				m_worldGravity = _gravity;
 		}
 
-		void ParticleSystem::setMaxBounds(const glm::vec3 & _bounds)
+		/*void ParticleSystem::setMaxBounds(const glm::vec3 & _bounds)
 		{
 				m_maxBounds = _bounds;
 		}
@@ -180,7 +180,7 @@ namespace cogs
 		void ParticleSystem::setMinBounds(const glm::vec3 & _bounds)
 		{
 				m_minBounds = _bounds;
-		}
+		}*/
 
 		void ParticleSystem::setUpdateFunc(std::function<void(Particle&, const glm::vec3&, float)> _updateFunc)
 		{
@@ -192,54 +192,54 @@ namespace cogs
 				m_renderer = _renderer;
 		}
 
-		void ParticleSystem::renderBounds(BulletDebugRenderer * _debugRenderer)
-		{
-				//floor
-				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z),
-						btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//void ParticleSystem::renderBounds(BulletDebugRenderer * _debugRenderer)
+		//{
+		//		//floor
+		//		_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z),
+		//				btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z),
-						btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z),
+		//				btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z),
-						btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z),
+		//				btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z),
-						btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z),
+		//				btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				//right wall
-				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z),
-						btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		//right wall
+		//		_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_minBounds.y, m_minBounds.z),
+		//				btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z),
-						btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z),
+		//				btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z),
-						btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z),
+		//				btVector3(m_maxBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				//left wall
-				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z),
-						btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		//left wall
+		//		_debugRenderer->drawLine(btVector3(m_minBounds.x, m_minBounds.y, m_minBounds.z),
+		//				btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z),
-						btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z),
+		//				btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z),
-						btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z),
+		//				btVector3(m_minBounds.x, m_minBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				//ceiling
-				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z),
-						btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		//ceiling
+		//		_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z),
+		//				btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z),
-						btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_minBounds.z),
+		//				btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z),
-						btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//		_debugRenderer->drawLine(btVector3(m_maxBounds.x, m_maxBounds.y, m_maxBounds.z),
+		//				btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z), btVector3(1.0f, 0.0f, 0.0f));
 
-				_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z),
-						btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
-		}
+		//		_debugRenderer->drawLine(btVector3(m_minBounds.x, m_maxBounds.y, m_maxBounds.z),
+		//				btVector3(m_minBounds.x, m_maxBounds.y, m_minBounds.z), btVector3(1.0f, 0.0f, 0.0f));
+		//}
 
 		void ParticleSystem::generateParticles(float _deltaTime)
 		{
@@ -290,7 +290,7 @@ namespace cogs
 				particle.m_radius = m_particlesRadius;
 
 				//set the particle mass
-				particle.m_mass = m_particlesMass;
+				//particle.m_mass = m_particlesMass;
 
 				//increment the number of active particles as a new one has spawned
 				m_numActiveParticles++;
@@ -304,126 +304,126 @@ namespace cogs
 				m_particles[_particleIndex] = m_particles[m_numActiveParticles];
 		}
 
-		void ParticleSystem::collideParticles()
-		{
-				//container with references to all particles that are already checked
-				std::vector<Particle*> checkedParticles;
+		//void ParticleSystem::collideParticles()
+		//{
+		//		//container with references to all particles that are already checked
+		//		std::vector<Particle*> checkedParticles;
 
-				for (int i = 0; i < m_numActiveParticles; i++)
-				{
-						//push back the particle as checked so that it does not collide with itself
-						checkedParticles.push_back(&m_particles[i]);
+		//		for (int i = 0; i < m_numActiveParticles; i++)
+		//		{
+		//				//push back the particle as checked so that it does not collide with itself
+		//				checkedParticles.push_back(&m_particles[i]);
 
-						std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(m_particles[i].m_position, m_particles[i].m_radius);
+		//				std::vector<Particle*> neighbors = m_hashTable.lock()->getNeighbors(m_particles[i].m_position, m_particles[i].m_radius);
 
-						for (Particle* neighbor : neighbors)
-						{
-								//collide these 2 particles only if the neighbor isn't already in the checked container
-								if (std::find(checkedParticles.begin(), checkedParticles.end(), neighbor) == checkedParticles.end())
-								{
-										checkCollision(&m_particles[i], neighbor);
-								}
-						}
-				}
-		}
+		//				for (Particle* neighbor : neighbors)
+		//				{
+		//						//collide these 2 particles only if the neighbor isn't already in the checked container
+		//						if (std::find(checkedParticles.begin(), checkedParticles.end(), neighbor) == checkedParticles.end())
+		//						{
+		//								checkCollision(&m_particles[i], neighbor);
+		//						}
+		//				}
+		//		}
+		//}
 
-		void ParticleSystem::checkCollision(Particle * _p1, Particle * _p2)
-		{
-				//get the direction vector from first particle to second particle
-				glm::vec3 distVec = _p2->m_position - _p1->m_position;
-				//normalize it to a unit vector (sicne it's only a direction)
-				glm::vec3 distDir = glm::normalize(distVec);
-				// get the distance between the 2 particles' center
-				float dist = glm::length2(distVec);
-				//get the sum of the 2 particles' radius
-				float totalRadius = _p1->m_radius + _p2->m_radius;
-				//get the depth of the collision by calculating the squared radius with the squared distance between 2 particles
-				float collisionDepth = totalRadius * totalRadius - dist;
-				//Collisions are only occuring when the distance between 2 particles is less than or equal than the sum of their radiuses
-				//Therefore, if collision depth is > 0, meaning dist is less than squared radius sum, then collisions are occuring
+		//void ParticleSystem::checkCollision(Particle * _p1, Particle * _p2)
+		//{
+		//		//get the direction vector from first particle to second particle
+		//		glm::vec3 distVec = _p2->m_position - _p1->m_position;
+		//		//normalize it to a unit vector (sicne it's only a direction)
+		//		glm::vec3 distDir = glm::normalize(distVec);
+		//		// get the distance between the 2 particles' center
+		//		float dist = glm::length2(distVec);
+		//		//get the sum of the 2 particles' radius
+		//		float totalRadius = _p1->m_radius + _p2->m_radius;
+		//		//get the depth of the collision by calculating the squared radius with the squared distance between 2 particles
+		//		float collisionDepth = totalRadius * totalRadius - dist;
+		//		//Collisions are only occuring when the distance between 2 particles is less than or equal than the sum of their radiuses
+		//		//Therefore, if collision depth is > 0, meaning dist is less than squared radius sum, then collisions are occuring
 
-				// Check for collision
-				if (collisionDepth > 0.0f)
-				{
-						// Push away the balls based on ratio of masses
-						_p1->m_position -= distDir * collisionDepth * (_p2->m_mass / _p1->m_mass) * 0.5f;
-						_p2->m_position += distDir * collisionDepth * (_p1->m_mass / _p2->m_mass) * 0.5f;
+		//		// Check for collision
+		//		if (collisionDepth > 0.0f)
+		//		{
+		//				// Push away the balls based on ratio of masses
+		//				_p1->m_position -= distDir * collisionDepth * (_p2->m_mass / _p1->m_mass) * 0.5f;
+		//				_p2->m_position += distDir * collisionDepth * (_p1->m_mass / _p2->m_mass) * 0.5f;
 
-						// Calculate deflection. http://stackoverflow.com/a/345863
-						float aci = glm::dot(_p1->m_velocity, distDir);
-						float bci = glm::dot(_p2->m_velocity, distDir);
+		//				// Calculate deflection. http://stackoverflow.com/a/345863
+		//				float aci = glm::dot(_p1->m_velocity, distDir);
+		//				float bci = glm::dot(_p2->m_velocity, distDir);
 
-						float acf = (aci * (_p1->m_mass - _p2->m_mass) + 2 * _p2->m_mass * bci) / (_p1->m_mass + _p2->m_mass);
-						float bcf = (bci * (_p2->m_mass - _p1->m_mass) + 2 * _p1->m_mass * aci) / (_p1->m_mass + _p2->m_mass);
+		//				float acf = (aci * (_p1->m_mass - _p2->m_mass) + 2 * _p2->m_mass * bci) / (_p1->m_mass + _p2->m_mass);
+		//				float bcf = (bci * (_p2->m_mass - _p1->m_mass) + 2 * _p1->m_mass * aci) / (_p1->m_mass + _p2->m_mass);
 
-						_p1->m_velocity += (acf - aci) * distDir;
-						_p2->m_velocity += (bcf - bci) * distDir;
+		//				_p1->m_velocity += (acf - aci) * distDir;
+		//				_p2->m_velocity += (bcf - bci) * distDir;
 
-						if (glm::length2(_p1->m_velocity + _p2->m_velocity) > 1.0f)
-						{
-								// Choose the faster ball
-								bool choice = glm::length2(_p1->m_velocity) < glm::length2(_p2->m_velocity);
+		//				if (glm::length2(_p1->m_velocity + _p2->m_velocity) > 1.0f)
+		//				{
+		//						// Choose the faster ball
+		//						bool choice = glm::length2(_p1->m_velocity) < glm::length2(_p2->m_velocity);
 
-								// Faster ball transfers it's color to the slower ball
-								choice ? _p2->m_color = _p1->m_color : _p1->m_color = _p2->m_color;
-						}
-				}
-		}
+		//						// Faster ball transfers it's color to the slower ball
+		//						choice ? _p2->m_color = _p1->m_color : _p1->m_color = _p2->m_color;
+		//				}
+		//		}
+		//}
 
-		void ParticleSystem::collideWithBounds(Particle * _p)
-		{
-				// Check collision on every axis with the bounds
-				// and invert the velocity if collided
+		//void ParticleSystem::collideWithBounds(Particle * _p)
+		//{
+		//		// Check collision on every axis with the bounds
+		//		// and invert the velocity if collided
 
-				if (_p->m_position.x < m_minBounds.x + _p->m_radius)
-				{
-						_p->m_position.x = m_minBounds.x + _p->m_radius;
-						if (_p->m_velocity.x < 0.0f)
-						{
-								_p->m_velocity.x *= -1.0f;
-						}
-				}
-				else if (_p->m_position.x > m_maxBounds.x - _p->m_radius)
-				{
-						_p->m_position.x = m_maxBounds.x - _p->m_radius;
-						if (_p->m_velocity.x > 0.0f)
-						{
-								_p->m_velocity.x *= -1.0f;
-						}
-				}
+		//		if (_p->m_position.x < m_minBounds.x + _p->m_radius)
+		//		{
+		//				_p->m_position.x = m_minBounds.x + _p->m_radius;
+		//				if (_p->m_velocity.x < 0.0f)
+		//				{
+		//						_p->m_velocity.x *= -1.0f;
+		//				}
+		//		}
+		//		else if (_p->m_position.x > m_maxBounds.x - _p->m_radius)
+		//		{
+		//				_p->m_position.x = m_maxBounds.x - _p->m_radius;
+		//				if (_p->m_velocity.x > 0.0f)
+		//				{
+		//						_p->m_velocity.x *= -1.0f;
+		//				}
+		//		}
 
-				if (_p->m_position.y < m_minBounds.y + _p->m_radius)
-				{
-						_p->m_position.y = m_minBounds.y + _p->m_radius;
-						if (_p->m_velocity.y < 0.0f)
-						{
-								_p->m_velocity.y *= -1.0f;
-						}
-				}
-				else if (_p->m_position.y > m_maxBounds.y - _p->m_radius)
-				{
-						_p->m_position.y = m_maxBounds.y - _p->m_radius;
-						if (_p->m_velocity.y > 0.0f)
-						{
-								_p->m_velocity.y *= -1.0f;
-						}
-				}
+		//		if (_p->m_position.y < m_minBounds.y + _p->m_radius)
+		//		{
+		//				_p->m_position.y = m_minBounds.y + _p->m_radius;
+		//				if (_p->m_velocity.y < 0.0f)
+		//				{
+		//						_p->m_velocity.y *= -1.0f;
+		//				}
+		//		}
+		//		else if (_p->m_position.y > m_maxBounds.y - _p->m_radius)
+		//		{
+		//				_p->m_position.y = m_maxBounds.y - _p->m_radius;
+		//				if (_p->m_velocity.y > 0.0f)
+		//				{
+		//						_p->m_velocity.y *= -1.0f;
+		//				}
+		//		}
 
-				if (_p->m_position.z < m_minBounds.z + _p->m_radius)
-				{
-						_p->m_position.z = m_minBounds.z + _p->m_radius;
-						if (_p->m_velocity.z < 0.0f)
-						{
-								_p->m_velocity.z *= -1.0f;
-						}
-				}
-				else if (_p->m_position.z > m_maxBounds.z - _p->m_radius)
-				{
-						_p->m_position.z = m_maxBounds.z - _p->m_radius;
-						if (_p->m_velocity.z > 0.0f)
-						{
-								_p->m_velocity.z *= -1.0f;
-						}
-				}
-		}
+		//		if (_p->m_position.z < m_minBounds.z + _p->m_radius)
+		//		{
+		//				_p->m_position.z = m_minBounds.z + _p->m_radius;
+		//				if (_p->m_velocity.z < 0.0f)
+		//				{
+		//						_p->m_velocity.z *= -1.0f;
+		//				}
+		//		}
+		//		else if (_p->m_position.z > m_maxBounds.z - _p->m_radius)
+		//		{
+		//				_p->m_position.z = m_maxBounds.z - _p->m_radius;
+		//				if (_p->m_velocity.z > 0.0f)
+		//				{
+		//						_p->m_velocity.z *= -1.0f;
+		//				}
+		//		}
+		//}
 }
