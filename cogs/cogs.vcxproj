@@ -87,13 +87,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
     <Lib>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;soil2-debug.lib;assimp-vc120-mtd.lib;BulletDynamics_Debug.lib;BulletCollision_Debug.lib;LinearMath_Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;soil2-debug.lib;assimp-vc120-mtd.lib;BulletDynamics_Debug.lib;BulletCollision_Debug.lib;LinearMath_Debug.lib;CEGUIBase-0_d.lib;CEGUIOpenGLRenderer-0_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\libraries\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
@@ -128,7 +128,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;soil2.lib;assimp-vc120-mt.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;soil2.lib;assimp-vc120-mt.lib;BulletDynamics.lib;BulletCollision.lib;LinearMath.lib;CEGUIBase-0.lib;CEGUIOpenGLRenderer-0.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\libraries\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="BulletDebugRenderer.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CapsuleCollider.h" />
     <ClInclude Include="CMotionState.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="GLCubemapTexture.h" />
     <ClInclude Include="GLSLProgram.h" />
     <ClInclude Include="GLTexture2D.h" />
+    <ClInclude Include="GUI.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="IOManager.h" />
     <ClInclude Include="KeyCode.h" />
@@ -202,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BulletDebugRenderer.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CMotionState.cpp" />
     <ClCompile Include="Color.cpp" />
@@ -211,6 +214,7 @@
     <ClCompile Include="GLCubemapTexture.cpp" />
     <ClCompile Include="GLSLProgram.cpp" />
     <ClCompile Include="GLTexture2D.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="IOManager.cpp" />
     <ClCompile Include="Light.cpp" />

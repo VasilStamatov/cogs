@@ -23,6 +23,7 @@
 #include <cogs\Light.h>
 #include <cogs\GLTexture2D.h>
 #include <cogs\SpatialHash.h>
+#include <cogs\Button.h>
 
 #include "PaddleController.h"
 #include "BallBehavior.h"
@@ -33,12 +34,19 @@ int main(int argc, char** argv)
 {
 		cogs::Window window;
 		window.create("Test", 1024, 576, cogs::WindowCreationFlags::NONE);
-		window.setRelativeMouseMode(true);
+		//window.setRelativeMouseMode(true);
 		bool quit{ false };
 		bool debugMode{ false };
 		cogs::FpsLimiter fpsLimiter(600.0f);
 
 		const glm::vec3 gravity(0.0f, -9.81f, 0.0f);
+
+		cogs::GUI::init("GUI");
+		cogs::GUI::loadScheme("TaharezLook.scheme");
+		cogs::GUI::setFont("DejaVuSans-10");
+		cogs::GUI::setMouseCursor("TaharezLook/MouseArrow");
+		cogs::GUI::showMouseCursor();
+		window.showMouseCursor(false);
 
 		std::shared_ptr<cogs::Physics> physicsWorld = std::make_shared<cogs::Physics>(gravity.x, gravity.y, gravity.z);
 
@@ -61,7 +69,7 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::Entity> mainCamera = root->addChild("Camera");
 		mainCamera.lock()->addComponent<cogs::Camera>(window.getWidth(), window.getHeight(), cogs::ProjectionType::PERSPECTIVE);
 		mainCamera.lock()->getComponent<cogs::Camera>().lock()->setBackgroundColor(cogs::Color::black);
-		mainCamera.lock()->addComponent<cogs::FPSCameraControl>(50.0f);
+		//mainCamera.lock()->addComponent<cogs::FPSCameraControl>(50.0f);
 		mainCamera.lock()->getComponent<cogs::Transform>().lock()->translate(glm::vec3(0.0f, 0.0f, 55.0f));
 		mainCamera.lock()->getComponent<cogs::Camera>().lock()->setSkybox(testSkybox);
 		mainCamera.lock()->addComponent<cogs::Light>();
@@ -144,6 +152,11 @@ int main(int argc, char** argv)
 		std::weak_ptr<cogs::GLTexture2D> textureAtlas = cogs::ResourceManager::getGLTexture2D("Textures/fire.png", "texture_diffuse");
 		textureAtlas.lock()->setType(cogs::TextureType::MULTIPLE);
 		textureAtlas.lock()->setDims(glm::ivec2(8, 8));
+
+		std::weak_ptr<cogs::Entity> exitButton = root->addChild("Exit");
+		exitButton.lock()->addComponent<cogs::Button>("Exit", 10.0f, 10.0f, 80.0f, 40.0f);
+		exitButton.lock()->getComponent<cogs::Button>().lock()->addEvent([&quit](const CEGUI::EventArgs&) { quit = true; return true; });
+
 
 		std::weak_ptr<cogs::Entity> paddle = root->addChild("PlayerPaddle");
 		paddle.lock()->setTag("Paddle");
@@ -248,6 +261,7 @@ int main(int argc, char** argv)
 				SDL_Event evnt;
 				while (SDL_PollEvent(&evnt))
 				{
+						cogs::GUI::onSDLEvent(evnt);
 						switch (evnt.type)
 						{
 						case SDL_QUIT:
@@ -314,8 +328,8 @@ int main(int argc, char** argv)
 				//Update
 				root->refreshAll();
 				root->updateAll(fpsLimiter.deltaTime());
-
-				physicsWorld->stepSimulation(fpsLimiter.deltaTime());
+				cogs::GUI::update();
+				physicsWorld->stepSimulation();
 
 				//Render
 
@@ -379,6 +393,8 @@ int main(int argc, char** argv)
 						cogs::Framebuffer::setActive(std::weak_ptr<cogs::Framebuffer>());
 				}
 
+				cogs::GUI::render();
+				
 				root->postProcessAll();
 
 				window.swapBuffer();
@@ -406,6 +422,7 @@ int main(int argc, char** argv)
 				}
 
 		}
+		cogs::GUI::destroy();
 		cogs::ResourceManager::clear();
 		window.close();
 		return 0;

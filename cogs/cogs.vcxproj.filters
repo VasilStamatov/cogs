@@ -25,6 +25,9 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{f23bc555-58c7-445f-b7ac-11a2e51fa4c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{e7a3d8a5-d935-47d1-ae7d-6c52396d3a04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -162,6 +165,12 @@
     <ClInclude Include="SpatialHash.h">
       <Filter>Physics</Filter>
     </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>ECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Transform.cpp">
@@ -250,6 +259,12 @@
     </ClCompile>
     <ClCompile Include="ParticleRenderer.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>ECS</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
