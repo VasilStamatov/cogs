@@ -137,6 +137,31 @@ namespace cogs
 						return m_perspMatrix;
 		}
 
+		glm::vec2 Camera::convertWorldToScreen(const glm::vec3 & _worldCoordinate)
+		{
+				glm::vec4 clipCoords = m_perspMatrix * m_viewMatrix * glm::vec4(_worldCoordinate, 1.0f);
+
+				clipCoords.x /= clipCoords.w;
+				clipCoords.y /= clipCoords.w;
+				clipCoords.z /= clipCoords.w;
+
+				glm::vec2 screenPoint(0.0f);
+
+				screenPoint.x = ((clipCoords.x + 1) / 2.0f) * m_cameraWidth;
+				screenPoint.y = ((1 - clipCoords.y) / 2.0f) * m_cameraHeight;
+
+				return screenPoint;
+		}
+
+		glm::vec3 Camera::convertScreenToWorld(const glm::vec2 & _screenCoordinate)
+		{
+				float x = 2.0f * _screenCoordinate.x / m_cameraWidth - 1;
+				float y = -2.0f * _screenCoordinate.y / m_cameraHeight + 1;
+				glm::mat4 viewProjInverse = glm::inverse(m_perspMatrix * m_viewMatrix);
+				glm::vec3 worldCoord(x, y, 0.0f);
+				return viewProjInverse * glm::vec4(worldCoord, 1.0f);
+		}
+
 		void Camera::renderFrustum(BulletDebugRenderer* _renderer)
 		{
 				m_frustum.render(_renderer);

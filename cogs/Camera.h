@@ -118,6 +118,9 @@ namespace cogs
 				*/
 				const glm::mat4& getViewMatrix() const noexcept { return m_viewMatrix; }
 
+				glm::vec2 convertWorldToScreen(const glm::vec3& _worldCoordinate);
+				glm::vec3 convertScreenToWorld(const glm::vec2& _screenCoordinate);
+
 				bool pointInFrustum(const glm::vec3& _pos) { return m_frustum.pointInFrustum(_pos); }
 
 				bool sphereInFrustum(const glm::vec3& _pos, float _radius) { return m_frustum.sphereInFrustum(_pos, _radius); }
