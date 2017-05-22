@@ -75,6 +75,7 @@ namespace cogs
 				void setWindowTitle(const std::string& _title);
 				void setClearColor(const Color& _color);
 				void setRelativeMouseMode(int _enabled);
+				void showMouseCursor(bool _visible);
 				inline void resizeHandled()		noexcept { m_wasResized = false; }
 
 				//Getters

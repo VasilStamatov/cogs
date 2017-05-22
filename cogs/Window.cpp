@@ -267,6 +267,11 @@ namespace cogs
 				SDL_SetRelativeMouseMode(SDL_bool(_enabled));
 		}
 
+		void Window::showMouseCursor(bool _visible)
+		{
+				SDL_ShowCursor(_visible ? 1 : 0);
+		}
+
 		void Window::initSDL()
 		{
 				//initialize SDL
